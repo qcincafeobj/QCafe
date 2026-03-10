@@ -1,0 +1,607 @@
+-- mod! COMPARISON {
+--     pr(BOOL)
+--     pr(NAT)
+
+--     op geq : Nat -> Comparision .
+--     op _>_ : Comparision Comparision -> Bool .
+--     op _>_ : Comparision Nat -> Bool .
+
+--     vars N1 N2 N3 : NAT .
+--     ceq geq(N1) > geq(N2) = true if N1 > N2 .
+--     ceq geq(N1) > geq(N2) = false if not (N1 > N2) .
+--     ceq geq(N1) > N2 = true if (N1 > N2) .
+--     ceq geq(N1) > N3 = true if geq(N1) > geq(N2) and geq(N2) > N3 .
+-- }
+
+mod! FASTPOW {
+    pr(BOOL)
+    pr(NAT)
+    -- pr(INT)
+
+    vars A N R : Nat .
+
+    op fastpow : Nat Nat -> Nat .
+    op fastpow-aux : Nat Nat Nat -> Nat .
+    op odd : Nat -> Bool .
+
+    ceq odd(N) = true  if ((N rem 2) = 1) .
+    ceq odd(N) = false if ((N rem 2) = 0) .
+
+    eq fastpow(A, N) = fastpow-aux(A, N, 1) .
+    
+    eq fastpow-aux(A, 0, R) = R .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R * A) if odd(N) .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R)     if not odd(N) .
+}
+
+mod! COMPLEX {
+    pr(INT)
+    pr(FLOAT)
+    -- pr(NAT) -- INT is enough
+    pr(BOOL)
+    
+    [Int < Float] -- Question: Coercion vs. Typecasting
+    [Complex]
+
+    -- START: Operators
+        -- Constructor for each part of a complex number
+        op Re : Float -> Complex . -- Real
+        op Im : Float -> Complex . -- Imaginary
+        
+        -- Inverse functions
+        op RE : Complex -> Float .
+        op IM : Complex -> Float .
+
+        op conj : Complex -> Complex .
+        
+        -- https://github.com/CafeOBJ/cafeobj/blob/master/doc/refman/reference.md#parse-normalize-switch--switch-parse-normalize
+        -- The manual: 
+        --     "If this switch is 'on' (defalult is 'off'), 
+        --      terms with associative operators are always parsed as right associative."
+        -- However, switching "set parse normalize off" wouldn't make (1 - 2 - 3) parsed as ((1 - 2) - 3), it would be (1 - (2 - 3)) instead
+        -- _+_ in FLOAT is r-assoc ("show FLOAT" to see)
+
+        -- op _ : Int -> Float {prec: 0} .
+
+        -- op + _ : Complex -> Complex . -- Redundant/Not very necessary
+        op -_ : Complex -> Complex {prec: 0} .
+        op _+_ : Complex Complex -> Complex {l-assoc comm prec: 33} .
+        op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
+        op _*_ : Complex Complex -> Complex {l-assoc comm prec: 31} .
+        op _/_ : Complex Complex -> Complex {l-assoc prec: 31} .
+        
+        -- Any number must be either Re, or Im, or mixed
+        -- Negative 4.0 must be "-4.0", not "- 4.0"
+        op sqrt : Complex -> Complex .
+        -- op c-sqrt : Complex -> Complex .
+    -- END: Operators
+
+    -- START: Variables
+        var I : Int .
+        vars F F1 F2 F3 : Float .
+        vars C C1 C2 C3 : Complex .
+    -- END: Variables
+
+    -- START: [RE] and [IM]
+        eq [RE.1a]  : RE(Re(F1)) = F1 .
+        eq [RE.1b]  : RE(Im(F1)) = 0.0 .
+        eq [IM.1a]  : IM(Re(F1)) = 0.0 .
+        eq [IM.1b]  : IM(Im(F1)) = F1 .
+
+        eq [RE.2a]  : RE(C1 + Im(F1)) = RE(C1) .
+        eq [RE.2b]  : RE(C1 + Re(F1)) = RE(C1) + F1 .
+        eq [IM.2a]  : IM(C1 + Im(F1)) = IM(C1) + F1 .    
+        eq [IM.2b]  : IM(C1 + Re(F1)) = IM(C1) .
+    -- END: [RE] and [IM]
+
+    -- START: [conj]
+        eq conj(Re(F)) = Re(F) .
+        eq conj(Im(F)) = Im(0.0 - F) .
+        eq conj(Re(F1) + Im(F2)) = Re(F1) + conj(Im(F2)) .
+    -- END: [conj]
+
+    -- -- START: [_] Int to Float Normalization
+    --     eq I = 1.0 * I .
+    -- -- END: [_-]
+
+    -- START: [-_]
+        eq [-_.1a]  : - (Im(F1)) = Im(0.0 - F1) .
+        eq [-_.1b]  : - (Re(F1)) = Re(0.0 - F1) .
+        
+        eq [-_.2]   : - (C1 + C2) = (- C1) + (- C2) .
+    -- END: [_-]
+    
+    -- START: [_+_]
+        -- eq [_+_.1a] : Re(0) + Im(F1) = Im(F1) .
+        -- eq [_+_.1b] : Re(F1) + Im(0) = Re(F1) .
+        
+        -- eq [_+_.1a] : Re(0.0) + Im(F1) = Im(F1) .
+        -- eq [_+_.1b] : Re(F1) + Im(0.0) = Re(F1) .
+    
+        eq [_+_.1a] : Re(0.0) + Im(F1) = Im(F1) .
+        eq [_+_.1b] : Im(0.0) = Re(0.0) . -- 0.0 * i = 0.0 = Re(0.0)
+
+        eq [_+_.2a] : Re(F1) + Re(F2) = Re(F1 + F2) .
+        eq [_+_.2b] : Im(F1) + Im(F2) = Im(F1 + F2) .
+
+        -- Resolve Re(F1) + (Im(F2) + Re(F3)) and similar situations
+        -- Commutativity will handle (Im + Re) + ...
+        eq [_+_.3a] : C1 + (C2 + C3) = (C1 + C2) + C3 .
+        eq [_+_.3b] : (Re(F1) + Im(F2)) + Re(F3) = Re(F1 + F3) + Im(F2) .
+        eq [_+_.3c] : (Re(F1) + Im(F2)) + Im(F3) = Re(F1) + Im(F2 + F3) .
+    -- END: [_+_]
+
+    -- START: [_-_]
+        eq [_-_.1]  : C1 - C2 = C1 + (- C2) .
+    -- END: [_-_]
+
+    -- START: Deprecated [_+_] and [_-_]
+        -- op neq : Complex Complex -> Bool .
+        -- eq neq(Re(F1), Re(F1)) = false .
+        -- ceq neq(Re(F1), Re(F2)) = true if (F1 > F2) or (F1 < F2) .
+        -- eq neq(Im(F1), Re(F2)) = true .
+
+        -- Didn't work due to recursion
+        -- Their RHS reproduces a similar form comparing to their LHS
+        -- eq C1 + C2 = Re(RE(C1) + RE(C2)) + Im(IM(C1) + IM(C2)) .
+        -- eq C1 - C2 = Re(RE(C1) - RE(C2)) + Im(IM(C1) - IM(C2)) .
+        -- ceq C1 + Im(F1) = Re(RE(C1)) + Im(IM(C1) + F1) if neq(C1, Re(0)) .
+        -- ceq C1 + Re(F1) = Re(RE(C1) + F1) + Im(IM(C1)) if neq(C1, Re(0)) .
+        -- eq C1 - Im(F1) = Re(RE(C1)) + Im(IM(C1) - F1) .
+        -- eq C1 - Re(F1) = Re(RE(C1) - F1) + Im(IM(C1)) .
+    -- END: Deprecated [_+_] and [_-_]
+    
+    -- START: [_*_]
+        eq [_*_.1a] : Re(F1) * Re(F2) = Re(F1 * F2) .
+        eq [_*_.1b] : Im(F1) * Im(F2) = - Re(F1 * F2) .
+        eq [_*_.1c] : Im(F1) * Re(F2) = Im(F1 * F2) . -- Commutativity will handle Re * Im
+        
+        -- Distribution of multiplication over addition
+        -- Commutativity will handle the other orders of multiplication and addition
+        -- Ci will handle complex forms (with/without Re/Im part)
+        eq [_*_.2]  : (C1 + C2) * C3 = C1 * C3 + C2 * C3 .
+    -- END: [_*_]
+    
+    -- START: [_/_]
+        eq [_/_.1]  : C / Re(F) = C * Re(1.0 / F) .
+        eq [_/_.2]  : C1 / C2 = (C1 * conj(C2)) / (C2 * conj(C2)) .
+
+        -- Redundancy ([_/_.2] will never let this lemma to be used):
+        -- Distribution of division over addition
+        -- Commutativity will handle the other orders of multiplication and addition
+        -- Ci will handle complex forms (with/without Re/Im part)
+        -- eq [_/_.3] : (C1 + C2) / C3 = C1 / C3 + C2 / C3 .
+    -- END: [_/_]
+
+    -- START: [sqrt]
+        eq  [sqrt.1a] : sqrt(Re(-1.0)) = Im(1) . -- sqrt(-1) = i (Principal value); (-i) * (-i) = i * i = - 1
+        eq  [sqrt.1b] : sqrt(Re(I)) = sqrt(Re(1.0 * I)) .
+        ceq [sqrt.2a] : sqrt(Re(F)) = Re(sqrt(F)) if not (F < 0) .
+        ceq [sqrt.2b] : sqrt(Re(F)) = sqrt(- Re(F)) * sqrt(Re(-1)) if F < 0 .
+        -- eq sqrt(Re(F1) + Im(F2)) = Multivalued result, see QC Lemma/main.ipynb (reading 04a)
+        -- eq  [sqrt.3]  : sqrt(C * C) = C . -- Using with {strat: (0 1)} causes exhausted stack; Without {strat: (0 1)} it seems not to run; Multivalued problem (???)
+    -- END: [sqrt]
+}
+
+mod! MATRIX {
+    pr(COMPLEX)
+
+    [Mat ErrMat < Mat&Err]
+
+    op 1x1mat : Complex -> Mat .
+    op I : Nat -> Mat .
+
+    op errMat : -> ErrMat .
+    op nrows : Mat -> Nat {strat: (0 1)} .
+    op ncols : Mat -> Nat {strat: (0 1)} .
+    -- op nrows : Mat -> Nat .
+    -- op ncols : Mat -> Nat .
+    -- op nrows : Mat -> Nat {strat: (1 0)} .
+    -- op ncols : Mat -> Nat {strat: (1 0)} .
+    
+    -- op c-nrows : Mat -> Comparision .
+    -- op c-ncols : Mat -> Comparision .
+
+    op -_ : Mat -> Mat {prec: 0} .
+    op _+_ : Mat Mat -> Mat {comm l-assoc prec: 33} .
+    op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
+    op matmul  : Mat Mat -> Mat {prec: 31} .
+    
+    op _*_ : Complex Mat -> Mat {comm prec: 31} . -- l-assoc causes a no target parse situation
+
+    vars N : Nat .
+    vars M M1 M2 : Mat .
+
+    eq ncols(I(N)) = N .
+    eq nrows(I(N)) = N .
+
+    ceq M1 + M2 = errMat if (
+        (sd(ncols(M1), ncols(M2)) > 0) 
+        or (sd(nrows(M1), nrows(M2)) > 0)
+    ) .
+    
+    eq M1 - M2 = M1 + (- M2) .
+
+    -- ceq matmul(M1, M2) = errMat if ((sd(ncols(M1), nrows(M2)) > 0) or (c-ncols(M1) > nrows(M2))) .
+    ceq matmul(M1, M2) = errMat if (sd(ncols(M1), nrows(M2)) > 0) .
+
+    ceq matmul(I(N), M) = M if (nrows(M) = N) .
+    ceq matmul(M, I(N)) = M if (ncols(M) = N) .
+
+    -- ceq nrows(M1 + M2) = nrows(M1) if (
+    --     (nrows(M1) = nrows(M2)) 
+    --     and (ncols(M1) = ncols(M2))
+    -- ) .
+    
+    -- ceq nrows(matmul(M1, M2)) = nrows(M1) if ncols(M1) = nrows(M2) .
+}
+
+mod! STATE {
+    pr(STRING)
+    pr(FASTPOW)
+    pr(MATRIX)
+    -- pr(COMPLEX)
+
+    [BraVec KetVec < State < Mat]
+
+    var X : String .
+    op ket : String -> KetVec .
+    op bra : String -> BraVec .
+    op nqubits : State -> Nat .
+
+    eq nrows(ket(X)) = fastpow(2, length(X)) .
+    eq ncols(ket(X)) = 1 .
+    
+    eq nrows(bra(X)) = 1 .
+    eq ncols(bra(X)) = fastpow(2, length(X)) .
+
+    eq nqubits(ket(X)) = length(X) .
+    eq nqubits(bra(X)) = length(X) .
+}
+
+mod! PRODUCT {
+    pr(STATE)
+
+    -- pr(COMPARISON)
+    
+    vars X Y : String .
+    var S : String .
+    vars M M1 M2 M3 : Mat .
+    vars N1 N2 : Nat .
+    vars KVEC : KetVec .
+    vars BVEC : BraVec .
+    
+    -- op tenprod : Mat Mat -> Mat {prec: 31} .
+    -- op tenprod : KetVec KetVec -> KetVec {prec: 31} .
+    -- op tenprod : KetVec BraVec -> Mat {prec: 31} .
+    -- op tenprod : BraVec KetVec -> Mat {prec: 31} .
+    -- op tenprod : BraVec BraVec -> BraVec {prec: 31} .
+
+    -- op outprod : String String -> Mat {prec: 31} .
+    -- op innprod : String String -> Mat {prec: 31} .
+    
+    op tenprod : Mat Mat -> Mat .
+    op tenprod : KetVec KetVec -> KetVec .
+    op tenprod : KetVec BraVec -> Mat .
+    op tenprod : BraVec KetVec -> Mat .
+    op tenprod : BraVec BraVec -> BraVec .
+
+    op outprod : String String -> Mat .
+    op innprod : String String -> Mat . -- 1x1 matrix, guaranted by [innprod.l1] (a number is equiv to a 1x1 matrix)
+    -- op innprod : String String -> Complex .
+
+    eq tenprod(I(N1), I(N2)) = I(N1 * N2) .
+    eq tenprod(M1, tenprod(M2, M3)) = tenprod(tenprod(M1, M2), M3) .
+
+    eq tenprod(ket(X), ket(Y)) = ket(X ++ Y) . -- Definition
+    eq tenprod(bra(X), bra(Y)) = bra(X ++ Y) . -- Definition
+
+    eq tenprod(ket(X), bra(Y)) = matmul(ket(X), bra(Y)) . -- Proved lemma
+    eq tenprod(bra(Y), ket(X)) = tenprod(ket(X), bra(Y)) . -- Proved lemma
+    
+    eq tenprod(M, I(0)) = M . -- Derived from apply, a programmatical/practical problem, not a theorical problem
+    
+    -- |0><0| x |psi> = |0> x <0| x |psi> = |0> x <0|psi> = = <0|psi> * |0>
+    eq innprod(X, Y) = matmul(bra(X), ket(Y)) . -- Proved lemma
+    eq outprod(X, Y) = matmul(ket(X), bra(Y)) . -- Definition
+
+    eq [innprod.l1a] : ncols(innprod(X, Y)) = 1 . -- by definition
+    eq [innprod.l1b] : nrows(innprod(X, Y)) = 1 . -- by definition
+    eq [innprod.l2]  : innprod(X, X) = 1x1mat(Re(1)) .
+    eq [innprod.l3a] : matmul(ket(X), 1x1mat(Re(1))) = ket(X) .
+    eq [innprod.l3b] : matmul(1x1mat(Re(1)), bra(X)) = bra(X) .
+
+    -- eq I(2) = outprod("0", "0") + outprod("1", "1") .
+    -- eq c-ncols(tenprod(M1, M2)) > c-ncols(M1) = true .
+
+    ceq matmul(bra(X), ket(Y)) = 1x1mat(Re(0)) if not (X = Y) .
+}
+
+-- mod! GENERICGATE(E :: TRIV) {
+--     [Gate < Mat]
+--     [Stage TargetIndex ControlIndex]
+    
+--     op t-idx : Nat -> TargetIndex .  -- 0, 1, 2, 3, ...
+--     op c-idx : Nat -> ControlIndex . -- 0, 1, 2, 3, ...
+    
+--     op apply : Gate KetVec -> KetVec {strat: (0)} . -- The dimensions should be (n x m) x (m x 1) = n x 1
+
+--     ceq [apply.1] : apply(G, KVEC) = errMat if ncols(G) > nrows(KVEC) .
+        
+--     -- n-qubits: 2^n = (2^k) * 2 + r --> r = 2^n - (2^k * 2) = 2^n - ncols
+--     ceq [apply.2] : apply(G, KVEC) = tenprod(
+--         G, 
+--         I(sd(
+--             fastpow(2, nqubits(KVEC)),
+--             ncols(G)
+--         ))
+--     ) if ncols(G) <= nrows(KVEC) .
+
+--     eq [apply.X]  : apply(X(t-idx(K)), KVEC) = matmul(
+--         tenprod(
+--             X(t-idx(K)),
+--             I(fastpow(
+--                 2, 
+--                 sd(
+--                     sd(nqubits(KVEC), K),
+--                     1
+--                 )
+--             ))
+--         ),
+--         KVEC
+--     ) .
+-- }
+
+mod! GATE {
+    -- pr(NAT)
+    pr(PRODUCT)
+    -- pr(RAT)
+    -- pr(SQRT)
+
+    [Gate < Mat]
+    [Stage TargetIndex ControlIndex]
+
+    op t-idx : Nat -> TargetIndex .  -- 0, 1, 2, 3, ...
+    op c-idx : Nat -> ControlIndex . -- 0, 1, 2, 3, ...
+    
+    -- Nat -> TargetIndex -> Gate
+    -- Gate -> Nat
+    -- "Transitive" is just an informal term that I use to describe it
+    -- I'm not sure about the name
+    op T-IDX : Gate -> Nat {strat: (0 1) prec: 0} .  -- Transitive-inverse (???) function
+    op C-IDX : Gate -> Nat {strat: (0 1) prec: 0} . -- Transitive-inverse (???) function
+
+    -- op MSMNT : IQubit -> State . -- Measurement
+
+    -- I(N) (in MATRIX, which maps Nat -> Gate) is different from I(t-idx(N))
+
+    ops X Y Z H I : TargetIndex -> Gate .
+    ops CX CZ : ControlIndex TargetIndex -> Gate .
+    ops P0 P1 : ControlIndex TargetIndex -> Gate . -- Projection operators
+    
+    -- -- 0: operator; 1, 2: 1st, 2nd param
+    -- -- Allow [apply.1] to execute first
+    op apply : Gate KetVec -> KetVec {strat: (0) prec: 1} . -- The dimensions should be (n x m) x (m x 1) = n x 1
+    -- op apply : Gate KetVec -> Mat {strat: (0)} .
+
+    vars K K1 K2 : Nat . -- i = 0, 1, 2, ...
+    vars N N1 N2 : Nat .
+    var KVEC : KetVec .
+    vars M M1 M2 : Mat .
+    var PSI : String .
+    var G : Gate .
+    
+    -- START: [X]
+        -- I don't want
+        -- [Warning]: axiom : eq X(t-idx(K)) = tenprod(I(2),X(t-idx(p K)))
+        -- contains error operators. (due to p _)
+        -- eq X(t-idx(0)) = outprod("0", "1") + outprod("1", "0") .
+        -- eq X(t-idx(K)) = tenprod(I(2), X(t-idx(p K))) .
+        -- ceq X(t-idx(K)) = outprod("0", "1") + outprod("1", "0") if (K = 0) .
+        -- ceq X(t-idx(K)) = tenprod(I(fastpow(2, K)), X(t-idx(0))) if not (K = 0) .
+        ceq X(t-idx(K)) = outprod("0", "1") + outprod("1", "0")     if (K = 0) .
+        ceq X(t-idx(K)) = tenprod(I(fastpow(2, K)), X(t-idx(0)))    if (K > 0) .
+        -- ceq X(t-idx(K)) = tenprod(I(fastpow(2, K)), X(t-idx(0))) if not (K = 0) . -- False
+        -- Alternative: 
+        -- ceq X(t-idx(K)) = tenprod(I(2), X(t-idx(sd(K, 1)))) if (K > 0) . -- Recursive
+
+        eq ncols(X(t-idx(K))) = fastpow(2, K + 1) .
+        eq T-IDX(X(t-idx(K))) = K .
+    -- END: [X]
+    
+    -- START: [Y]
+        ceq Y(t-idx(K)) = Im(-1) * outprod("0", "1") + Im(1) * outprod("1", "0")    if (K = 0) .
+        ceq Y(t-idx(K)) = tenprod(I(fastpow(2, K)), Y(t-idx(0)))                    if (K > 0) .
+        -- ceq Y(t-idx(K)) = tenprod(I(fastpow(2, K)), Y(t-idx(0))) if not (K = 0) . -- False
+        -- Alternative: ceq Y(t-idx(K)) = tenprod(I(2), Y(t-idx(sd(K, 1)))) if (K > 0) . -- Recursive
+
+        eq ncols(Y(t-idx(K))) = fastpow(2, K + 1) .
+        eq T-IDX(Y(t-idx(K))) = K .
+    -- END: [Y]
+    
+    -- START: [Z]
+        ceq Z(t-idx(K)) = outprod("0", "0") - outprod("1", "1")     if (K = 0) .
+        ceq Z(t-idx(K)) = tenprod(I(fastpow(2, K)), Z(t-idx(0)))    if (K > 0) .
+        -- ceq Z(t-idx(K)) = tenprod(I(fastpow(2, K)), Z(t-idx(0))) if not (K = 0) . -- False
+        -- Alternative: ceq Z(t-idx(K)) = tenprod(I(2), Z(t-idx(sd(K, 1)))) if (K > 0) . -- Recursive
+
+        eq ncols(Z(t-idx(K))) = fastpow(2, K + 1) .
+        eq T-IDX(Z(t-idx(K))) = K .
+    -- END: [Z]
+    
+    -- START: [H]
+        ceq H(t-idx(K)) = (Re(1) / sqrt(Re(2))) * (
+            outprod("0", "0")
+            + outprod("0", "1")
+            + outprod("1", "0")
+            - outprod("1", "1")
+        ) if (K = 0) .
+        -- ceq H(t-idx(K)) = (Re(1) / sqrt(Re(2))) * (
+        --     Z(t-idx(0)) + X(t-idx(0))
+        -- ) if (K = 0) .
+        ceq H(t-idx(K)) = tenprod(I(fastpow(2, K)), H(t-idx(0))) if (K > 0) .
+        -- ceq H(t-idx(K)) = tenprod(I(fastpow(2, K)), H(t-idx(0))) if not (K = 0) . -- False
+        -- Alternative: ceq H(t-idx(K)) = tenprod(I(2), H(t-idx(sd(K, 1)))) if (K > 0) . -- Recursive
+
+        eq ncols(H(t-idx(K))) = fastpow(2, K + 1) .
+        eq T-IDX(H(t-idx(K))) = K .
+    -- END: [H]
+    
+    -- -- START: [CX]
+    --     -- ceq CX(c-idx(K), t-idx(K + 1)) = (
+    --     --     tenprod(I(2), X(t-idx(0)))
+    --     --     - tenprod(
+    --     --         outprod("0", "0"),
+    --     --         X(t-idx(0)) - I(2)
+    --     --     )
+    --     -- ) if (K = 0) .
+
+    --     -- ceq CX(c-idx(K), t-idx(K + 1)) = tenprod(
+    --     --     I(fastpow(2, K)), 
+    --     --     CX(c-idx(0), t-idx(1))
+    --     -- ) if (K > 0) .
+
+    --     eq CX(c-idx(0), t-idx(1)) = I(2) .
+        
+    --     ceq CX(c-idx(K), t-idx(1 + K)) = tenprod(
+    --         I(fastpow(2, K)), 
+    --         CX(c-idx(0), t-idx(1))
+    --     ) if not (K = 0) .
+
+    --     -- -- ceq ncols(CX(c-idx(K1), t-idx(K2))) = fastpow(2, K1 + 1) if (K1 > K2) .
+    --     -- -- ceq ncols(CX(c-idx(K1), t-idx(K2))) = fastpow(2, K2 + 1) if (K2 > K1) .
+    --     ceq ncols(CX(c-idx(K1), t-idx(K2))) = fastpow(2, K2 + 1) if (K2 > K1) .
+    -- -- END: [CX]
+    
+    -- START: [apply]    
+        -- APPROACH 1:
+        -- p gives 
+        -- [Warning]: axiom : ceq apply(X(t-idx(K)),KVEC) = matmul(tenprod(X(t-idx(K)),I((p sd(nqubits(KVEC),K)))),KVEC)
+        --    if (K < nqubits(KVEC))
+        -- contains error operators.
+        -- 
+        -- ceq apply(X(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         X(t-idx(K)),
+        --         I(p (sd(nqubits(KVEC), K)))
+        --     ),
+        --     KVEC
+        -- ) if (K < nqubits(KVEC)) .
+        -- Alternative: ceq [apply-1] : apply(X(t-idx(K)), ket(PSI)) = errMat if not (K < length(PSI)) .
+        -- ceq [apply.X1]  : apply(X(t-idx(K)), KVEC) = errMat if not (K < nqubits(KVEC)) .
+        -- APPROACH 2:
+        ceq [apply.1] : apply(G, KVEC) = errMat if ncols(G) > nrows(KVEC) .
+        
+        
+        -- n-qubit --> 2^n = (2^k) * 2 + r --> r = 2^n - (2^k * 2) = 2^n - ncols
+        -- ceq [apply.2] : apply(G, KVEC) = tenprod(
+        --     G, 
+        --     I(sd(
+        --         fastpow(2, nqubits(KVEC)),
+        --         ncols(G) -- G will be rewritten too specifically before "ncols" is applied
+        --     ))
+        -- ) if ncols(G) <= nrows(KVEC) .
+        
+        -- n-qubit --> n - 1 = K + R --> R = n - K - 1
+        ceq [apply.2] : apply(G, KVEC) = tenprod(
+            G, 
+            I(fastpow(
+                2, 
+                sd(
+                    sd(nqubits(KVEC), T-IDX(G)), 
+                    1
+                )
+            ))
+        ) if ncols(G) <= nrows(KVEC) .
+
+        -- var OP : op .
+        -- eq [apply.OP]  : apply(OP(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         OP(t-idx(K)),
+        --         I(fastpow(
+        --             2, 
+        --             sd(
+        --                 sd(nqubits(KVEC), K),
+        --                 1
+        --             )
+        --         ))
+        --     ),
+        --     KVEC
+        -- ) .
+
+        -- eq [apply.X]  : apply(X(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         X(t-idx(K)),
+        --         I(fastpow(
+        --             2, 
+        --             sd(
+        --                 sd(nqubits(KVEC), K),
+        --                 1
+        --             )
+        --         ))
+        --     ),
+        --     KVEC
+        -- ) .
+        
+        -- eq [apply.Y]  : apply(Y(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         Y(t-idx(K)),
+        --         I(fastpow(
+        --             2, 
+        --             sd(
+        --                 sd(nqubits(KVEC), K),
+        --                 1
+        --             )
+        --         ))
+        --     ),
+        --     KVEC
+        -- ) .
+        
+        -- eq [apply.Z]  : apply(Z(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         Z(t-idx(K)),
+        --         I(fastpow(
+        --             2, 
+        --             sd(
+        --                 sd(nqubits(KVEC), K),
+        --                 1
+        --             )
+        --         ))
+        --     ),
+        --     KVEC
+        -- ) .
+        
+        -- eq [apply.H]  : apply(H(t-idx(K)), KVEC) = matmul(
+        --     tenprod(
+        --         H(t-idx(K)),
+        --         I(fastpow(
+        --             2, 
+        --             sd(
+        --                 sd(nqubits(KVEC), K),
+        --                 1
+        --             )
+        --         ))
+        --     ),
+        --     KVEC
+        -- ) .
+        
+        -- -- eq [apply.CX]  : apply(CX(c-idx(K1), t-idx(K1 + 1)), KVEC) = matmul(
+        -- --     tenprod(
+        -- --         CX(c-idx(K1), t-idx(K1 + 1)),
+        -- --         I(sd(
+        -- --             sd(nqubits(KVEC), K1 + 1),
+        -- --             1
+        -- --         ))
+        -- --     ),
+        -- --     KVEC
+        -- -- ) .
+        
+        -- -- apply(tenprod(X(t-idx(K1)), X(t-idx(K2))), KVEC) may cause unwanted behavior
+
+
+    -- END: [apply]
+
+    -- ceq matmul(, ket(PSI)) = 
+
+    -- eq matmul(H(N), CV) = sqrt(2) .
+}

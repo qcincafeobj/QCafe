@@ -1,0 +1,755 @@
+-- mod! COMPARISON {
+--     pr(BOOL)
+--     pr(NAT)
+
+--     op geq : Nat -> Comparision .
+--     op _>_ : Comparision Comparision -> Bool .
+--     op _>_ : Comparision Nat -> Bool .
+
+--     vars N1 N2 N3 : NAT .
+--     ceq geq(N1) > geq(N2) = true if N1 > N2 .
+--     ceq geq(N1) > geq(N2) = false if not (N1 > N2) .
+--     ceq geq(N1) > N2 = true if (N1 > N2) .
+--     ceq geq(N1) > N3 = true if geq(N1) > geq(N2) and geq(N2) > N3 .
+-- }
+
+mod! FASTPOW {
+    pr(BOOL)
+    pr(NAT)
+    -- pr(INT)
+
+    vars A N R : Nat .
+
+    op fastpow : Nat Nat -> Nat .
+    op fastpow-aux : Nat Nat Nat -> Nat .
+    op odd : Nat -> Bool .
+
+    ceq odd(N) = true  if ((N rem 2) = 1) .
+    ceq odd(N) = false if ((N rem 2) = 0) .
+
+    eq fastpow(A, N) = fastpow-aux(A, N, 1) .
+    
+    eq fastpow-aux(A, 0, R) = R .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R * A) if odd(N) .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R)     if not odd(N) .
+}
+
+mod! COMPLEX {
+    pr(INT)
+    pr(FLOAT)
+    -- pr(NAT) -- INT is enough
+    pr(BOOL)
+    
+    -- _-_ l-assoc
+    -- [Int < Float < Complex] -- Question: Coercion vs. Typecasting
+    [Int < Float] -- Question: Coercion vs. Typecasting
+    [Complex]
+    -- op i : -> Img .
+    -- 1 + 5 * i
+    -- 1 - (2 - (3 - 4))
+    -- []
+
+    -- START: Operators
+        -- Constructor for each part of a complex number
+        op Re : Float -> Complex . -- Real
+        op Im : Float -> Complex . -- Imaginary
+        -- Re(5) + Im(3) ~ 5 + 3i
+        -- Inverse functions
+        op RE : Complex -> Float .
+        op IM : Complex -> Float .
+
+        op conj : Complex -> Complex . -- 
+        
+        -- https://github.com/CafeOBJ/cafeobj/blob/master/doc/refman/reference.md#parse-normalize-switch--switch-parse-normalize
+        -- The manual: 
+        --     "If this switch is 'on' (defalult is 'off'), 
+        --      terms with associative operators are always parsed as right associative."
+        -- However, switching "set parse normalize off" wouldn't make (1 - 2 - 3) parsed as ((1 - 2) - 3), it would be (1 - (2 - 3)) instead
+        -- _+_ in FLOAT is r-assoc ("show FLOAT" to see)
+
+        -- op _ : Int -> Float {prec: 0} .
+
+        -- op + _ : Complex -> Complex . -- Redundant/Not very necessary
+        op -_ : Complex -> Complex {prec: 0} .
+        op _+_ : Complex Complex -> Complex {l-assoc comm prec: 33} .
+        op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
+        op _*_ : Complex Complex -> Complex {l-assoc comm prec: 31} .
+        op _/_ : Complex Complex -> Complex {l-assoc prec: 31} .
+        
+        -- Any number must be either Re, or Im, or mixed
+        -- Negative 4.0 must be "-4.0", not "- 4.0"
+        op sqrt : Complex -> Complex .
+        -- op c-sqrt : Complex -> Complex .
+    -- END: Operators
+
+    -- START: Variables
+        var I : Int .
+        vars F F1 F2 F3 : Float .
+        vars C C1 C2 C3 : Complex .
+    -- END: Variables
+
+    -- START: [RE] and [IM]
+        eq [RE.1a]  : RE(Re(F1)) = F1 .
+        eq [RE.1b]  : RE(Im(F1)) = 0.0 .
+        eq [IM.1a]  : IM(Re(F1)) = 0.0 .
+        eq [IM.1b]  : IM(Im(F1)) = F1 .
+
+        eq [RE.2a]  : RE(C1 + Im(F1)) = RE(C1) .
+        eq [RE.2b]  : RE(C1 + Re(F1)) = RE(C1) + F1 .
+        eq [IM.2a]  : IM(C1 + Im(F1)) = IM(C1) + F1 .    
+        eq [IM.2b]  : IM(C1 + Re(F1)) = IM(C1) .
+    -- END: [RE] and [IM]
+
+    -- START: [conj]
+        eq conj(Re(F)) = Re(F) .
+        eq conj(Im(F)) = Im(0.0 - F) .
+        eq conj(Re(F1) + Im(F2)) = Re(F1) + conj(Im(F2)) .
+    -- END: [conj]
+
+    -- -- START: [_] Int to Float Normalization
+    --     eq I = 1.0 * I .
+    -- -- END: [_-]
+
+    -- START: [-_]
+        eq [-_.1a]  : - (Im(F1)) = Im(0.0 - F1) .
+        eq [-_.1b]  : - (Re(F1)) = Re(0.0 - F1) .
+        
+        eq [-_.2]   : - (C1 + C2) = (- C1) + (- C2) .
+    -- END: [_-]
+    
+    -- START: [_+_]
+        -- eq [_+_.1a] : Re(0) + Im(F1) = Im(F1) .
+        -- eq [_+_.1b] : Re(F1) + Im(0) = Re(F1) .
+        
+        -- eq [_+_.1a] : Re(0.0) + Im(F1) = Im(F1) .
+        -- eq [_+_.1b] : Re(F1) + Im(0.0) = Re(F1) .
+    
+        eq [_+_.1a] : Re(0.0) + Im(F1) = Im(F1) .
+        eq [_+_.1b] : Im(0.0) = Re(0.0) . -- 0.0 * i = 0.0 = Re(0.0)
+
+        eq [_+_.2a] : Re(F1) + Re(F2) = Re(F1 + F2) .
+        eq [_+_.2b] : Im(F1) + Im(F2) = Im(F1 + F2) .
+
+        -- Resolve Re(F1) + (Im(F2) + Re(F3)) and similar situations
+        -- Commutativity will handle (Im + Re) + ...
+        eq [_+_.3a] : C1 + (C2 + C3) = (C1 + C2) + C3 .
+        eq [_+_.3b] : (Re(F1) + Im(F2)) + Re(F3) = Re(F1 + F3) + Im(F2) .
+        eq [_+_.3c] : (Re(F1) + Im(F2)) + Im(F3) = Re(F1) + Im(F2 + F3) .
+    -- END: [_+_]
+
+    -- START: [_-_]
+        eq [_-_.1]  : C1 - C2 = C1 + (- C2) .
+    -- END: [_-_]
+
+    -- START: Deprecated [_+_] and [_-_]
+        -- op neq : Complex Complex -> Bool .
+        -- eq neq(Re(F1), Re(F1)) = false .
+        -- ceq neq(Re(F1), Re(F2)) = true if (F1 > F2) or (F1 < F2) .
+        -- eq neq(Im(F1), Re(F2)) = true .
+
+        -- Didn't work due to recursion
+        -- Their RHS reproduces a similar form comparing to their LHS
+        -- eq C1 + C2 = Re(RE(C1) + RE(C2)) + Im(IM(C1) + IM(C2)) .
+        -- eq C1 - C2 = Re(RE(C1) - RE(C2)) + Im(IM(C1) - IM(C2)) .
+        -- ceq C1 + Im(F1) = Re(RE(C1)) + Im(IM(C1) + F1) if neq(C1, Re(0)) .
+        -- ceq C1 + Re(F1) = Re(RE(C1) + F1) + Im(IM(C1)) if neq(C1, Re(0)) .
+        -- eq C1 - Im(F1) = Re(RE(C1)) + Im(IM(C1) - F1) .
+        -- eq C1 - Re(F1) = Re(RE(C1) - F1) + Im(IM(C1)) .
+    -- END: Deprecated [_+_] and [_-_]
+    
+    -- START: [_*_]
+        eq [_*_.1a] : Re(F1) * Re(F2) = Re(F1 * F2) .
+        eq [_*_.1b] : Im(F1) * Im(F2) = - Re(F1 * F2) .
+        eq [_*_.1c] : Im(F1) * Re(F2) = Im(F1 * F2) . -- Commutativity will handle Re * Im
+        
+        -- Distribution of multiplication over addition
+        -- Commutativity will handle the other orders of multiplication and addition
+        -- Ci will handle complex forms (with/without Re/Im part)
+        eq [_*_.2]  : (C1 + C2) * C3 = C1 * C3 + C2 * C3 .
+    -- END: [_*_]
+    
+    -- START: [_/_]
+        eq [_/_.1]  : C / Re(F) = C * Re(1.0 / F) .
+        eq [_/_.2]  : C1 / C2 = (C1 * conj(C2)) / (C2 * conj(C2)) .
+
+        -- Redundancy ([_/_.2] will never let this lemma to be used):
+        -- Distribution of division over addition
+        -- Commutativity will handle the other orders of multiplication and addition
+        -- Ci will handle complex forms (with/without Re/Im part)
+        -- eq [_/_.3] : (C1 + C2) / C3 = C1 / C3 + C2 / C3 .
+    -- END: [_/_]
+
+    -- START: [sqrt]
+        eq  [sqrt.1a] : sqrt(Re(-1.0)) = Im(1) . -- sqrt(-1) = i (Principal value); (-i) * (-i) = i * i = - 1
+        eq  [sqrt.1b] : sqrt(Re(I)) = sqrt(Re(1.0 * I)) .
+        ceq [sqrt.2a] : sqrt(Re(F)) = Re(sqrt(F)) if not (F < 0) .
+        ceq [sqrt.2b] : sqrt(Re(F)) = sqrt(- Re(F)) * sqrt(Re(-1)) if F < 0 .
+        -- eq sqrt(Re(F1) + Im(F2)) = Multivalued result, see QC Lemma/main.ipynb (reading 04a)
+        -- eq  [sqrt.3]  : sqrt(C * C) = C . -- Using with {strat: (0 1)} causes exhausted stack; Without {strat: (0 1)} it seems not to run; Multivalued problem (???)
+    -- END: [sqrt]
+}
+
+mod! MATRIX {
+    pr(COMPLEX)
+
+    [Mat ErrMat < Mat&Err]
+
+    op 1x1mat : Complex -> Mat .
+    op I : Nat -> Mat .
+
+    op errMat : -> ErrMat .
+    -- op nrows : Mat -> Nat {strat: (0 1)} .
+    -- op ncols : Mat -> Nat {strat: (0 1)} .
+    op nrows : Mat -> Nat .
+    op ncols : Mat -> Nat .
+    -- op nrows : Mat -> Nat .
+    -- op ncols : Mat -> Nat .
+    -- op nrows : Mat -> Nat {strat: (1 0)} .
+    -- op ncols : Mat -> Nat {strat: (1 0)} .
+    
+    -- op c-nrows : Mat -> Comparision .
+    -- op c-ncols : Mat -> Comparision .
+
+    op -_ : Mat -> Mat {prec: 0} .
+    op _+_ : Mat Mat -> Mat {comm l-assoc prec: 33} .
+    op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
+    op matmul  : Mat Mat -> Mat {prec: 31} .
+    
+    op _*_ : Complex Mat -> Mat {comm prec: 31} . -- l-assoc causes a no target parse situation
+
+    vars N : Nat .
+    vars M M1 M2 : Mat .
+    vars C C1 C2 : Complex .
+
+    eq ncols(I(N)) = N .
+    eq nrows(I(N)) = N .
+
+    ceq M1 + M2 = errMat if (
+        (
+            sd(ncols(M1), ncols(M2))
+            + sd(nrows(M1), nrows(M2))
+        ) > 0
+    ) .
+    
+    eq M1 - M2 = M1 + (- M2) .
+
+    -- ceq matmul(M1, M2) = errMat if ((sd(ncols(M1), nrows(M2)) > 0) or (c-ncols(M1) > nrows(M2))) .
+    ceq matmul(M1, M2) = errMat if (sd(ncols(M1), nrows(M2)) > 0) .
+
+    ceq matmul(I(N), M) = M if (nrows(M) = N) .
+    ceq matmul(M, I(N)) = M if (ncols(M) = N) .
+
+    -- ceq nrows(M1 + M2) = nrows(M1) if (
+    --     (nrows(M1) = nrows(M2)) 
+    --     and (ncols(M1) = ncols(M2))
+    -- ) .
+    
+    -- ceq nrows(matmul(M1, M2)) = nrows(M1) if ncols(M1) = nrows(M2) .
+
+    -- Distribution of multiplication over addition
+    eq [matmul.l2] : matmul(M1 + M2, M) = matmul(M1, M) + matmul(M2, M) .
+    ceq ncols(matmul(M1, M2)) = ncols(M2) if (sd(ncols(M1), nrows(M2)) = 0) .
+    ceq nrows(matmul(M1, M2)) = nrows(M1) if (sd(ncols(M1), nrows(M2)) = 0) .
+    ceq ncols(M1 + M2) = ncols(M2) if (
+        (
+            sd(nrows(M1), nrows(M2))
+            + sd(ncols(M1), ncols(M2))
+        ) = 0
+    ) .
+    ceq nrows(M1 + M2) = nrows(M2) if (
+        (
+            sd(nrows(M1), nrows(M2))
+            + sd(ncols(M1), ncols(M2))
+        ) = 0
+    ) .
+
+    eq ncols(C * M) = ncols(M) .
+    eq nrows(C * M) = nrows(M) .
+    eq ncols(- M) = ncols(M) .
+    eq nrows(- M) = nrows(M) .
+}
+
+mod! STATE {
+    pr(STRING)
+    pr(FASTPOW)
+    pr(MATRIX)
+
+    [BraVec KetVec < State < Mat]
+
+    var X : String .
+    var C : Complex .
+    vars SVEC SVEC1 SVEC2 : State .
+    -- op |0> : -> KetVec .    
+    op ket : String -> KetVec .
+    op bra : String -> BraVec .
+
+    -- Sometimes the State is in a general Matrix term (State < Mat), 
+    -- e.g. apply(gate, state) = a Matrix
+    -- (not recognized as a State due to lackage of lemma for example)
+    -- and thus, if we use State -> Nat,
+    -- those situations will not be reduced successfully
+    -- op nqubits : State -> Nat .
+    -- op nqubits : State -> Nat {strat: (0)} .
+    op nqubits : Mat -> Nat .
+
+    -- op _+_ : State State -> State .
+    -- op _*_ : Complex State -> State .
+    -- op _*_ : Complex BraVec -> BraVec .
+
+    eq nrows(ket(X)) = fastpow(2, length(X)) .
+    eq ncols(ket(X)) = 1 .
+    
+    eq nrows(bra(X)) = 1 .
+    eq ncols(bra(X)) = fastpow(2, length(X)) .
+
+    eq nqubits(ket(X)) = length(X) .
+    eq nqubits(bra(X)) = length(X) .
+
+    -- eq ncols(C * KVEC) = ncols(KVEC) .
+    -- eq nrows(C * KVEC) = nrows(KVEC) .
+    -- eq nqubits(C * KVEC) = nqubits(KVEC) .
+
+    -- eq ncols(C * SVEC) = ncols(SVEC) .
+    -- eq nrows(C * SVEC) = nrows(SVEC) .
+    eq nqubits(C * SVEC) = nqubits(SVEC) .
+}
+
+mod! PRODUCT {
+    pr(STATE)
+
+    -- pr(COMPARISON)
+    
+    vars X Y : String .
+    var S : String .
+    vars M M1 M2 M3 : Mat .
+    vars N1 N2 : Nat .
+    -- vars KVEC : KetVec .
+    -- vars BVEC : BraVec .
+    -- vars SVEC SVEC1 SVEC2 : State .
+    
+    -- op tenprod : Mat Mat -> Mat {prec: 31} .
+    -- op tenprod : KetVec KetVec -> KetVec {prec: 31} .
+    -- op tenprod : KetVec BraVec -> Mat {prec: 31} .
+    -- op tenprod : BraVec KetVec -> Mat {prec: 31} .
+    -- op tenprod : BraVec BraVec -> BraVec {prec: 31} .
+
+    -- op outprod : String String -> Mat {prec: 31} .
+    -- op innprod : String String -> Mat {prec: 31} .
+    -- Gate x Ket -> Ket, G1 x (G2 x K)
+    op tenprod : Mat Mat -> Mat .
+    -- op tenprod : KetVec KetVec -> KetVec .
+    -- op tenprod : KetVec BraVec -> Mat .
+    -- op tenprod : BraVec KetVec -> Mat .
+    -- op tenprod : BraVec BraVec -> BraVec .
+
+    op outprod : String String -> Mat .
+    op innprod : String String -> Mat . -- 1x1 matrix, guaranted by [innprod.l1] (a number is equiv to a 1x1 matrix)
+    -- op innprod : String String -> Complex .
+
+    eq tenprod(I(N1), I(N2)) = I(N1 * N2) .
+    eq tenprod(M1, tenprod(M2, M3)) = tenprod(tenprod(M1, M2), M3) .
+
+    eq tenprod(ket(X), ket(Y)) = ket(X ++ Y) . -- Definition X \in {0, 1, 00, 01, 10, ...}; op ket("0"): -> KetVec .
+    eq tenprod(bra(X), bra(Y)) = bra(X ++ Y) . -- Definition
+    -- |00>, |0> (x) |0>
+
+    eq tenprod(ket(X), bra(Y)) = matmul(ket(X), bra(Y)) . -- Proved lemma
+    eq tenprod(bra(Y), ket(X)) = tenprod(ket(X), bra(Y)) . -- Proved lemma
+    
+    eq tenprod(M, I(0)) = M . -- Derived from apply, a programmatical/practical problem, not a theorical problem
+    eq tenprod(M, I(1)) = M . -- A variant for the one above when changing from I(P1(k)) to I(2^(P2(k)))
+    eq tenprod(I(1), M) = M .
+    -- eq tenprod(I(0), M) = M .
+    
+    -- |0><0| x |psi> = |0> x <0| x |psi> = |0> x <0|psi> = = <0|psi> * |0>
+    eq innprod(X, Y) = matmul(bra(X), ket(Y)) . -- Proved lemma
+    eq outprod(X, Y) = matmul(ket(X), bra(Y)) . -- Definition
+
+    eq [innprod.l1a] : ncols(innprod(X, Y)) = 1 . -- by definition
+    eq [innprod.l1b] : nrows(innprod(X, Y)) = 1 . -- by definition
+    eq [innprod.l2]  : innprod(X, X) = 1x1mat(Re(1)) .
+    eq [innprod.l3a] : matmul(ket(X), 1x1mat(Re(1))) = ket(X) .
+    eq [innprod.l3b] : matmul(1x1mat(Re(1)), bra(X)) = bra(X) .
+
+    -- eq I(2) = outprod("0", "0") + outprod("1", "1") .
+    -- eq c-ncols(tenprod(M1, M2)) > c-ncols(M1) = true .
+
+    ceq matmul(bra(X), ket(Y)) = 1x1mat(Re(0)) if not (X = Y) .
+    eq ncols(tenprod(M1, M2)) = ncols(M1) * ncols(M2) .
+    eq nrows(tenprod(M1, M2)) = nrows(M1) * nrows(M2) .
+    ceq nqubits(tenprod(M1, M2)) = nqubits(M1) + nqubits(M2) if (
+        (nrows(M1) = 1) and (nrows(M2) = 1)
+        or (ncols(M1) = 1) and (ncols(M2) = 1)
+    ) .
+    -- eq nqubits(tenprod(M1, M2)) = nqubits(M1) + nqubits(M2) .
+}
+
+mod! GATE {
+    -- pr(NAT)
+    pr(PRODUCT)
+    -- pr(RAT)
+    -- pr(SQRT)
+
+    [Gate < Mat]
+    [Stage GateName CtrlGateName TargetIndex ControlIndex]
+
+    op tidx : Nat -> TargetIndex .  -- 0, 1, 2, 3, ...
+    op cidx : Nat -> ControlIndex . -- 0, 1, 2, 3, ...
+    
+    -- Nat -> TargetIndex -> Gate
+    -- Gate -> Nat
+    -- "Transitive" is just an informal term that I use to describe it
+    -- I'm not sure about the name
+    op T-IDX : Gate -> Nat {strat: (0 1) prec: 0} .  -- Transitive-inverse (???) function
+    op C-IDX : Gate -> Nat {strat: (0 1) prec: 0} . -- Transitive-inverse (???) function
+
+    -- op MSMNT : IQubit -> State . -- Measurement, I don't think so
+    -- op msment : TargetIndex Gate -> State . -- What index to measure, what Gate will become the measurement operator
+    -- eq apply(MSMENT1 (x) MSMENT, KVEC) = casesplitting(MSMENT1, MSMENT2, KVEC) .
+
+    -- I(N) (in MATRIX, which maps Nat -> Gate) is different from I(tidx(N))
+
+    ops X Y Z H : -> GateName .
+    ops Ctrl : GateName -> CtrlGateName .
+    -- ops Ctrl : Gate -> GateName . -- Later, a bit OMG in the index, e.g. Ctrl(X[tidx(1)])[cidx(1) tidx(0)]
+    ops P0 P1 : -> GateName . -- Projection operators
+    op basemat : GateName -> Mat .
+
+    -- A Gate might be final (i.e. max Index reaches the final qubit)
+    -- or intermediate (i.e. max Index doesn't reach the final qubit)
+    -- Index values are relative, not absolute
+    -- op (_[_]) : GateName TargetIndex -> Gate .
+    -- op (_[_,_]) : GateName ControlIndex TargetIndex -> Gate .
+    -- gives error if _[_] is not set to {prec: <= _-_}
+    op _[_] : GateName TargetIndex -> Gate {prec: 33} . -- It seems to be the same as using ()
+    -- op _[_,_] : GateName ControlIndex TargetIndex -> Gate .
+    op _[_ _] : CtrlGateName ControlIndex TargetIndex -> Gate {prec: 33} .
+    op _[_ _] : CtrlGateName TargetIndex ControlIndex -> Gate {prec: 33} . -- additional
+    
+    -- -- 0: operator; 1, 2: 1st, 2nd param
+    -- -- Allow [apply.1a] to execute first
+    -- op apply : Gate KetVec -> KetVec {strat: (0 2 1) prec: 1} . -- The dimensions should be (n x m) x (m x 1) = n x 1
+    op apply : Gate Mat -> KetVec . -- The dimensions should be (n x m) x (m x 1) = n x 1
+    -- op apply : Gate KetVec -> Mat {strat: (0)} .
+    -- op apply : Gate KetVec -> Mat {prec: 1} .
+    
+    -- op chainning : ... -> Gates .
+    -- op apply : Gates KetVec -> KetVec .
+
+    vars K K1 K2 : Nat . -- i = 0, 1, 2, ...
+    vars N N1 N2 : Nat .
+    var KVEC : KetVec .
+    vars M M1 M2 : Mat .
+    var PSI : String .
+    vars G G1 G2 : Gate .
+    vars GN GN1 GN2 : GateName .
+    vars CGN CGN1 CGN2 : CtrlGateName .
+    
+    -- START: [X], [Y], [Z], [H], [P0], [P1]
+        -- eq X[tidx(0)] = outprod("0", "1") + outprod("1", "0") .
+        -- eq Y[tidx(0)] = Im(-1) * outprod("0", "1") + Im(1) * outprod("1", "0") .
+        -- eq Z[tidx(0)] = outprod("0", "0") - outprod("1", "1") .
+        -- eq H[tidx(0)] = (Re(1) / sqrt(Re(2))) * (
+        --     outprod("0", "0")
+        --     + outprod("0", "1")
+        --     + outprod("1", "0")
+        --     - outprod("1", "1")
+        -- ) .
+        -- eq P0[tidx(0)] = outprod("0", "0") .
+        -- eq P1[tidx(0)] = outprod("1", "1") .
+        -- -- eq H[tidx(0)] = (Re(1) / sqrt(Re(2))) * (
+        -- --     Z[tidx(0)] + X[tidx(0)]
+        -- -- ) .
+        -- X[i=0] x (|0> (x) |1>) = |1> (x) |1>
+        eq basemat(X) = outprod("0", "1") + outprod("1", "0") .
+        eq basemat(Y) = Im(-1) * outprod("0", "1") + Im(1) * outprod("1", "0") .
+        eq basemat(Z) = outprod("0", "0") - outprod("1", "1") .
+        eq basemat(H) = (Re(1) / sqrt(Re(2))) * (
+            outprod("0", "0")
+            + outprod("0", "1")
+            + outprod("1", "0")
+            - outprod("1", "1")
+        ) .
+        eq basemat(P0) = outprod("0", "0") .
+        eq basemat(P1) = outprod("1", "1") .
+
+        -- -- ceq GN[tidx(K)] = tenprod(I(fastpow(2, K)), GN[tidx(0)]) if (K > 0) .
+        
+        eq ncols(GN[tidx(K)]) = fastpow(2, K + 1) .
+        eq T-IDX(GN[tidx(K)]) = K .
+    -- END: [X], [Y], [Z], [H]
+    
+    -- START: [Ctrl]
+        -- ceq CX(cidx(K), tidx(K + 1)) = (
+        --     tenprod(I(2), X(tidx(0)))
+        --     - tenprod(
+        --         outprod("0", "0"),
+        --         X(tidx(0)) - I(2)
+        --     )
+        -- ) if (K = 0) .
+
+        -- ceq CX(cidx(K), tidx(K + 1)) = tenprod(
+        --     I(fastpow(2, K)), 
+        --     CX(cidx(0), tidx(1))
+        -- ) if (K > 0) .
+
+        -- eq CX[cidx(0) tidx(1)] = I(2) . -- Debug
+        -- eq CX[cidx(K1) tidx(K2)] = tenprod(outprod("0", "0"), I(2)) + tenprod(outprod("1", "1"), X(tidx(0))) .
+        -- eq apply(tenprod(A, B), psi) = tenprod(apply(A, psi), apply(B, psi)) .
+        -- [A (x) B] x |psi> = [I (x) A (x) I] x [I (x) B (x) I] x |psi>
+        -- ceq CX[cidx(K) tidx(1 + K)] = tenprod(
+        --     I(fastpow(2, K)), 
+        --     CX[cidx(0) tidx(1)]
+        -- ) if K > 0 .
+        
+        -- -- This one lead to the situation 
+        -- -- where P0 and P1 (x) X are reduced into matrices
+        -- -- before "apply" recognizes them
+        -- eq CX[cidx(K1) tidx(K2)] = P0[tidx(K1)] + tenprod(P1[tidx(K1)], X[tidx(K2)]) .
+        -- eq apply(CX[cidx(K1) tidx(K2)], KVEC) = (
+        --     apply(P0[tidx(K1)], KVEC) 
+        --     + apply(
+        --         tenprod(P1[tidx(K1)], X[tidx(K2)]),
+        --         KVEC
+        --     )
+        -- ) .
+        -- eq apply(Ctrl(GN)[cidx(K1) tidx(K2)], KVEC) = (
+        --     apply(P0[tidx(K1)], KVEC) 
+        --     + apply(
+        --         P1[tidx(K1)], 
+        --         apply(
+        --             GN[tidx(K2)],
+        --             KVEC
+        --         )
+        --     )
+        -- ) .
+        ceq apply(Ctrl(GN)[cidx(K1) tidx(K2)], M) = (
+            apply(P0[tidx(K1)], M) 
+            + apply(
+                P1[tidx(K1)], 
+                apply(
+                    GN[tidx(K2)],
+                    M
+                )
+            )
+        ) if (ncols(M) = 1) . -- Consider the order of apply op
+        
+        eq apply(CGN[tidx(K2) cidx(K1)], KVEC) = apply(CGN[cidx(K1) tidx(K2)], KVEC) .
+
+        -- How to make the size of I (x) P0 (x) I equal to the tenprod result?
+
+        -- -- ceq ncols(CX(cidx(K1), tidx(K2))) = fastpow(2, K1 + 1) if (K1 > K2) .
+        -- -- ceq ncols(CX(cidx(K1), tidx(K2))) = fastpow(2, K2 + 1) if (K2 > K1) .
+        -- ceq ncols(CX[cidx(K1) tidx(K2)]) = fastpow(2, K2 + 1) if (K2 > K1) .
+    -- END: [Ctrl]
+    
+    -- START: [apply]    
+        -- ceq [apply.1a]  : apply(G, KVEC) = errMat if sd(ncols(G), nrows(KVEC)) > 0 .
+        -- eq  [apply.1b]  : apply(GN[tidx(0)], KVEC) = matmul(
+        --     tenprod(
+        --         GN[tidx(0)], 
+        --         I(fastpow(2, sd(nqubits(KVEC), 0 + 1)))
+        --     ),
+        --     KVEC
+        -- ) .
+        -- eq  [apply.1b1]  : apply(GN[tidx(K)], KVEC) = matmul(
+        --     tenprod(
+        --         tenprod(I(fastpow(2, K)), GN[tidx(0)]), 
+        --         I(fastpow(2, sd(nqubits(KVEC), K + 1)))
+        --     ),
+        --     KVEC
+        -- ) .
+        -- ceq [apply.1b2]  : apply(GN[tidx(K)], M) = matmul(
+        --     tenprod(
+        --         tenprod(I(fastpow(2, K)), GN[tidx(0)]), 
+        --         I(fastpow(2, sd(nqubits(M), K + 1)))
+        --     ),
+        --     M
+        -- ) if ncols(M) = 1 .
+        ceq [apply.1b2]  : apply(GN[tidx(K)], M) = matmul(
+            tenprod(
+                tenprod(I(fastpow(2, K)), basemat(GN)), 
+                I(fastpow(
+                    2, 
+                    sd(nqubits(M), (K + 1))
+                ))
+            ),
+            M
+        ) if (ncols(M) = 1) .
+
+        -- eq  [apply.1b]  : apply(GN[tidx(K)], KVEC) = matmul(
+        --     tenprod(
+        --         GN[tidx(K)], 
+        --         I(fastpow(2, sd(nqubits(KVEC), K + 1)))
+        --     ),
+        --     KVEC
+        -- ) . 
+
+        -- n-qubit --> n = (K + 1) + nR --> nR = n - (K + 1)
+        -- apply(P1 (x) X, KVEC) = apply(P1, apply(X, KVEC)) .
+        -- nqubit(apply(X, KVEC)) = ??? -- see it in PRODUCT
+        
+        ceq nqubits(matmul(M, KVEC)) = nqubits(KVEC) if (ncols(M) = nrows(KVEC)) .
+        ceq nqubits(matmul(M1, M2)) = nqubits(M2) if (
+            sd(ncols(M2), 1)
+            + sd(ncols(M1), nrows(M2))
+            + sd(nrows(M1), ncols(M1))
+        ) = 0 .
+        ceq nqubits(M1 + M2) = nqubits(M1) if (nqubits(M1) = nqubits(M2)) .
+
+        -- eq  [apply.2]   : apply(M1 + M2, KVEC) = apply(M1, KVEC) + apply(M2, KVEC) .
+
+        eq  [apply.3a]  : apply(
+            tenprod(GN1[tidx(K1)], GN2[tidx(K2)]), 
+            KVEC
+        ) = apply(
+            GN1[tidx(K1)],
+            apply(GN2[tidx(K2)], KVEC)
+        ) .
+
+        ceq [apply.3b1] : apply(tenprod(GN1[tidx(K)], I(N)), KVEC) = apply(GN1[tidx(K)], KVEC) if (
+            (ncols(GN1[tidx(K)]) * N) <= nrows(KVEC)
+        ) .
+
+        ceq [apply.3b2] : apply(tenprod(GN1[tidx(K)], I(N)), KVEC) = errMat if (
+            (ncols(GN1[tidx(K)]) * N) > nrows(KVEC)
+        ) .
+    -- END: [apply]
+
+    -- ceq matmul(, ket(PSI)) = 
+
+    -- eq matmul(H(N), CV) = sqrt(2) .
+}
+
+mod! NAT2STRING {
+  pr(STRING)
+  pr(NAT)
+
+  op nat2str : Nat -> String
+  op digit2str : Nat -> String
+
+  vars N M : Nat
+
+  eq digit2str(0) = "0" . eq digit2str(1) = "1" .
+  eq digit2str(2) = "2" . eq digit2str(3) = "3" .
+  eq digit2str(4) = "4" . eq digit2str(5) = "5" .
+  eq digit2str(6) = "6" . eq digit2str(7) = "7" .
+  eq digit2str(8) = "8" . eq digit2str(9) = "9" .
+
+  ceq nat2str(N) = digit2str(N) if N < 10 .
+  ceq nat2str(N) = (
+    nat2str(N quo 10)
+    ++ digit2str(N rem 10)
+    ) if N >= 10 .
+}
+
+mod! INT2STRING {
+  pr(INT)
+  pr(NAT2STRING)
+
+  op int2str : Int -> String
+
+  var I : Int
+
+  ceq int2str(I) = nat2str(I) if (I >= 0) .
+  ceq int2str(I) = ("-" ++ nat2str(0 - I)) if (I < 0) .
+}
+
+-- mod! FLOAT2STRING {
+--     pr(INT2STRING)
+--     pr(FLOAT)
+
+--     op float2str : Float -> String
+--     op float2str : Float Int -> String
+
+--     op float2str-aux : Float Int -> String
+
+--     vars F : Float
+--     var PRECISION : Int
+
+--     eq float2str(F) = float2str(F, 10) . -- Default precision: 10 decimal digits
+
+--     ceq float2str(F, PRECISION) = "-" ++ float2str(0.0 - F, PRECISION) if F < 0.0 .
+--     ceq float2str(F, PRECISION) = (
+--         (
+--             int2str(floor(F)) ++ "."
+--         ) ++ float2str-aux(F - floor(F), PRECISION)
+--     ) if F >= 0.0 .
+
+--     eq float2str-aux(F, 0) = "" .
+--     ceq float2str-aux(F, PRECISION) = (
+--         int2str(floor(F * 10.0))
+--         ++ float2str-aux(
+--             (F * 10.0) - floor(F * 10.0),
+--             PRECISION - 1
+--         )
+--     ) if PRECISION > 0 .
+-- }
+
+mod! DISPLAY {
+    pr(INT2STRING)
+    -- pr(FLOAT2STRING)
+    pr(GATE)
+
+    op display : Mat -> String {strat: (1 0)} .
+    op display : Complex -> String {strat: (1 0)} .
+    -- op _++_ : Mat String -> String .
+    -- op _++_ : String Mat -> String .
+    -- op tostring : Mat -> String {prec: 0} .
+
+    vars K K1 K2 : Nat . -- i = 0, 1, 2, ...
+    vars N N1 N2 : Nat .
+    var KVEC : KetVec .
+    vars M M1 M2 : Mat .
+    vars PSI PSI1 PSI2 : String .
+    vars G G1 G2 : Gate .
+    vars GN GN1 GN2 : GateName .
+    vars F F1 F2 : Float .
+    vars C C1 C2 : Complex .
+    
+    eq display(M1 + M2)         = ((("(" ++ display(M1)) ++ " + ") ++ display(M2)) ++ ")" .
+    -- eq display(M1 - M2)         = ((("(" ++ display(M1)) ++ " - ") ++ display(M2)) ++ ")" . -- won't work
+    eq display(- M)            = ("(- (" ++ display(M)) ++ "))" .
+    -- eq display(matmul(M1, M2))  = "(" ++ display(M1) ++ " x "   ++ display(M2) ++ ")" .
+    -- eq display(tenprod(M1, M2)) = "(" ++ display(M1) ++ " (x) " ++ display(M2) ++ ")" .
+    -- eq display(tenprod(M1, M2)) = "[" ++ display(M1) ++ " (x) " ++ display(M2) ++ "]" .
+    -- eq display(matmul(M1, M2))  = display(M1) ++ " x "   ++ display(M2) .
+    eq display(tenprod(M1, M2)) = (display(M1) ++ " (x) ") ++ display(M2) .
+    
+    eq display(I(N)) = ("I(" ++ int2str(N)) ++ ")" .
+    
+    eq display(matmul(ket(PSI1), bra(PSI2))) = display(ket(PSI1)) ++ display(bra(PSI2)) .
+    eq display(matmul(M, ket(PSI))) = ((("(" ++ display(M)) ++ ")") ++ " x ") ++ display(ket(PSI)) .
+    eq display(matmul(M1, M2)) = ((("(" ++ display(M1)) ++ ")") ++ " x ") ++ (("(" ++ display(M2)) ++ ")") .
+    
+    eq display(ket(PSI)) = ("|" ++ PSI) ++ ">" .
+    eq display(bra(PSI)) = ("<" ++ PSI) ++ "|" .
+    
+    eq display(Im(F)) = "i" ++ "SOME-F" .
+    eq display(Re(F)) = "SOME-F" .
+
+    -- eq display(Im(F)) = "i" ++ float2str(F, 10) .
+    -- eq display(Re(F)) = float2str(F, 10) .
+    -- eq display(Re(F)) = int2str(Int(F), 10) .
+
+    eq display(C * M) = ((("(" ++ display(C)) ++ " * ") ++ display(M)) ++ ")" .
+    eq display(C) = "SOME-C" .
+}
+
+mod! QCIRCUIT {
+    pr(DISPLAY)
+
+    [KetVec < QCircuit < Mat]
+
+    -- [KetVec < Mat]
+
+    -- op _|_ : Gate QCircuit -> QCircuit {r-assoc} .
+
+    op _|_ : Gate Mat -> QCircuit {r-assoc} .
+
+    vars G G1 G2 : Gate .
+    var QC : QCircuit .
+    vars M M1 M2 : Mat .
+    -- eq G | QC = apply(G, QC) .
+    ceq G | M = apply(G, M) if ncols(M) = 1 .
+}

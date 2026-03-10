@@ -1,0 +1,220 @@
+mod! FASTPOW {
+    pr(BOOL)
+    pr(NAT)
+
+    vars A N R : Nat .
+
+    op fastpow : Nat Nat -> Nat .
+    op fastpow-aux : Nat Nat Nat -> Nat .
+    op odd : Nat -> Bool .
+
+    ceq odd(N) = true  if ((N rem 2) = 1) .
+    ceq odd(N) = false if ((N rem 2) = 0) .
+
+    eq fastpow(A, N) = fastpow-aux(A, N, 1) .
+    
+    eq fastpow-aux(A, 0, R) = R .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R * A) if odd(N) .
+    ceq fastpow-aux(A, N, R) = fastpow-aux((A * A), (N quo 2), R)     if not odd(N) .
+}
+
+mod! COMPLEX {
+    pr(FLOAT)
+    pr(INT)
+    
+    [Zero < Nat < Int < Float < Complex]
+    -- [Nat Float < Complex]
+    -- [ImgUnit < PureImg < Complex]
+
+    -- op i : -> ImgUnit .
+    op i : -> Complex .
+    
+    op -_ : Complex -> Complex {prec: 20 l-assoc} . 
+    
+    -- prec: lower value gives higher precedence
+    op _ ^* : Complex -> Complex {prec: 27} .
+    -- op conj : Complex -> Complex {prec: 27} .
+    op _*_ : Complex Complex -> Complex {comm prec: 30 r-assoc} . -- Why the FLOAT module uses r-assoc
+    op _+_ : Complex Complex -> Complex {comm prec: 33 r-assoc} .
+    op _-_ : Complex Complex -> Complex {prec: 33 r-assoc} .
+    -- op _ + _ *i : Complex Complex -> Complex {prec: 27} .
+    -- op _*_ : Complex Complex -> Complex {comm prec: 30 r-assoc} . -- Why the FLOAT module uses r-assoc
+    -- op _+_ : Complex Complex -> Complex {comm prec: 33 r-assoc} .
+    -- op _-_ : Complex Complex -> Complex {prec: 33 r-assoc} .
+    -- op _/_ : Complex Complex -> Complex .
+
+    -- var F : Float .
+    -- var C : Complex .
+
+    -- eq i * i = -1 .
+
+    -- SQRT
+    op sqrt : Complex -> Complex .
+    op c-sqrt : Complex -> Complex .
+
+    var C : Complex .
+    eq sqrt(C * C) = C .
+    -- eq c-sqrt(-1) = i .
+
+    -- eq i = sqrt(-1) . -- Principal value
+
+    -- CONJUGATE
+
+    vars F1 F2 F3 F4 : Float .
+    -- eq (F1 * i)^* = - F1 * i .
+    eq (F1 + F2 * i)^* = F1 - F2 * i .
+    -- eq (F1 + F2 * i)^* = F1 + (- (F2 * i)) .
+    -- eq conj(F1 * i) = - F1 * i .
+    -- eq conj(F1 + F2 * i) = F1 - F2 * i .
+
+    -- eq C1 + (- C2) = C1 - C2 .
+    -- eq C1 - C2 = C1 + (- C2) .
+    -- eq C1 + (C2 - C3) = (C1 - C3) + C2 .
+    eq (C1 - C2) + C3 = (C1 + C3) - C2 .
+    -- eq - C1 + C2 = C2 - C1 .
+    eq C1 - C2 + C3 = (C1 - C2) + C3 .
+    -- eq F1 + F2 * i - F3 + F4 = (F1 + F2 * i - F3) + F4 .
+    
+    vars C1 C2 C3 C4 : Complex .
+    eq C1 - C1 = 0 .
+    -- eq - C1 + C2 = - (C1 - C2) .
+    -- eq C1 - C2 = - (C2 - C1) .
+    -- eq C1 + C2 - C3 + C4 = C1 - C3 + C2 + C4 .
+    eq - (F1 - F2 * i) = - F1 + F2 * i .
+    -- eq - (C1 - C2) = - C1 + C2 .
+
+    eq - (F1 * i) = F1 * i .
+
+}
+
+mod! MATRIX {
+    [Mat ErrMat < Mat&Err]
+
+    op _+_ : Mat Mat -> Mat .
+    op errMat : -> ErrMat .
+}
+
+mod! STATE {
+    pr(STRING)
+    pr(FASTPOW)
+    pr(MATRIX)
+    pr(COMPLEX)
+
+    [BraVec KetVec < State < Mat]
+
+    var X : String .
+    op ket : String -> KetVec .
+    op bra : String -> BraVec .
+    op nqubits : State -> Nat .
+    
+    ops nrows : Mat -> Nat .
+    ops ncols : Mat -> Nat .
+
+    eq nrows(ket(X)) = fastpow(2, length(X)) .
+    eq ncols(ket(X)) = 1 .
+    
+    eq nrows(bra(X)) = 1 .
+    eq ncols(bra(X)) = fastpow(2, length(X)) .
+
+    eq nqubits(ket(X)) = length(X) .
+    eq nqubits(bra(X)) = length(X) .
+}
+
+mod! PRODUCT {
+    pr(STATE)
+    
+    vars X Y : String .
+    var S : String .
+    vars M1 M2 M3 : Mat .
+    
+    op tenprod : Mat Mat -> Mat .
+    op tenprod : KetVec KetVec -> KetVec .
+    op tenprod : KetVec BraVec -> Mat .
+    op tenprod : BraVec KetVec -> Mat .
+    op tenprod : BraVec BraVec -> BraVec .
+    op outprod : String String -> Mat .
+    op innprod : String String -> Mat .
+    op matmul  : Mat Mat -> Mat .
+
+    eq tenprod(M1, tenprod(M2, M3)) = tenprod(tenprod(M1, M2), M3) .
+
+    eq tenprod(ket(X), ket(Y)) = ket(X ++ Y) . -- Definition
+    eq tenprod(bra(X), bra(Y)) = bra(X ++ Y) . -- Definition
+
+    eq tenprod(ket(X), bra(Y)) = matmul(ket(X), bra(Y)) . -- Proved lemma
+    eq tenprod(bra(Y), ket(X)) = tenprod(ket(X), bra(Y)) . -- Proved lemma
+    
+    eq innprod(X, Y) = matmul(bra(X), ket(Y)) . -- Proved lemma
+    eq outprod(X, Y) = matmul(ket(X), bra(Y)) . -- Definition
+}
+
+mod! GATE {
+    pr(PRODUCT)
+    pr(RAT)
+    -- pr(SQRT)
+    -- pr(NAT)
+    [Gate < Mat]
+    
+    op I : Nat -> Gate .
+    op X : Nat -> Gate .
+    ops Y Z H : Nat -> Gate .
+    
+    -- 0: operator; 1/2: 1st/2nd param
+    -- Allow [apply-1] to execute first
+    op apply : Gate KetVec -> Mat {strat: (0 1)} .
+
+    vars INDEX : Nat . -- i = 0, 1, 2, ...
+    vars N N1 N2 : Nat .
+    var KVEC : KetVec .
+    vars M M1 M2 : Mat .
+    var PSI : String .
+
+    ceq matmul(I(N), M) = M if (nrows(M) = N) .
+    ceq matmul(M, I(N)) = M if (ncols(M) = N) .
+
+    eq tenprod(I(N1), I(N2)) = I(N1 * N2) .
+
+    -- I don't want
+    -- [Warning]: axiom : eq X(INDEX) = tenprod(I(2),X((p INDEX)))
+    -- contains error operators.
+    -- eq X(0) = outprod("0", "1") + outprod("1", "0") .
+    -- eq X(INDEX) = tenprod(I(2), X(p INDEX)) .
+    ceq X(INDEX) = outprod("0", "1") + outprod("1", "0") if (INDEX = 0 ) .
+    ceq X(INDEX) = tenprod(I(2), X(sd(INDEX, 1)))        if (INDEX > 0) .
+    
+    -- START: apply w notes
+    -- p gives 
+    -- [Warning]: axiom : ceq apply(X(INDEX),KVEC) = matmul(tenprod(X(INDEX),I((p sd(nqubits(KVEC),INDEX)))),KVEC)
+    --    if (INDEX < nqubits(KVEC))
+    -- contains error operators.
+    -- 
+    -- ceq apply(X(INDEX), KVEC) = matmul(
+    --     tenprod(
+    --         X(INDEX),
+    --         I(p (sd(nqubits(KVEC), INDEX)))
+    --     ),
+    --     KVEC
+    -- ) if (INDEX < nqubits(KVEC)) .
+    
+    -- Alternative: ceq [apply-1] : apply(X(INDEX), ket(PSI)) = errMat if not (INDEX < length(PSI)) .
+    ceq [apply-1] : apply(X(INDEX), KVEC) = errMat if not (INDEX < nqubits(KVEC)) .
+
+    ceq [apply-2] : apply(X(INDEX), KVEC) = matmul(
+        tenprod(
+            X(INDEX),
+            I(sd(
+                sd(nqubits(KVEC), INDEX),
+                1
+            ))
+        ),
+        KVEC
+    ) if (INDEX < nqubits(KVEC)) . -- apply(tenprod(X(N1), X(N2)), KVEC) may cause unwanted behavior
+    
+    eq [apply-l1] : tenprod(M, I(0)) = M . -- Derived from apply, a programmatical/practical problem, not a theorical problem
+    -- END: apply w notes
+
+    -- ceq matmul(, ket(PSI)) = 
+
+    -- eq matmul(H(N), CV) = sqrt(2) .
+    
+}

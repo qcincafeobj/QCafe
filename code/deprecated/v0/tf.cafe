@@ -1,0 +1,18 @@
+input ./qc.cafe .
+
+set trace on
+set trace off
+
+open GATE .
+    -- red RE(Re(5) + Im(10)) .
+    -- red IM(Re(5) + Im(10)) .
+    -- --> TEST 8c - Complex _-_
+    -- red Re(5) - Im(10) .
+    red Re(5) - Re(15) - Im(10) + Im(20) .
+    -- red Re(5) + Im(10) - Re(15) + Im(20) - Re(55) .
+    -- red Re(5) + Im(10) - Re(15) + Im(20) - Re(55) = (((Re(5) + Im(10)) - Re(15)) + Im(20)) - Re(55) .
+    -- --> TEST8c2
+    -- red Re(1) - Re(2) - Im(3) + Im(4) .
+    red 1 - 2 - 3 + 4 .
+close
+set trace off

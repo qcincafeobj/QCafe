@@ -1,0 +1,78 @@
+mod! FOO {
+    pr(INT)
+
+    [Foo]
+
+    op init : Int -> Foo .
+    op _+_ : Foo Foo -> Foo {l-assoc comm} .
+    op _-_ : Foo Foo -> Foo {l-assoc} .
+}
+
+mod! COMPLEX1 {
+    pr(FLOAT)
+    pr(INT)
+
+    [Int < Float < Complex]
+
+    op Re : Float -> Complex .
+    op Im : Float -> Complex .
+
+    op _+_ : Complex Complex -> Complex {l-assoc comm} .
+    op _-_ : Complex Complex -> Complex {l-assoc comm} .
+}
+
+mod! COMPLEX2 {
+    pr(FLOAT)
+    pr(INT)
+
+    [Int < Float]
+    [Complex]
+
+    op Re : Float -> Complex .
+    op Im : Float -> Complex .
+
+    op _+_ : Complex Complex -> Complex {l-assoc comm} .
+    op _-_ : Complex Complex -> Complex {l-assoc comm} .
+}
+
+mod! COMPLEX3 {
+    pr(FLOAT)
+    pr(INT)
+
+    [Float < Complex]
+
+    op Re : Float -> Complex .
+    op Im : Float -> Complex .
+
+    op _+_ : Complex Complex -> Complex {l-assoc comm} .
+    op _-_ : Complex Complex -> Complex {l-assoc comm} .
+}
+
+open FOO .
+    --> FOO
+    red 1 + 2 - 3 - 4 + 5 .
+    red init(1) + init(2) - init(3) - init(4) + init(5) .
+    --> --------------------------------------------------
+close
+
+open COMPLEX1 .
+    --> COMPLEX1
+    red 1 + 2 - 3 - 4 + 5 .
+    red Re(1) + Im(2) - Re(3) - Re(4) + Im(5) .
+    --> --------------------------------------------------
+close
+
+open COMPLEX2 .
+    --> COMPLEX2
+    red 1 + 2 - 3 - 4 + 5 .
+    red Re(1) + Im(2) - Re(3) - Re(4) + Im(5) .
+    --> --------------------------------------------------
+close
+
+open COMPLEX3 .
+    --> COMPLEX3
+    red 1.0 + 2.0 - 3.0 - 4.0 + 5.0 .
+    red Re(1.0) + Im(2.0) - Re(3.0) - Re(4.0) + Im(5.0) .
+    --> --------------------------------------------------
+close
+

@@ -1,0 +1,55 @@
+input ../qc.cafe .
+
+-- -- open SQRT .
+-- -- open GATE .
+set trace on
+set trace off
+mod! FOO {
+    pr(NAT)
+
+    [Foo Name]
+
+    ops A B C D : -> Name .
+    op (_[_]) : Name Nat -> Foo .
+    op (_[_,_]) : Name Nat Nat -> Foo .
+    op _*_ : Foo Foo -> Foo {l-assoc} .
+}
+-- open GATE .
+--     red apply(X(t-idx(1)), ket("01")) .
+-- close
+
+-- open FOO .
+--     red (B[100]) .
+--     red (C[55]) .
+--     red (A[10, 20]) .
+--     red (B[100]) * (C[55]) .
+--     red ((B[100]) * (A[10, 20])) * (C[55]) .
+--     red (B[100]) * (A[10, 20]) * (C[55]) .
+-- close
+
+-- open GATE . -- Before GN
+--     parse apply(X(t-idx(2)), ket("011101")) .
+--     red X(t-idx(2)) .
+--     red T-IDX(X(t-idx(2))) .
+--     red apply(X(t-idx(2)), ket("011101")) .
+-- close
+
+open GATE .
+    parse apply(X[t-idx(2)], ket("011101")) .
+    red T-IDX(X[t-idx(2)]) .
+    red apply(X[t-idx(2)], ket("011101")) .
+close
+
+set trace off
+
+eof
+
+apply(X[t-idx(2)], ket("011101")) = (
+    tenprod(
+        tenprod(
+            I(4),
+            (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+        ),
+        I(8)
+    )
+):Mat

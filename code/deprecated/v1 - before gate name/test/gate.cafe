@@ -1,0 +1,166 @@
+input ../qc.cafe .
+
+-- -- open SQRT .
+-- -- open GATE .
+open GATE .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 1: misc/debug
+    red p (0:Nat) .     -- (p 0:Nat):?FindResult+Float
+    red p (5 + 10) .    -- 14
+    red 1 = 1 .         -- true
+    red 1 = 2 .         -- (1 = 2):Bool
+    red 1 == 2 .        -- false
+    red 1 > 0 .         -- true
+    red 0 = 0 .
+    -->
+    red sd(1, 2) > 0 .
+    red sd(2, 1) > 0 .
+    red length("123") .
+    red p (sd(nqubits(ket("0101")), 2)) .
+    -->
+    red nqubits(ket("")) .
+    red ncols(I(8)) .
+    red nrows(ket("01")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 2: tenprod
+    red tenprod(ket("11"), ket("101")) .
+    red tenprod(bra("11"), ket("101")) .
+    red tenprod(ket("100001"), ket("123")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 3: matmul
+    red matmul(I(4), ket("01")) .
+    red matmul(I(8), ket("01")) .
+    
+    red matmul(bra("01"), I(4)) .
+    red matmul(bra("01"), I(8)) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 4: outprod
+    red outprod("1", "0") .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 5: X gate
+    red t-idx(sd(1, 1)) .
+    red X(t-idx(sd(1, 1))) .
+    red tenprod(I(2), X(t-idx(sd(1, 1)))) .
+    red ncols(X(t-idx(5))) .
+    -->
+    red X(t-idx(0)) .
+    red X(t-idx(1)) .
+    red X(t-idx(2)) .
+    -->
+    red ncols(X(t-idx(2))) .
+    -->
+    red tenprod(X(t-idx(3)), X(t-idx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red apply(X(t-idx(-1)), ket("01")) . -- Not implemented
+    red apply(X(t-idx(0)), ket("01")) .
+    red apply(X(t-idx(5)), ket("01")) .
+    red apply(X(t-idx(2)), ket("011101")) .
+    red apply(X(t-idx(5)), ket("011101")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 6: Y gate
+    red outprod("0", "1") .
+    red Im(-1) * ket("1") .
+    red Im(-1) * matmul(ket("0"),bra("1")) .
+    red Im(-1) * outprod("0", "1") .
+    red Im(-1) * outprod("0", "1") + outprod("0", "1") .
+    -->
+    red Y(t-idx(0)) .
+    red Y(t-idx(1)) .
+    red Y(t-idx(2)) .
+    -->
+    red tenprod(Y(t-idx(3)), Y(t-idx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red apply(Y(t-idx(-1)), ket("01")) . -- Not implemented
+    red apply(Y(t-idx(0)), ket("01")) .
+    red apply(Y(t-idx(5)), ket("01")) .
+    red apply(Y(t-idx(2)), ket("011101")) .
+    red apply(Y(t-idx(5)), ket("011101")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 7: Z gate
+    red Z(t-idx(0)) .
+    red Z(t-idx(1)) .
+    red Z(t-idx(2)) .
+    -->
+    red tenprod(Z(t-idx(3)), Z(t-idx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red apply(Z(t-idx(-1)), ket("01")) . -- Not implemented
+    red apply(Z(t-idx(0)), ket("01")) .
+    red apply(Z(t-idx(5)), ket("01")) .
+    red apply(Z(t-idx(2)), ket("011101")) .
+    red apply(Z(t-idx(5)), ket("011101")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 8: H gate
+    red H(t-idx(0)) .
+    red H(t-idx(1)) .
+    red H(t-idx(2)) .
+    -->
+    red tenprod(H(t-idx(3)), H(t-idx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red apply(H(t-idx(-1)), ket("01")) . -- Not implemented
+    red apply(H(t-idx(0)), ket("01")) .
+    red apply(H(t-idx(5)), ket("01")) .
+    red apply(H(t-idx(2)), ket("011101")) .
+    red apply(H(t-idx(5)), ket("011101")) .
+    -- --> ----------------------------------------------------
+    -- --> ----------------------------------------------------
+    -- --> TEST 9: CX gate
+    -- red X(t-idx(0)) - I(2) .
+    -- red c-idx(1) .
+    -- red t-idx(2) .
+    -- -->
+    -- red ncols(CX(c-idx(0), t-idx(1))) .
+    -- red ncols(CX(c-idx(1), t-idx(2))) .
+    -- red ncols(CX(c-idx(2), t-idx(3))) .
+    -- -->
+    -- red CX(c-idx(0), t-idx(1)) .
+    -- red CX(c-idx(1), t-idx(2)) .
+    -- red CX(c-idx(2), t-idx(3)) .
+    -- -- -->
+    -- -- red tenprod(H(t-idx(3)), H(t-idx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -- -- -->
+    -- -- red apply(H(t-idx(-1)), ket("01")) . -- Not implemented
+    -- -- red apply(H(t-idx(0)), ket("01")) .
+    -- -- red apply(H(t-idx(5)), ket("01")) .
+    -- -- red apply(H(t-idx(5)), ket("011101")) .
+    -- --> ----------------------------------------------------
+    -- --> ----------------------------------------------------
+close
+
+eof
+
+tenprod(X(t-idx(3)), X(t-idx(5))) = (
+    tenprod(
+        tenprod(
+            tenprod(
+                I(8),
+                (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+            ),
+            I(32)
+        ),
+        (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+    )
+):Mat
+
+(Im(-1) * outprod("0","1")) + outprod("0","1") = (
+    (
+        Im(-1) * matmul(ket("0"),bra("1"))
+    ) + matmul(ket("0"),bra("1"))
+):Mat
+
+apply(Y(t-idx(5)),ket("011101")) = (
+    matmul(
+        tenprod(
+            I(32),
+            ((Im(-1) * matmul(ket("0"),bra("1"))) + (Im(1) * matmul(ket("1"),bra("0"))))
+        ),
+        ket("011101")
+    )
+):Mat
