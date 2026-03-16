@@ -1,0 +1,180 @@
+mod! REAL {
+    pr(BOOL)
+    pr(RAT)
+    -- RAT-VALUE: [NzInt < NzRat < Rat], [NzRat Int < Rat ], [Rat < Real], [Zero NzReal < Real]
+    [RZero NzReal < Real]
+
+    op -_ : Real -> Real {prec: 15} .
+
+    op _+_ : Real Real -> Real {l-assoc prec: 33 comm} .
+    op _-_ : Real Real -> Real {l-assoc prec: 33} .
+    op _*_ : Real Real -> Real {l-assoc prec: 31 comm} .
+    -- op _/_ : Real NzReal -> Real {l-assoc prec: 31} .
+        
+    op _=_  : Real Real -> Bool {prec: 51 comm} .
+    op _>_  : Real Real -> Bool {prec: 51} .
+    op _<_  : Real Real -> Bool {prec: 51} .
+    op _>=_ : Real Real -> Bool {prec: 51} .
+    op _<=_ : Real Real -> Bool {prec: 51} .
+
+    op rzero : -> RZero .
+    -- op rone : -> Real .
+
+    op _ pi : Rat -> Real .
+    op cos : Real -> Real .
+    op sin : Real -> Real {prec: 15} .
+
+    vars R R1 R2 : Real .
+    vars RT RT1 RT2 : Rat .
+    vars NzR NzR1 NzR2 : NzReal .
+    vars NzRT : NzRat .
+    
+    eq - (RT pi) = (- RT) pi .
+    eq - (- R) = R .
+    eq - rzero = rzero .
+
+    eq (RT1 pi) + (RT2 pi) = (RT1 + RT2) pi .
+    eq R + rzero = R .
+    eq R + (- R) = rzero .
+
+    eq R1 - R2 = R1 + (- R2) .
+    eq rzero * R = rzero .
+
+    -- Built toward cosine and angles in the range [0, pi]
+    eq 0 pi = rzero .
+    
+    eq sin(RT pi) = cos((1/2 - RT) pi) .            -- sin(x) = cos(pi/2 - x)
+
+    eq cos(1/2 pi) = rzero .
+    eq R * cos(rzero) = R .
+    eq cos(1 pi) = - cos(rzero) .
+    eq R * (- cos(rzero)) = - R .
+    eq - cos(RT pi) = cos((1 - RT) pi) .            -- cos(pi - x) = - cos(x)
+
+    ceq cos(RT1 pi) + cos(RT2 pi) = rzero if (RT1 + RT2 = 1) .    
+    eq  cos(RT1 pi) + cos(RT2 pi) = (cos(rzero) + cos(rzero)) * (
+        cos(((RT1 + RT2) / 2) pi) * cos(((RT1 - RT2) / 2) pi)
+    ) .
+
+    -- theta > pi <=> theta - 2pi > -pi
+    ceq cos(RT pi) = cos((RT - 2) pi) if RT > 1 .   -- cos(x - 2pi) = cos(x)
+    ceq cos(RT pi) = cos((- RT) pi)    if RT < 0 .  -- cos(-x) = cos(x)
+    
+    -- (0 < R1, R2 < pi) and (R1 \neq R2)
+    ceq (cos(R1) = cos(R2)) = false if (
+        ((rzero < R1) and (R1 < (1 pi)))
+        and ((rzero < R2) and (R2 < 1 pi))
+        and ((R1 = R2) = false)
+    ) .
+    eq (- cos(rzero) = cos(rzero)) = false .
+    -- eq (cos(1 pi) = cos(rzero)) = false .
+    ceq ((R1 * R2) = rzero) = false if false = ((R1 = rzero) or (R2 = rzero)) .
+    ceq ((R1 + R2) = rzero) = false if (- R1 = R2) = false .
+
+    eq rzero >  rzero = false .
+    eq rzero >= rzero = true .
+    eq rzero <  rzero = false .
+    eq rzero <= rzero = true .
+
+    eq (cos(rzero) =  rzero) = false .
+    eq (cos(rzero) >  rzero) = true .
+    eq (cos(rzero) >= rzero) = true .
+    eq (cos(rzero) <  rzero) = false .
+    eq (cos(rzero) <= rzero) = false .
+    
+    eq (- cos(rzero) =  rzero) = false .
+    eq (- cos(rzero) >  rzero) = false .
+    eq (- cos(rzero) >= rzero) = false .
+    eq (- cos(rzero) <  rzero) = true .
+    eq (- cos(rzero) <= rzero) = true .
+
+    ceq (cos(R) = rzero) = false if (rzero <= R) and (R < 1/2 pi) .   -- 1st quadrant
+    ceq (cos(R) = rzero) = false if (1/2 pi < R) and (R <= 1 pi) .    -- 2nd quadrant
+
+    ceq (cos(R) >  rzero) = true if (rzero  <  R) and (R <  1/2 pi) . -- 1st quadrant
+    ceq (cos(R) >= rzero) = true if (rzero  <= R) and (R <= 1/2 pi) . -- 2nd quadrant
+    ceq (cos(R) <  rzero) = true if (1/2 pi <  R) and (R <    1 pi) . -- 1st quadrant
+    ceq (cos(R) <= rzero) = true if (1/2 pi <= R) and (R <=   1 pi) . -- 2nd quadrant
+    
+    ceq (cos(R) >  rzero) = false if (1/2 pi <= R) and (R <=   1 pi) . -- 2nd quadrant
+    ceq (cos(R) >= rzero) = false if (1/2 pi <  R) and (R <    1 pi) . -- 1st quadrant
+    ceq (cos(R) <  rzero) = false if (rzero  <= R) and (R <= 1/2 pi) . -- 2nd quadrant
+    ceq (cos(R) <= rzero) = false if (rzero  <  R) and (R <  1/2 pi) . -- 1st quadrant
+
+    eq RT1 pi >  RT2 pi = if (RT1 >  RT2) then true else false fi .
+    eq RT1 pi >= RT2 pi = if (RT1 >= RT2) then true else false fi .
+    eq RT1 pi <  RT2 pi = if (RT1 <  RT2) then true else false fi .
+    eq RT1 pi <= RT2 pi = if (RT1 <= RT2) then true else false fi .
+    
+    eq RT pi >  rzero = if (RT >  0) then true else false fi .
+    eq RT pi >= rzero = if (RT >= 0) then true else false fi .
+    eq RT pi <  rzero = if (RT <  0) then true else false fi .
+    eq RT pi <= rzero = if (RT <= 0) then true else false fi .
+    
+    eq rzero >  RT pi = if (0 >  RT) then true else false fi .
+    eq rzero >= RT pi = if (0 >= RT) then true else false fi .
+    eq rzero <  RT pi = if (0 <  RT) then true else false fi .
+    eq rzero <= RT pi = if (0 <= RT) then true else false fi .
+
+    op _*_ : Rat Real -> Real {l-assoc prec: 31 comm} .
+    eq (cos(rzero) + cos(rzero)) * R = 2 * R .
+    eq (RT1 * R1) * (RT2 * R2) = (RT1 * RT2) * R1 * R2 .
+}
+
+mod! COMPLEX {
+    pr(REAL)
+    
+    [Real Imaginary < Complex]
+
+    op -_ : Complex -> Complex {prec: 15} .
+
+    op _+_ : Complex Complex -> Complex {l-assoc prec: 33 comm} .
+    op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
+    op _*_ : Complex Complex -> Complex {l-assoc prec: 31 comm} .
+    -- op _/_ : Complex NzComplex -> Complex {l-assoc prec: 31} .
+
+    op _+_ : Real Imaginary -> Complex {l-assoc prec: 33} .
+    op _+_ : Imaginary Real -> Complex {l-assoc prec: 33} .
+    op _+_ : Imaginary Imaginary -> Imaginary {l-assoc prec: 33 comm} .
+    
+    op _=_  : Complex Complex -> Bool {prec: 51 comm} .
+    op _>_  : Complex Complex -> Bool {prec: 51} .
+    op _<_  : Complex Complex -> Bool {prec: 51} .
+    op _>=_ : Complex Complex -> Bool {prec: 51} .
+    op _<=_ : Complex Complex -> Bool {prec: 51} .
+
+    op i_ : Real -> Imaginary .
+
+    vars C C1 C2 C3 : Complex .
+    vars IMG IMG1 IMG2 : Imaginary .
+    vars R R1 R2 : Real .
+
+    eq - i R = i (- R) .
+    eq i rzero = rzero .
+
+    eq rzero + C = C .
+    eq i R1 + i R2 = i (R1 + R2) .
+
+    eq i R1 - i R2 = i (R1 - R2) .
+    
+    eq rzero * C = rzero .
+    eq R1 * (i R2) = i (R1 * R2) .
+    eq (i R1) * (i R2) = - (R1 * R2) .
+    -- eq (C1 + C2) * C3 = C1 * C3 + C2 * C3 .
+}
+
+mod! DIRACBASIS {
+    [BasisBraVec < BraVec]
+    [BasisKetVec < KetVec]
+    [BraVec KetVec < Vect]
+
+    [BasisBraKet < BraKet]
+
+    ops <0| <1| : -> BasisBraVec .
+    ops |1> |0> : -> BasisKetVec .
+    ops |0><0| |0><1| |1><0| |1><1| : -> BasisBraKet .
+}
+
+-- mod! MATRIX {
+
+-- }
