@@ -17,7 +17,7 @@ open REAL .
 close
 set trace off
 set trace whole off
-eof
+-- eof
 
 open REAL .
     --> TEST 1
