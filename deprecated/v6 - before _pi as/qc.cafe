@@ -1,0 +1,90 @@
+mod! REAL {
+    pr(BOOL)
+    pr(RAT)
+    -- RAT-VALUE
+    -- [NzInt < NzRat < Rat]
+    -- [NzRat Int < Rat ]
+    -- [Rat < Real]
+    -- [Zero NzReal < Real]
+    [RZero NzReal < Real]
+
+    op -_ : Real -> Real {prec: 15} .
+
+    op _+_ : Real Real -> Real {l-assoc prec: 33 comm} .
+    op _-_ : Real Real -> Real {l-assoc prec: 33} .
+    op _*_ : Real Real -> Real {l-assoc prec: 31 comm} .
+    op _/_ : Real NzReal -> Real {l-assoc prec: 31} .
+    
+    op _=_ : Real Real -> Bool {prec: 51} .
+    op _>_ : Real Real -> Bool {prec: 51} .
+    op _<_ : Real Real -> Bool {prec: 51} .
+    op _>=_ : Real Real -> Bool {prec: 51} .
+    op _<=_ : Real Real -> Bool {prec: 51} .
+
+    op rzero : -> RZero .
+    op cos[_pi] : Rat -> Real .
+    op sin[_pi] : Rat -> Real .
+
+    vars R R1 R2 THETA : Real .
+    vars NzR : NzReal .
+    vars RT RT1 RT2 : Rat .
+    vars NzRT NzRT1 NzRT2 : NzRat .
+    
+    eq R + rzero = R .
+    eq rzero * R = rzero .
+    eq - (- R) = R .
+    eq - rzero = rzero .
+
+    eq R1 - R2 = R1 + (- R2) .
+    eq R + (- R) = rzero .
+
+    -- ...
+
+    -- theta > pi <=> theta - 2pi > -pi
+    
+    -- -- Built toward cosine and angles in the range [0, pi]
+    -- ceq (cos(R) > 0) = true if (R > 0) and (R < pi / 2) .
+    -- ceq (cos(R) > 0) = false if (R > pi / 2) and (R < pi) .
+    -- eq cos(1/2 * pi) = 0 .
+    -- ceq (cos(R) = 0) = false if (
+    --     0 <= R
+    --     and R <= pi / 2
+    --     and ((R = pi / 2 ) = false)
+    -- ) .
+    -- eq cos(0 * pi) = cos(0) .
+    -- eq - cos(R) = cos(pi - R) .
+    -- ceq cos(R1) + cos(R2) = 0 if (R1 + R2 = pi) .
+    -- ceq cos(NzR) = cos(- NzR) if (NzR < 0) .
+    -- ceq cos(NzR) = cos(NzR - 2 pi) if (NzR > pi) .
+    
+    -- eq sin(R) = cos(pi / 2 - R) .
+    -- -- eq sin(NzR) = cos(pi / 2 - NzR) .
+    -- eq - sin(R) = sin(- R) .
+    -- -- eq cos(R1) + cos(R2) =
+    
+    -- -- eq (0 = 0) = true .
+    -- -- eq (0 > 0) = false .
+    -- -- eq (0 < 0) = false .
+    -- -- eq (0 >= 0) = false .
+    -- -- eq (0 <= 0) = false .
+}
+
+-- mod! COMPLEX {
+--     [Complex]
+-- }
+
+mod! DIRACBASIS {
+    [BasisBraVec < BraVec]
+    [BasisKetVec < KetVec]
+    [BraVec KetVec < Vect]
+
+    [BasisBraKet < BraKet]
+
+    ops <0| <1| : -> BasisBraVec .
+    ops |1> |0> : -> BasisKetVec .
+    ops |0><0| |0><1| |1><0| |1><1| : -> BasisBraKet .
+}
+
+-- mod! MATRIX {
+
+-- }

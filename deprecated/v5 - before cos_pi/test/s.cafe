@@ -1,0 +1,6 @@
+input ../qc.cafe
+
+open STATE .
+    red |0> .
+    red |0><0| .
+close

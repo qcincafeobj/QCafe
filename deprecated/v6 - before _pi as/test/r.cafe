@@ -1,0 +1,155 @@
+input ../qc.cafe .
+
+set trace off
+-- set trace on
+-- set trace whole on
+
+open REAL .
+    red sin[5 pi] .
+close
+eof
+
+open REAL .
+    --> TEST 1: 5/3 vs 5 / 3 ---------------------------
+    red 2 / (5/3) .
+    red 2 / 5/3 .
+    red 2 / 5 / 3 .
+
+    --> TEST 2: ---------------------------
+    --> Okay
+    red 2 / -3 .
+    red 3 / 3 .
+    red 3/3 .
+    red 3 / 6 + 5 / 7 . -- (17/14):NzRat
+    red 3/6 + 5/7 . -- (17/14):NzRat
+    red 0 .
+    --> Bad
+    -- red 2 / (-3) . -- error
+    -- red 2/(-3) . -- error
+    red 2 / - 3 .
+    red 2 / (- 3) .
+
+    --> TEST 3 ---------------------------
+    --> Okay
+    red pi .
+    red 5 pi .
+    red 0 pi .
+    red 0 * 0 .
+    red 0 * pi .
+    red pi * 0 .
+    red 1 pi .
+    red 1 * pi .
+    red pi * 1 .
+    red pi / 2 .
+    red 1/3 * pi .
+    red (1/3) * pi .
+    red (1 / 3) * pi .
+    red 2 pi / 3 .
+    red (2 pi) / 3 .
+    red (2 * pi) / 3 .
+    --> Bad
+    -- red 2 * pi / 3 .
+    -- Even CafeOBJ FLOAT leave those kinds of situations irreducible
+    -- red 1.0 * 1.2 / 1.7 .
+    -- red 1.0 * 1.2 / 1.3 * 1.4 * 1.5 * 1.8 / 1.7 / 1.5 .
+    
+    --> TEST 4 ---------------------------
+    red - 1 pi .
+    red -1 pi .
+    red (- 1) pi .
+    red (-1) pi .
+    red 1/2 pi - pi .
+    red 1/2 pi - 2 pi .
+    red 1/2 pi - pi / 3 .
+    red pi / 3 - 1/2 pi .
+
+    --> TEST 5 ---------------------------
+    --> Okay
+    red 1 = 1 .
+    red 1 == 1 .
+    red 1 + 2 = 2 + 1 .
+    red 1 + 2 == 2 + 1 .
+    red 2 * pi = pi * 2 .
+    red 2 * pi == pi * 2 .
+    red 2 pi / 3 = 2/3 * pi .
+    red 2 pi / 3 == 2/3 * pi .
+    red 2 pi / 3 > 2/3 * pi .
+    red 2 pi / 3 > 10 * pi .
+    red pi > 0 .
+    red pi >= 0 .
+    red pi < 0 .
+    red pi <= 0 .
+    red pi = 0 .
+    red 0 pi = 0 .
+    red 0 * pi = 0 .
+    red 2 pi > 0 .
+    red 2 * pi > 0 .
+    red pi * 3/4 > 0 .
+    red pi * 3/4 < 0 .
+    red pi * 3/4 = 0 .
+    red pi * 0 = 0 .
+    red 2 pi >= 0 .
+    
+    --> TEST 6
+    --> Okay
+    red cos(pi / 2) .
+    red sin(pi / 2) .
+    red sin(3 pi / 2) .
+    red cos(0) .
+    red sin(1/3 * pi) .
+    red sin(100/15 * pi) .
+    red - sin(pi / 2) .
+    red sin(pi / 3) - sin(pi / 3) .
+    red sin(2 pi) + cos(pi / 2) .
+    red sin(2 pi) + cos(5 pi / 3) .
+    --> Bad
+    -- red sin(1 / 3 * pi) .
+
+    --> TEST 7
+    --> Okay
+    red cos(pi / 2) > 0 .
+    red sin(pi / 2) > 0 .
+    red sin(3 pi / 2) > 0 .
+    red cos(0) > 0 .
+    red sin(1/3 * pi) > 0 .
+    red sin(100/15 * pi) > 0 .
+    red - sin(pi / 2) > 0 .
+    red sin(pi / 3) - sin(pi / 3) > 0 .
+    red sin(2 pi) + cos(pi / 2) > 0 .
+    red sin(2 pi) + cos(5 pi / 3) > 0 .
+    red 5/3 pi > pi .
+    red pi - pi >= 0 .
+    red 2 pi - pi >= 0 .
+    red 0 = 0 .
+    red 0 > 0 .
+    red 0 < 0 .
+    red 0 >= 0 .
+    red 0 <= 0 .
+    
+    --> TEST 8
+    --> Okay
+    red cos(pi / 2) = 0 .
+    red sin(pi / 2) = 0 .
+    red sin(3 pi / 2) = 0 .
+    red cos(0) = 0 .
+    red sin(1/3 * pi) = 0 .
+    red sin(100/15 * pi) = 0 .
+    red - sin(pi / 2) = 0 .
+    red sin(pi / 3) - sin(pi / 3) = 0 .
+    red sin(2 pi) + cos(pi / 2) = 0 .
+    red sin(2 pi) + cos(5 pi / 3) = 0 .
+close
+-- set trace on
+set trace off
+set trace whole off
+eof
+open TRIGONOMETRIC .
+    -- These should now work:
+    red 3 / 6 + 5 / 7 .
+
+    -- Testing pi expressions:
+    red pi / 2 . 
+    red (1 / 3) * pi .
+close
+
+set trace off

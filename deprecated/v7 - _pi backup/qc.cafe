@@ -1,76 +1,63 @@
 mod! REAL {
     pr(BOOL)
     pr(RAT)
-    -- RAT-VALUE: [NzInt < NzRat < Rat], [NzRat Int < Rat ], [Rat < Complex], [Zero NzReal < Complex]
-    [RZero NzReal < Complex]
+    -- RAT-VALUE: [NzInt < NzRat < Rat], [NzRat Int < Rat ], [Rat < Real], [Zero NzReal < Real]
+    [RZero NzReal < Real]
 
-    op -_ : Complex -> Complex {prec: 15} .
+    op -_ : Real -> Real {prec: 15} .
 
-    op _+_ : Complex Complex -> Complex {l-assoc prec: 33 comm} .
-    op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
-    op _*_ : Complex Complex -> Complex {l-assoc prec: 31 comm} .
-    op _/_ : Complex NzReal -> Complex {l-assoc prec: 31} .
+    op _+_ : Real Real -> Real {l-assoc prec: 33 comm} .
+    op _-_ : Real Real -> Real {l-assoc prec: 33} .
+    op _*_ : Real Real -> Real {l-assoc prec: 31 comm} .
+    op _/_ : Real NzReal -> Real {l-assoc prec: 31} .
     
-    op _=_  : Complex Complex -> Bool {prec: 51 comm} .
-    op _>_  : Complex Complex -> Bool {prec: 51} .
-    op _<_  : Complex Complex -> Bool {prec: 51} .
-    op _>=_ : Complex Complex -> Bool {prec: 51} .
-    op _<=_ : Complex Complex -> Bool {prec: 51} .
+    op _=_  : Real Real -> Bool {prec: 51} .
+    op _>_  : Real Real -> Bool {prec: 51} .
+    op _<_  : Real Real -> Bool {prec: 51} .
+    op _>=_ : Real Real -> Bool {prec: 51} .
+    op _<=_ : Real Real -> Bool {prec: 51} .
 
     op rzero : -> RZero .
-    -- op rone : -> Complex .
+    -- op rone : -> Real .
 
-    op _ pi : Rat -> Complex .
-    op cos : Complex -> Complex .
-    op sin : Complex -> Complex {prec: 15} .
+    op _ pi : Rat -> Real .
+    op cos : Real -> Real .
+    op sin : Real -> Real {prec: 15} .
 
-    vars R R1 R2 : Complex .
+    vars R R1 R2 : Real .
     vars RT RT1 RT2 : Rat .
-    vars NzR NzR1 NzR2 : NzReal .
-    vars NzRT : NzRat .
+    vars R : Real .
     
+
+    eq R + rzero = R .
+    eq rzero * R = rzero .
     eq - (RT pi) = (- RT) pi .
     eq - (- R) = R .
     eq - rzero = rzero .
 
-    eq (RT1 pi) + (RT2 pi) = (RT1 + RT2) pi .
-    eq R + rzero = R .
-    eq R + (- R) = rzero .
-
     eq R1 - R2 = R1 + (- R2) .
-    eq rzero * R = rzero .
+    eq R + (- R) = rzero .
 
     -- Built toward cosine and angles in the range [0, pi]
     eq 0 pi = rzero .
-    
-    eq sin(RT pi) = cos((1/2 - RT) pi) .            -- sin(x) = cos(pi/2 - x)
-
+    eq cos(1 pi) = - cos(rzero) .
     eq cos(1/2 pi) = rzero .
     eq R * cos(rzero) = R .
-    eq cos(1 pi) = - cos(rzero) .
     eq R * (- cos(rzero)) = - R .
+    -- eq R * cos(1 pi) = - R .
     eq - cos(RT pi) = cos((1 - RT) pi) .            -- cos(pi - x) = - cos(x)
+    ceq cos(RT1 pi) + cos(RT2 pi) = rzero if (RT1 + RT2 = 1) .
+    eq (RT1 pi) + (RT2 pi) = (RT1 + RT2) pi .
+    
 
-    ceq cos(RT1 pi) + cos(RT2 pi) = rzero if (RT1 + RT2 = 1) .    
-    eq  cos(RT1 pi) + cos(RT2 pi) = (cos(rzero) + cos(rzero)) * (
-        cos(((RT1 + RT2) / 2) pi) * cos(((RT1 - RT2) / 2) pi)
-    ) .
+
+
 
     -- theta > pi <=> theta - 2pi > -pi
+    eq sin(RT pi) = cos((1/2 - RT) pi) .            -- sin(x) = cos(pi/2 - x)
     ceq cos(RT pi) = cos((RT - 2) pi) if RT > 1 .   -- cos(x - 2pi) = cos(x)
     ceq cos(RT pi) = cos((- RT) pi)    if RT < 0 .  -- cos(-x) = cos(x)
     
-    -- (0 < R1, R2 < pi) and (R1 \neq R2)
-    ceq (cos(R1) = cos(R2)) = false if (
-        ((rzero < R1) and (R1 < (1 pi)))
-        and ((rzero < R2) and (R2 < 1 pi))
-        and ((R1 = R2) = false)
-    ) .
-    eq (- cos(rzero) = cos(rzero)) = false .
-    -- eq (cos(1 pi) = cos(rzero)) = false .
-    ceq ((R1 * R2) = rzero) = false if false = ((R1 = rzero) or (R2 = rzero)) .
-    ceq ((R1 + R2) = rzero) = false if (- R1 = R2) = false .
-
     eq rzero >  rzero = false .
     eq rzero >= rzero = true .
     eq rzero <  rzero = false .
@@ -111,31 +98,16 @@ mod! REAL {
     eq RT pi <  rzero = if (RT <  0) then true else false fi .
     eq RT pi <= rzero = if (RT <= 0) then true else false fi .
     
+
     eq rzero >  RT pi = if (0 >  RT) then true else false fi .
     eq rzero >= RT pi = if (0 >= RT) then true else false fi .
     eq rzero <  RT pi = if (0 <  RT) then true else false fi .
     eq rzero <= RT pi = if (0 <= RT) then true else false fi .
 }
 
-mod! COMPLEX {
-    [Complex]
-    
-    [CZero NzComplex < Complex]
-
-    op -_ : Complex -> Complex {prec: 15} .
-
-    op _+_ : Complex Complex -> Complex {l-assoc prec: 33 comm} .
-    op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
-    op _*_ : Complex Complex -> Complex {l-assoc prec: 31 comm} .
-    op _/_ : Complex NzReal -> Complex {l-assoc prec: 31} .
-    
-    op _=_  : Complex Complex -> Bool {prec: 51 comm} .
-    op _>_  : Complex Complex -> Bool {prec: 51} .
-    op _<_  : Complex Complex -> Bool {prec: 51} .
-    op _>=_ : Complex Complex -> Bool {prec: 51} .
-    op _<=_ : Complex Complex -> Bool {prec: 51} .
-    
-}
+-- mod! COMPLEX {
+--     [Complex]
+-- }
 
 mod! DIRACBASIS {
     [BasisBraVec < BraVec]

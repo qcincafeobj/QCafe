@@ -1,0 +1,12 @@
+input ../qc.cafe .
+
+set trace on
+set trace off
+
+open RAT .
+    red 2 / 3 .
+    red 3 / 3 .
+    red 3 / 6 + 5 / 7 . -- (17/14):NzRat
+    red 0 .
+close
+set trace off

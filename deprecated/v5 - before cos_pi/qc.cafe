@@ -1,0 +1,200 @@
+mod! REAL {
+    pr(BOOL)
+    pr(RAT)
+    -- RAT-VALUE
+    -- [NzInt < NzRat < Rat]
+    -- [NzRat Int < Rat ]
+    -- [Rat < Real]
+    -- [Zero NzReal < Real]
+    [Zero NzReal < Real]
+    [Zero < Nat < Int < Rat] 
+
+    -- Standard forms (RT / NzRT) * pi, or RT * pi, or pi
+
+    op -_ : Real -> Real {prec: 15} .
+    op -_ : NzReal -> NzReal {prec: 15} .
+    op -_ : Zero -> Zero {prec: 15} .
+
+    op _+_ : Real Real -> Real {l-assoc prec: 33 comm} .
+    -- op _+_ : Real Real -> Zero {l-assoc prec: 33 comm} .
+    -- op _+_ : Zero Zero -> Zero {l-assoc prec: 33 comm} .
+    
+    op _-_ : Real Real -> Real {l-assoc prec: 33} .
+    -- op _-_ : Real Real -> Zero {l-assoc prec: 33} .
+    
+    op _*_ : Real Real -> Real {l-assoc prec: 31 comm} .
+    op _*_ : NzReal NzReal -> NzReal {l-assoc prec: 31 comm} .
+    op _*_ : NzReal Zero -> Zero {l-assoc prec: 31} .
+    op _*_ : Zero NzReal -> Zero {l-assoc prec: 31} .
+    op _*_ : Zero Zero -> Zero {l-assoc prec: 31} .
+    
+    op _/_ : Real NzReal -> Real {l-assoc prec: 31} .
+    op _/_ : NzReal NzReal -> NzReal {l-assoc prec: 31} .
+    
+    op _*_ : NzRat NzReal -> NzReal {l-assoc prec: 31} .
+    op _*_ : NzReal NzRat -> NzReal {l-assoc prec: 31} .
+    op _*_ : Rat Real -> Real {l-assoc prec: 31} . 
+    op _*_ : Real Rat -> Real {l-assoc prec: 31} . 
+
+    op _/_ : Real NzRat -> Real {l-assoc prec: 31} .
+    op _/_ : NzReal NzRat -> NzReal {l-assoc prec: 31} .
+    
+    op _=_ : Real Real -> Bool {prec: 51} .
+    op _=_ : Zero Real -> Bool {prec: 51} .
+    op _=_ : Real Zero -> Bool {prec: 51} .
+    op _=_ : Zero Zero -> Bool {prec: 51} .
+    -- op _=_ : Zero NzReal -> Bool {prec: 51} .
+    -- op _=_ : NzReal Zero -> Bool {prec: 51} .
+    
+    op _<_ : Real Real -> Bool {prec: 51} .
+    op _<_ : Real Zero -> Bool {prec: 51} .
+    op _<_ : Zero Real -> Bool {prec: 51} .
+    op _<_ : Zero Zero -> Bool {prec: 51} .
+    -- op _<_ : NzReal Zero -> Bool {prec: 51} .
+    -- op _<_ : Zero NzReal -> Bool {prec: 51} .
+    
+    op _<=_ : Real Real -> Bool {prec: 51} .
+    op _<=_ : Real Zero -> Bool {prec: 51} .
+    op _<=_ : Zero Real -> Bool {prec: 51} .
+    op _<=_ : Zero Zero -> Bool {prec: 51} .
+    -- op _<=_ : NzReal Zero -> Bool {prec: 51} .
+    -- op _<=_ : Zero NzReal -> Bool {prec: 51} .
+    
+    op _>_ : Real Real -> Bool {prec: 51} .
+    op _>_ : Real Zero -> Bool {prec: 51} .
+    op _>_ : Zero Real -> Bool {prec: 51} .
+    op _>_ : Zero Zero -> Bool {prec: 51} .
+    -- op _>_ : NzReal Zero -> Bool {prec: 51} .
+    -- op _>_ : Zero NzReal -> Bool {prec: 51} .
+    
+    op _>=_ : Real Real -> Bool {prec: 51} .
+    op _>=_ : Real Zero -> Bool {prec: 51} .
+    op _>=_ : Zero Real -> Bool {prec: 51} .
+    op _>=_ : Zero Zero -> Bool {prec: 51} .
+    -- op _>=_ : NzReal Zero -> Bool {prec: 51} .
+    -- op _>=_ : Zero NzReal -> Bool {prec: 51} .
+
+    -- op 1 : -> NzReal .
+    op pi : -> NzReal .
+    op _ pi : Rat -> Real {prec: 13} .
+    op _ pi : NzRat -> NzReal {prec: 13} .
+    op _ pi : Zero -> Zero {prec: 13} .
+
+    -- op 0 : -> Zero .
+    
+    op cos : Real -> Real .
+    -- op cos : NzReal -> Real .
+
+    op sin : Real -> Real .
+    -- op sin : NzReal -> Real .
+
+    -- op _/_ : NzInt NzInt -> NzRat {l-assoc prec: 31} .
+
+    -- op _+_ : Real Rat -> Real {l-assoc} .
+
+    vars R R1 R2 THETA : Real .
+    vars NzR : NzReal .
+    vars RT RT1 RT2 : Rat .
+    vars NzRT NzRT1 NzRT2 : NzRat .
+    vars I I1 I2 : Int .
+    
+    eq R + 0 = R .
+    eq R + (- 0) = R .
+
+    eq 0 * NzR = 0 .
+    eq NzR * 0 = 0 .
+    -- eq 0 * 0 = 0 .
+    -- eq pi * 0 = 0 .
+    eq 1 * R = R .
+    -- eq (-1) * pi = - pi .
+    eq - (- R) = R .
+
+    eq RT pi = RT * pi .
+    eq 0 pi = 0 .
+    eq - (RT * pi) = (- RT) * pi .
+    eq R1 - R2 = R1 + (- R2) .
+    eq R1 + (- R1) = 0 .
+
+    eq RT * pi + pi = (RT + 1) * pi .
+    eq RT * pi + (- pi) = (RT - 1) * pi .
+
+    eq RT1 * pi * RT2 = (RT1 * RT2) * pi .
+    eq pi * NzRT = NzRT * pi .
+
+    eq RT1 * pi + RT2 * pi = (RT1 + RT2) * pi .
+    eq (pi / NzRT) = (1 / NzRT) * pi .
+    eq (RT * pi) / NzRT = (RT / NzRT) * pi .
+    
+    eq (NzR = 0) = false .
+    eq (pi > 0) = true .
+    eq (pi < 0) = false .
+    eq (pi >= 0) = true .
+    eq (pi <= 0) = false .
+    eq (- pi > 0) = false .
+    eq (- pi < 0) = true .
+    eq (- pi >= 0) = false .
+    eq (- pi <= 0) = true .
+    -- eq (0 * pi = 0) = true .
+    eq (NzRT * pi = 0) = false .
+    eq (RT * pi >  0) = if (RT >  0) then true else false fi .
+    eq (RT * pi <  0) = if (RT <  0) then true else false fi .
+    eq (RT * pi >= 0) = if (RT >= 0) then true else false fi .
+    eq (RT * pi <= 0) = if (RT <= 0) then true else false fi .
+
+    eq (RT1 * pi =  RT2 * pi) = if (RT1 =  RT2) then true else false fi .
+    eq (RT1 * pi <  RT2 * pi) = if (RT1 <  RT2) then true else false fi .
+    eq (RT1 * pi >  RT2 * pi) = if (RT1 >  RT2) then true else false fi .
+    eq (RT1 * pi <= RT2 * pi) = if (RT1 <= RT2) then true else false fi .
+    eq (RT1 * pi >= RT2 * pi) = if (RT1 >= RT2) then true else false fi .
+    
+    eq (R > pi) = if (R - pi) > 0 then true else false fi .
+    eq (R < pi) = if (R - pi) < 0 then true else false fi .
+    eq (R >= pi) = if (R - pi) >= 0 then true else false fi .
+    eq (R <= pi) = if (R - pi) <= 0 then true else false fi .
+
+    -- Built toward cosine and angles in the range [0, pi]
+    ceq (cos(R) > 0) = true if (R > 0) and (R < pi / 2) .
+    ceq (cos(R) > 0) = false if (R > pi / 2) and (R < pi) .
+    eq cos(1/2 * pi) = 0 .
+    ceq (cos(R) = 0) = false if (
+        0 <= R
+        and R <= pi / 2
+        and ((R = pi / 2 ) = false)
+    ) .
+    eq cos(0 * pi) = cos(0) .
+    eq - cos(R) = cos(pi - R) .
+    ceq cos(R1) + cos(R2) = 0 if (R1 + R2 = pi) .
+    ceq cos(NzR) = cos(- NzR) if (NzR < 0) .
+    ceq cos(NzR) = cos(NzR - 2 pi) if (NzR > pi) .
+    
+    eq sin(R) = cos(pi / 2 - R) .
+    -- eq sin(NzR) = cos(pi / 2 - NzR) .
+    eq - sin(R) = sin(- R) .
+    -- eq cos(R1) + cos(R2) =
+    
+    -- eq (0 = 0) = true .
+    -- eq (0 > 0) = false .
+    -- eq (0 < 0) = false .
+    -- eq (0 >= 0) = false .
+    -- eq (0 <= 0) = false .
+}
+
+-- mod! COMPLEX {
+--     [Complex]
+-- }
+
+mod! DIRACBASIS {
+    [BasisBraVec < BraVec]
+    [BasisKetVec < KetVec]
+    [BraVec KetVec < Vect]
+
+    [BasisBraKet < BraKet]
+
+    ops <0| <1| : -> BasisBraVec .
+    ops |1> |0> : -> BasisKetVec .
+    ops |0><0| |0><1| |1><0| |1><1| : -> BasisBraKet .
+}
+
+-- mod! MATRIX {
+
+-- }
