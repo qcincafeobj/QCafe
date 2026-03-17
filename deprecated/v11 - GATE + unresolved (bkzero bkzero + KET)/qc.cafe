@@ -200,7 +200,7 @@ mod! BRAKET {
     
     op -_ : Mat -> Mat {prec: 15} .
     op _+_ : Mat Mat -> Mat {r-assoc prec: 33 comm} .
-    op _-_ : Mat Mat -> Mat {l-assoc prec: 33 comm} .
+    op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
     op _x_ : Mat Mat -> Mat {prec: 31} .                -- matmul
     op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .                -- tenprod
     
@@ -301,7 +301,7 @@ mod! GATE {
     eq basemat(X)  = (|0><1| + |1><0|) .
     eq basemat(Y)  = (- i cos(rzero)) * (|0><1| - |1><0|) .
     eq basemat(Z)  = |0><0| - |1><1| .
-    eq basemat(H)  = cos(1/4 pi) * (|0><0| + |0><1| + |1><0| - |1><1|) .
+    eq basemat(H)  = cos(1/4 pi) * ((|0><0| + |0><1|) + (|1><0| - |1><1|)) .
     eq basemat(P0) = |0><0| .
     eq basemat(P1) = |1><1| .
 
