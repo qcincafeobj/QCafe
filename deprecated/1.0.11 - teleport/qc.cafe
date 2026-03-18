@@ -1,3 +1,5 @@
+-- NOT YET
+
 mod! REAL {
     pr(BOOL)
     pr(RAT)
@@ -272,6 +274,7 @@ mod! BRAKET {
 
     eq (BK x BB) x BK1 = if (BB === BK1) then BK else bkzero fi .
     eq (BK x BB) x bkzero = bkzero .
+    eq BRA x (C * KET) = if (BRA === KET) then C * cos(rzero) else rzero fi .
     
     -- eq BK1 * (- BK2) = (- BK1) * BK2 .
     eq BK * (BK1 + BK2) = BK * BK1 + BK * BK2 .
