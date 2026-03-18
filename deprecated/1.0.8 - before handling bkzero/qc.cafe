@@ -184,7 +184,6 @@ mod! BRAKET {
     ops |0><0| |0><1| |1><0| |1><1| : -> BasisKetBra .
     op bbzero : -> BasisBZero .
     op bkzero : -> BasisKZero .
-    -- ops <0|0> <0|1> <1|0> <1|1> : -> Complex .       -- Redundant
 
     op -_ : BasisKet -> BasisKet {prec: 15} .
     op -_ : Ket -> Ket {prec: 15} .
@@ -217,7 +216,7 @@ mod! BRAKET {
     vars BB BB1 BB2 : BasisBra .
     vars BK BK1 BK2 : BasisKet .
     vars BRA : Bra .
-    vars KET KET1 KET2 KET3 KET4 : Ket .
+    vars KET KET1 KET2 KET3 : Ket .
     vars M M1 M2 M3 : Mat .
     vars C C1 C2 : Complex .
 
@@ -230,8 +229,6 @@ mod! BRAKET {
     
     eq - bkzero = bkzero .
     eq bkzero * BK = bkzero * bkzero .
-    eq - (bkzero * KET) = bkzero * KET .
-    eq C * (bkzero * KET) = bkzero * KET .
     -- eq bkzero * (BK * KET) = bkzero * (bkzero * KET) .              -- To ensure the dimensions
     eq bkzero + bkzero = bkzero .
     eq bkzero + BK = BK .
@@ -241,13 +238,11 @@ mod! BRAKET {
     eq BRA x KET = if (BRA === KET) then cos(rzero) else rzero fi .
 
     -- Number of qubit equality
-    eq (bkzero ==== bkzero) = true .
-    eq (BK ==== bkzero) = true .
     eq (BK1 ==== BK2) = true .
-    eq KET1 * KET2 ==== KET3 * KET4 = if ((KET1 ==== KET3) and (KET2 ==== KET4)) then true else false fi .
+    eq (BK ==== bkzero) = true .
+    eq (BK * KET1 ==== bkzero * KET2) = if (KET1 ==== KET2) then true else false fi .
     eq (KET1 ==== C * KET2) = (KET1 ==== KET2) .
     ceq (KET1 ==== (KET2 + KET3)) = true if (KET1 ==== KET2 and KET1 ==== KET3) .
-    eq (KET1 ==== (- KET2)) = (KET1 ==== KET2) .
 
     eq |0><0| = |0> x <0| .
     eq |0><1| = |0> x <1| .
@@ -258,10 +253,7 @@ mod! BRAKET {
     eq (M1 + M2) x M3 = M1 x M3 + M2 x M3 .
     -- eq (M1 + M2) * M3 = M1 * M3 + M2 * M3 .
     ceq bkzero * KET1 + KET2 = KET2 if (bkzero * KET1 ==== KET2) .  -- To ensure the dimensions
-    eq BK * (KET * bkzero) = bkzero * (BK * KET) .
-    eq BK * (bkzero * KET) = bkzero * (BK * KET) .
-    -- eq bkzero * KET1 + (- (bkzero * KET2)) = bkzero * (KET1 - KET2) .
-
+    
     eq (BK x BB) x BK1 = if (BB === BK1) then BK else bkzero fi .
     eq (BK x BB) x bkzero = bkzero .
     
@@ -277,7 +269,6 @@ mod! BRAKET {
     eq M1 * (C * M2) = C * (M1 * M2) .
 
     eq (- M) x KET = - (M x KET) .
-    eq ((- M1) * M2) x KET = -((M1 * M2) x KET) .
 }
 
 mod! NATLIST {
@@ -475,23 +466,3 @@ eof
 ((bkzero * (|0> * (|1> * |1>))) + ((|1> * (|0> * (bkzero * bkzero))) + ((|1> * (|0> * (|1> * bkzero))) + ((i (- cos(rzero))) * (|1> * (
     (bkzero * (|1> * |1>)) + (((- (|1> x <0|)) * I) x (|0> * (|1> * |1>)))
 )))))):Ket
-
-((bkzero * (|0> * (|1> * |1>))) + ((|1> * (|0> * (bkzero * bkzero))) + ((|1> * (|0> * (|1> * bkzero))) + ((i (- cos(rzero))) * (
-    |1> * (
-        (bkzero * (|1> * |1>)) + (- (|1> * (|1> * |1>)))
-    )
-))))):Ket
-
-((|1> * (|0> * (bkzero * bkzero))) + (
-    (|1> * (|0> * (|1> * bkzero))) + (
-            (i (- cos(rzero))) * (
-                |1> * (- (|1> * (|1> * |1>)))
-            )
-    )
-)):Ket
-
-(
-    (bkzero * (|0> * (|1> * |0>))) + ((bkzero * (bkzero * (|1> * |0>))) + ((|1> * (|0> * (|1> * |0>))) + ((i (- cos(rzero))) * (
-        bkzero * ((|0> * (|0> * |1>)) + (- (bkzero * (|0> * |1>))))
-    ))))
-):Ket

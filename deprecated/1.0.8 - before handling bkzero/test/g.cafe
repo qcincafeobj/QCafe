@@ -4,7 +4,8 @@ input ../qc.cafe .
 -- -- open GATE .
 
 -- open GATE .
-    
+--     red <1| x |0> .
+--     red <1| x |1> .
 -- close
 -- eof
 
