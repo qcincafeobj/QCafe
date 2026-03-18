@@ -51,6 +51,7 @@ mod! REAL {
     eq R * (- cos(rzero)) = - R .
     eq - cos(RT pi) = cos((1 - RT) pi) .            -- cos(pi - x) = - cos(x)
 
+    -- Idea: (a1 + a2 + ... + an) = 0 = (A1 * A2 * ... * An) --> There is a Ai = 0 ~ cos(1/2 pi)
     ceq cos(RT1 pi) + cos(RT2 pi) = rzero if (RT1 + RT2 = 1) .    
     eq  cos(RT1 pi) + cos(RT2 pi) = (cos(rzero) + cos(rzero)) * (
         cos(((RT1 + RT2) / 2) pi) * cos(((RT1 - RT2) / 2) pi)
@@ -195,25 +196,27 @@ mod! BRAKET {
     op _*_ : Complex Ket -> Ket {prec: 31} .
     
     -- _x_ : innprod, outprod, matmul
-    op _x_ : Bra Ket -> Complex {prec: 31} .            -- innprod <_|_>
+    op _x_ : Bra Ket -> Complex {prec: 31} .             -- innprod <_|_>
     op _x_ : Ket Bra -> Mat {prec: 31} .                 -- innprod |_><_|
     
     op -_ : Mat -> Mat {prec: 15} .
     op _+_ : Mat Mat -> Mat {r-assoc prec: 33 comm} .
     op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
     op _x_ : Mat Mat -> Mat {prec: 31} .                -- matmul
-    op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .                -- tenprod
+    op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- tenprod
     
-    op _*_ : Complex Mat -> Mat {r-assoc prec: 31} .            -- tenprod
+    op _*_ : Complex Mat -> Mat {r-assoc prec: 31} .    -- tenprod
     op _x_ : Mat Ket -> Ket {r-assoc prec: 31} .        -- matmul with Ket
 
-    op _===_ : Bra Ket -> Bool {prec: 51} .         -- Check co-vector
-    op _===_ : Ket Bra -> Bool {prec: 51} .         -- Check co-vector
+    op _===_ : Bra Ket -> Bool {prec: 51} .             -- Check co-vector
+    op _===_ : Ket Bra -> Bool {prec: 51} .             -- Check co-vector
+
+    op _====_ : Ket Ket -> Bool {prec: 51 comm} .       -- Number of qubit equality
     
     vars BB BB1 BB2 : BasisBra .
     vars BK BK1 BK2 : BasisKet .
     vars BRA : Bra .
-    vars KET KET1 KET2 : Ket .
+    vars KET KET1 KET2 KET3 : Ket .
     vars M M1 M2 M3 : Mat .
     vars C C1 C2 : Complex .
 
@@ -233,6 +236,13 @@ mod! BRAKET {
     -- Only work well with orthogonal bases
     eq BRA x KET = if (BRA === KET) then cos(rzero) else rzero fi .
 
+    -- Number of qubit equality
+    eq (BK1 ==== BK2) = true .
+    eq (BK ==== bkzero) = true .
+    eq (BK * KET1 ==== bkzero * KET2) = if (KET1 ==== KET2) then true else false fi .
+    eq (KET1 ==== C * KET2) = (KET1 ==== KET2) .
+    ceq (KET1 ==== (KET2 + KET3)) = true if (KET1 ==== KET2 and KET1 ==== KET3) .
+
     eq |0><0| = |0> x <0| .
     eq |0><1| = |0> x <1| .
     eq |1><0| = |1> x <0| .
@@ -241,6 +251,7 @@ mod! BRAKET {
     eq M1 - M2 = M1 + (- M2) .
     eq (M1 + M2) x M3 = M1 x M3 + M2 x M3 .
     -- eq (M1 + M2) * M3 = M1 * M3 + M2 * M3 .
+    ceq bkzero * KET1 + KET2 = KET2 if (bkzero * KET1 ==== KET2) . -- To ensure the dimensions
     
     eq (BK x BB) x BK1 = if (BB === BK1) then BK else bkzero fi .
     eq (BK x BB) x bkzero = bkzero .
@@ -248,18 +259,20 @@ mod! BRAKET {
     -- eq BK1 * (- BK2) = (- BK1) * BK2 .
     eq BK * (BK1 + BK2) = BK * BK1 + BK * BK2 .
     eq BK1 * BK2 + bkzero * bkzero = BK1 * BK2 .
+
     eq M x (KET1 + KET2) = M x KET1 + M x KET2 .
     eq (M1 + M2) x KET = M1 x KET + M2 x KET .
 
     eq (C * M1) * M2 = C * (M1 * M2) .
     eq (C * M) x KET = C * (M x KET) .
     eq M1 * (C * M2) = C * (M1 * M2) .
+
     eq (- M) x KET = - (M x KET) .
 }
 
 mod! NATLIST {
     pr(NAT)
-    -- A lite version for NatList without any nil element
+    -- A lite version for NatList (with no empty list)
 
     [NatList]
     op _ _ : Nat Nat -> NatList .
@@ -281,8 +294,8 @@ mod! GATE {
     op basemat : GateName -> Mat .
 
     op _ _ : GateName Nat -> Gate {prec: 15} .
-    op C  _  _ _ : Nat     GateName Nat -> ControlledGate {prec: 15} .
-    op C [_] _ _ : NatList GateName Nat -> ControlledGate {prec: 15} .
+    op C _ _ _ : Nat GateName Nat -> ControlledGate {prec: 15} .
+    op MC [_] _ _ : NatList GateName Nat -> ControlledGate {prec: 15} .
 
     op _*_ : Gate Gate -> Gate {r-assoc prec: 31} . -- tenprod
     op _x_ : Gate Ket -> Ket {r-assoc prec: 31} .   -- matmul
@@ -310,17 +323,17 @@ mod! GATE {
     eq GN(K) x KET = (I(K) * basemat(GN) * I) x KET .
     eq C(K1)GN(K2) x KET = P0(K1) x KET + GN(K2) x (P1(K1) x KET) .
 
-    eq C[K1 K2]GN(K3) x KET = P0(K1) x KET + C(K2)GN(K3) x (P1(K1) x KET) . -- Not sure, need to be checked
-    eq C[K1 NL]GN(K2) x KET = P0(K1) x KET + C[NL]GN(K2) x (P1(K1) x KET) . -- Not sure, need to be checked
+    eq MC[K1 K2]GN(K3) x KET = P0(K1) x KET +  C(K2)GN(K3) x (P1(K1) x KET) .   -- Not sure, need to be checked
+    eq MC[K1 NL]GN(K2) x KET = P0(K1) x KET + MC[NL]GN(K2) x (P1(K1) x KET) .   -- Not sure, need to be checked
 
     eq I(0) * M = M .
     -- eq M * I(0) = M .
 
     eq (I(1) * M) x (BK * KET) = BK * (M x KET) .
-    eq (I(1) * M) x (bkzero * KET) = bkzero * (M x KET) . -- To ensure the dimensions
+    eq (I(1) * M) x (bkzero * KET) = bkzero * (M x KET) .       -- To ensure the dimensions
     
     eq ((M1 + M2) * I) x BK = M1 x BK + M2 x BK .
-    eq ((M1 + M2) * I) x bkzero = M1 x bkzero + M2 x bkzero .
+    eq ((M1 + M2) * I) x bkzero = M1 x bkzero + M2 x bkzero .   -- To ensure the dimensions
     
     eq ((BK x BB) * I) x (BK1 * BK2) = ((BK x BB) x BK1) * BK2 .
     eq ((BK x BB) * I) x (bkzero * bkzero) = ((BK x BB) x bkzero) * bkzero .

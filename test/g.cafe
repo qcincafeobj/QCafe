@@ -15,7 +15,7 @@ open GATE .
     red |0> + |1> .
     red |0> * |1> .
     red |1> * (|0> + (- |1>)) .
-    
+    -->
     --> TEST 2
     red (X 0) x |0> .
     red (X 1) x |0> * |1> .
@@ -24,19 +24,19 @@ open GATE .
     red X 0 .
     red X 5 .
     red C 5 X 7 .
-    red C [1 2 3] H 7 .
-    
+    red MC [1 2 3] H 7 .
+    -->
     --> TEST 3
     red C 0 X 1 x |0> * |0> .
     red C 0 X 1 x |0> * |1> .
     red C 0 X 1 x |1> * |0> .
     red C 0 X 1 x |1> * |1> .
-    
+    -->
     --> TEST 4
     red C 0 H 1 x |1> * |1> .
     red C 0 Z 1 x |1> * |1> .
     red C 0 Y 1 x |1> * |1> .
-    
+    -->
     --> TEST 5
 close
 
