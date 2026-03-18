@@ -2,72 +2,7 @@ input ../qc.cafe .
 
 -- -- open SQRT .
 -- -- open GATE .
-
--- red (- i cos(rzero)) * |1><1| + |0><0| . -- give Mat
--- red |0><0| - (i cos(rzero)) * |1><1| .   -- give Mat
--- red |0><0| + (- i cos(rzero)) * |1><1| . -- give ?Mat
-
 -- open GATE .
-
--- close
--- eof
-
-open GATE .
-    --> TEST 1
-    red - |1> .
-    red |0> + |1> .
-    red |0> * |1> .
-    red |1> * (|0> + (- |1>)) .
-    -->
-    --> TEST 2
-    red (X 0) x |0> .
-    red (X 1) x |0> * |1> .
-    red (X 1) x |0> * |1> .
-    red X(1) x |0> * |1> .
-    red X 0 .
-    red X 5 .
-    red C 5 X 7 .
-    red MC [1 2 3] H 7 .
-    -->
-    --> TEST 3
-    red C 0 X 1 x |0> * |0> .
-    red C 0 X 1 x |0> * |1> .
-    red C 0 X 1 x |1> * |0> .
-    red C 0 X 1 x |1> * |1> .
-    -->
-    --> TEST 4
-    red C 0 H 1 x |1> * |1> .
-    red C 0 Z 1 x |1> * |1> .
-    red C 0 Y 1 x |1> * |1> .
-    -->
-    --> TEST 5
-    red MC [0 2 3] Y 1 x |0> * |1> * |1> * |1> .
-    red MC [0 2 3] Y 1 x |1> * |1> * |1> * |1> .
-    red MC [0 2 3] Y 1 x |1> * |0> * |1> * |0> .
-    red MC [0 2 3] Y 1 x |1> * |0> * |1> * |1> .
-    -->
-    --> TEST 6
-    red MC [0 2 3] SI 1 x |0> * |1> * |1> * |1> .
-    red MC [0 2 3] SI 1 x |1> * |1> * |1> * |1> .
-    red MC [0 2 3] SI 1 x |1> * |0> * |1> * |0> .
-    red MC [0 2 3] SI 1 x |1> * |0> * |1> * |1> .
-    -->
-    --> TEST 7
-    red basemat(X) .
-    red basemat(S) .
-    red basemat(SI) .
-    red basemat(T) .
-    red basemat(TI) .
-close
-
-eof
-
-(
-    |1> * (
-        - ((i cos(rzero)) * (|1> * (|1> * |1>)))
-    )
-):Ket
-
 open DISPLAY .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
@@ -91,95 +26,95 @@ open DISPLAY .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 2: tenprod
-    red tenprod(ket("11"), ket("101")) .
-    red tenprod(bra("11"), ket("101")) .
-    red tenprod(ket("100001"), ket("123")) .
+    red display(tenprod(ket("11"), ket("101"))) .
+    red display(tenprod(bra("11"), ket("101"))) .
+    red display(tenprod(ket("100001"), ket("123"))) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 3: matmul
-    red matmul(I(4), ket("01")) .
-    red matmul(I(8), ket("01")) .
+    red display(matmul(I(4), ket("01"))) .
+    red display(matmul(I(8), ket("01"))) .
     
-    red matmul(bra("01"), I(4)) .
-    red matmul(bra("01"), I(8)) .
+    red display(matmul(bra("01"), I(4))) .
+    red display(matmul(bra("01"), I(8))) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 4: outprod
-    red outprod("1", "0") .
+    red display(outprod("1", "0")) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 5: X gate
     red tidx(sd(1, 1)) .
-    red X[tidx(sd(1, 1))] .
-    red tenprod(I(2), X[tidx(sd(1, 1))]) .
+    red display(X[tidx(sd(1, 1))]) .
+    red display(tenprod(I(2), X[tidx(sd(1, 1))])) .
     red ncols(X[tidx(5)]) .
     -->
-    red X[tidx(0)] .
-    red X[tidx(1)] .
-    red X[tidx(2)] .
+    red display(X[tidx(0)]) .
+    red display(X[tidx(1)]) .
+    red display(X[tidx(2)]) .
     -->
     red ncols(X[tidx(2)]) .
     -->
-    red tenprod(X[tidx(3)], X[tidx(5)]) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    red display(tenprod(X[tidx(3)], X[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
     -->
-    red apply(X[tidx(-1)], ket("01")) . -- Not implemented
-    red apply(X[tidx(0)], ket("01")) .
-    red apply(X[tidx(5)], ket("01")) .
-    red apply(X[tidx(2)], ket("011101")) .
-    red apply(X[tidx(5)], ket("011101")) .
+    red display(apply(X[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(X[tidx(0)], ket("01"))) .
+    red display(apply(X[tidx(5)], ket("01"))) .
+    red display(apply(X[tidx(2)], ket("011101"))) .
+    red display(apply(X[tidx(5)], ket("011101"))) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 6: Y gate
-    red outprod("0", "1") .
-    red Im(-1) * ket("1") .
-    red Im(-1) * matmul(ket("0"),bra("1")) .
-    red Im(-1) * outprod("0", "1") .
-    red Im(-1) * outprod("0", "1") + outprod("0", "1") .
+    red display(outprod("0", "1")) .
+    red display(Im(-1) * ket("1")) .
+    red display(Im(-1) * matmul(ket("0"),bra("1"))) .
+    red display(Im(-1) * outprod("0", "1")) .
+    red display(Im(-1) * outprod("0", "1") + outprod("0", "1")) .
     -->
-    red Y[tidx(0)] .
-    red Y[tidx(1)] .
-    red Y[tidx(2)] .
+    red display(Y[tidx(0)]) .
+    red display(Y[tidx(1)]) .
+    red display(Y[tidx(2)]) .
     -->
-    red tenprod(Y[tidx(3)], Y[tidx(5)]) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    red display(tenprod(Y[tidx(3)], Y[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
     -->
-    red apply(Y[tidx(-1)], ket("01")) . -- Not implemented
-    red apply(Y[tidx(0)], ket("01")) .
-    red apply(Y[tidx(5)], ket("01")) .
-    red apply(Y[tidx(2)], ket("011101")) .
-    red apply(Y[tidx(5)], ket("011101")) .
+    red display(apply(Y[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(Y[tidx(0)], ket("01"))) .
+    red display(apply(Y[tidx(5)], ket("01"))) .
+    red display(apply(Y[tidx(2)], ket("011101"))) .
+    red display(apply(Y[tidx(5)], ket("011101"))) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 7: Z gate
-    red Z[tidx(0)] .
-    red Z[tidx(1)] .
-    red Z[tidx(2)] .
+    red display(Z[tidx(0)]) .
+    red display(Z[tidx(1)]) .
+    red display(Z[tidx(2)]) .
     -->
-    red tenprod(Z[tidx(3)], Z[tidx(5)]) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    red display(tenprod(Z[tidx(3)], Z[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
     -->
-    red apply(Z[tidx(-1)], ket("01")) . -- Not implemented
-    red apply(Z[tidx(0)], ket("01")) .
-    red apply(Z[tidx(5)], ket("01")) .
-    red apply(Z[tidx(2)], ket("011101")) .
-    red apply(Z[tidx(5)], ket("011101")) .
+    red display(apply(Z[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(Z[tidx(0)], ket("01"))) .
+    red display(apply(Z[tidx(5)], ket("01"))) .
+    red display(apply(Z[tidx(2)], ket("011101"))) .
+    red display(apply(Z[tidx(5)], ket("011101"))) .
     --> ----------------------------------------------------
     --> ----------------------------------------------------
     --> TEST 8: H gate
-    red H[tidx(0)] .
-    red H[tidx(1)] .
-    red H[tidx(2)] .
+    red display(H[tidx(0)]) .
+    red display(H[tidx(1)]) .
+    red display(H[tidx(2)]) .
     -->
-    red tenprod(H[tidx(3)], H[tidx(5)]) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    red display(tenprod(H[tidx(3)], H[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
     -->
-    red apply(H[tidx(-1)], ket("01")) . -- Not implemented
-    red apply(H[tidx(0)], ket("01")) .
-    red apply(H[tidx(5)], ket("01")) .
-    red apply(H[tidx(2)], ket("011101")) .
-    red apply(H[tidx(5)], ket("011101")) .
+    red display(apply(H[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(H[tidx(0)], ket("01"))) .
+    red display(apply(H[tidx(5)], ket("01"))) .
+    red display(apply(H[tidx(2)], ket("011101"))) .
+    red display(apply(H[tidx(5)], ket("011101"))) .
     -- --> ----------------------------------------------------
     -- --> ----------------------------------------------------
     --> TEST 9: Ctrl(X) gate
-    red (X[tidx(0)]) - I(2) . -- works well without {prec: <= _-_} on _[_]
-    red X[tidx(0)] - I(2) . -- gives error if _[_] is not set to {prec: <= _-_}
+    red display((X[tidx(0)]) - I(2)) . -- works well without {prec: <= _-_} on _[_]
+    red display(X[tidx(0)] - I(2)) . -- gives error if _[_] is not set to {prec: <= _-_}
     red cidx(1) .
     red tidx(2) .
     -- -->
@@ -187,9 +122,9 @@ open DISPLAY .
     red ncols(Ctrl(X)[cidx(1) tidx(2)]) .
     red ncols(Ctrl(X)[cidx(2) tidx(3)]) .
     -- -->
-    red Ctrl(X)[cidx(0) tidx(1)] .
-    red Ctrl(X)[cidx(1) tidx(2)] .
-    red Ctrl(X)[cidx(2) tidx(3)] .
+    red display(Ctrl(X)[cidx(0) tidx(1)]) .
+    red display(Ctrl(X)[cidx(1) tidx(2)]) .
+    red display(Ctrl(X)[cidx(2) tidx(3)]) .
     -- -- -->
     -- -- red tenprod(H(tidx(3)), H(tidx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
     -- -- -->
