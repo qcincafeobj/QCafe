@@ -63,6 +63,14 @@ close
 
 eof
 
+open GATE .
+    op getNthQubit : Ket Nat -> Ket . --- ???
+    eq getNthQubit(KET1 + KET2, K) = getNthQubit(KET1, K) + getNthQubit(KET2, K) .
+    eq getNthQubit(BK, 0)       = BK .
+    eq getNthQubit(BK * KET, 0) = BK .
+    eq getNthQubit(BK * KET, K) = getNthQubit(KET, sd(K, 1)) .
+close
+
 -- Teleport (with measurement abstraction):
 -- cos((1/4 pi))^4 = 0.25
 -- 0.25 * (4 cases) = 1
@@ -82,7 +90,7 @@ eof
             )
         )
     )
-)))):Ket -- op getNthQubit : Ket -> Ket . ???
+)))):Ket 
 
 -- Teleport (with measurement abstraction and lemma):
 (cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * (
