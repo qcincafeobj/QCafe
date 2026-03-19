@@ -65,6 +65,24 @@ open GATE .
     -- Normalize after measurement
     -- Checking:
     -- I * I * |psi><psi| x output
+
+    -- Grouping M1 x K1 and M2 x K2 as M1 x K1 + M2 x K2
+    -- is okay in general, I think, because:
+        -- M1 x (a * K1) = a * (M1 x K1)
+        -- M2 x (b * K2) = b * (M2 x K2)
+        -- M1 x (a * K1) + M2 x (b * K2) = a * (M1 x K1) + b * (M2 x K2)
+        
+        -- M1 x (c * K1) (x) K2 = c * (M1 x (K1 (x) K2))
+        -- M2 x (c * K3) (x) K4 = c * (M2 x (K3 (x) K4))
+        -- [M1 x (c * K1) (x) K2] + [M2 x (c * K3) (x) K4] = c * [(M1 x (K1 (x) K2) + (M2 x (K3 (x) K4))]
+    
+    -- Summing side-by-side doesn't make the coefficients
+    -- become confusing
+    -- If it were confusing, it should be confusing from the start
+    -- when we isolate the coefficient similar to the case of "c".
+    -- Right from: c * (M1 x (K1 (x) K2))
+    -- We don't even know c is for K1 or K2
+
 close
 
 eof
