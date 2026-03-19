@@ -13,7 +13,11 @@ while g.cafe can't
 The fixed file is the file that was not input
 
 That mistake is now corrected, which shows that
+
+```
 ceq bkzero * KET1 + KET2 = KET2 if (bkzero * KET1 ==== KET2) .
+```
+
 can't be removed in this specification as it was in the meeting
 
 Basically, the other lemmas are fine,
