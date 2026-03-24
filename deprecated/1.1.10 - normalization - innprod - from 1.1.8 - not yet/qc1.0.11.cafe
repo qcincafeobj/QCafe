@@ -1,3 +1,5 @@
+-- NOT YET
+
 mod! REAL {
     pr(BOOL)
     pr(RAT)
@@ -22,6 +24,7 @@ mod! REAL {
 
     op _ pi : Rat -> Real .
     op cos : Real -> Real .
+    -- op cos : RZero -> Real .
     op sin : Real -> Real {prec: 15} .
 
     vars R R1 R2 : Real .
@@ -47,10 +50,8 @@ mod! REAL {
 
     eq cos(1/2 pi) = rzero .
     eq R * cos(rzero) = R .
-    eq cos(rzero) * R = R .
     eq cos(1 pi) = - cos(rzero) .
     eq R * (- cos(rzero)) = - R .
-    eq (- cos(rzero)) * R = - R .
     eq - cos(RT pi) = cos((1 - RT) pi) .            -- cos(pi - x) = - cos(x)
 
     -- Idea: (a1 + a2 + ... + an) = 0 = (A1 * A2 * ... * An) --> There is a Ai = 0 ~ cos(1/2 pi)
@@ -70,6 +71,7 @@ mod! REAL {
         and ((R1 = R2) = false)
     ) .
     eq (- cos(rzero) = cos(rzero)) = false .
+    -- eq (cos(1 pi) = cos(rzero)) = false .
     ceq ((R1 * R2) = rzero) = false if false = ((R1 = rzero) or (R2 = rzero)) .
     ceq ((R1 + R2) = rzero) = false if (- R1 = R2) = false .
 
@@ -90,13 +92,13 @@ mod! REAL {
     eq (- cos(rzero) <  rzero) = true .
     eq (- cos(rzero) <= rzero) = true .
 
-    ceq (cos(R) = rzero) = false if (rzero <= R) and (R < 1/2 pi) .    -- 1st quadrant
-    ceq (cos(R) = rzero) = false if (1/2 pi < R) and (R <= 1 pi) .     -- 2nd quadrant
+    ceq (cos(R) = rzero) = false if (rzero <= R) and (R < 1/2 pi) .   -- 1st quadrant
+    ceq (cos(R) = rzero) = false if (1/2 pi < R) and (R <= 1 pi) .    -- 2nd quadrant
 
-    ceq (cos(R) >  rzero) = true if (rzero  <  R) and (R <  1/2 pi) .  -- 1st quadrant
-    ceq (cos(R) >= rzero) = true if (rzero  <= R) and (R <= 1/2 pi) .  -- 2nd quadrant
-    ceq (cos(R) <  rzero) = true if (1/2 pi <  R) and (R <    1 pi) .  -- 1st quadrant
-    ceq (cos(R) <= rzero) = true if (1/2 pi <= R) and (R <=   1 pi) .  -- 2nd quadrant
+    ceq (cos(R) >  rzero) = true if (rzero  <  R) and (R <  1/2 pi) . -- 1st quadrant
+    ceq (cos(R) >= rzero) = true if (rzero  <= R) and (R <= 1/2 pi) . -- 2nd quadrant
+    ceq (cos(R) <  rzero) = true if (1/2 pi <  R) and (R <    1 pi) . -- 1st quadrant
+    ceq (cos(R) <= rzero) = true if (1/2 pi <= R) and (R <=   1 pi) . -- 2nd quadrant
     
     ceq (cos(R) >  rzero) = false if (1/2 pi <= R) and (R <=   1 pi) . -- 2nd quadrant
     ceq (cos(R) >= rzero) = false if (1/2 pi <  R) and (R <    1 pi) . -- 1st quadrant
@@ -154,154 +156,152 @@ mod! COMPLEX {
     vars IMG IMG1 IMG2 : Imaginary .
     vars R R1 R2 : Real .
 
-    -- constructor
+    eq - i R = i (- R) .
     eq i rzero = rzero .
-    
-    -- negative elements
-    eq - (- C) = C .
-    eq C1 * (- C2) = - (C1 * C2) .
-    eq - i R   = i (- R) .
 
-    -- addition, substraction
-    eq rzero + C   = C .
+    eq rzero + C = C .
     eq i R1 + i R2 = i (R1 + R2) .
+
     eq i R1 - i R2 = i (R1 - R2) .
     
-    -- multiplication
-    eq rzero * C       = rzero .
-    eq R1 * (i R2)     = i (R1 * R2) .
+    eq rzero * C = rzero .
+    eq R1 * (i R2) = i (R1 * R2) .
     eq (i R1) * (i R2) = - (R1 * R2) .
+    -- eq (C1 + C2) * C3 = C1 * C3 + C2 * C3 .
 
-    -- conjugate
-    eq R ^*     = R .
+    eq R ^* = R .
     eq (i R) ^* = i (- R) .
     eq (R1 + (i R2)) ^* = R1 + (i (- R2)) .
 
-    -- Euler formula
-    eq e^(i R)  = cos(R) + (i sin(R)) .
+    eq e^(i R) = cos(R) + (i sin(R)) .
 }
 
 mod! BRAKET {
-    pr(NAT)
     pr(COMPLEX)
 
-    [BasisBra BraZero < Bra]
-    [BasisKet KetZero < Ket]
-    [Bra Ket < Vect]
+    [BasisBra BasisBZero < Bra]
+    [BasisKet BasisKZero < Ket]
+    -- [Bra Ket < Vect]
 
     [BasisKetBra < Mat]
-    
+
     ops <0| <1| : -> BasisBra .
     ops |1> |0> : -> BasisKet .
     ops |0><0| |0><1| |1><0| |1><1| : -> BasisKetBra .
-    op bO : -> BraZero . -- [ 0 0 ] = O
-    op kO : -> KetZero . -- [ 0 0 ]^T = kO
+    op bbzero : -> BasisBZero .
+    op bkzero : -> BasisKZero .
+    -- ops <0|0> <0|1> <1|0> <1|1> : -> Complex .       -- Redundant
 
-    op _=_ : Bra Bra -> Bool {prec: 51 comm} .
-
-    op _^+ : Ket -> Bra {prec: 15} .                    -- dagger/conjugate transpose
-    op -_  : Ket -> Ket {prec: 15} .
-    op -_  : BasisKet -> BasisKet {prec: 15} .
+    op -_ : BasisKet -> BasisKet {prec: 15} .
+    op -_ : Ket -> Ket {prec: 15} .
     op _+_ : Ket Ket -> Ket {prec: 33 comm} .
-    op _+_ : Bra Bra -> Bra {prec: 33 comm} .
-    -- _`(*`)_
+
     -- _*_ : tenprod, Complex * Mat
     op _*_ : Ket Ket -> Ket {r-assoc prec: 31} .        -- tenprod |_> (x) |_>
     op _*_ : Bra Bra -> Bra {r-assoc prec: 31} .        -- tenprod <_| (x) <_|
     op _*_ : Complex Bra -> Bra {prec: 31} .
     op _*_ : Complex Ket -> Ket {prec: 31} .
+    op _*_ : Complex BasisKet -> BasisKet {prec: 31} .
+    op _*_ : Complex BasisBra -> BasisBra {prec: 31} .
     
     -- _x_ : innprod, outprod, matmul
-    op _x_ : Bra Ket -> Complex {prec: 31} .             -- innprod   <_|_>
-    op _x_ : Ket Bra -> Mat {prec: 31} .                 -- outerprod |_><_|
+    op _x_ : Bra Ket -> Complex {prec: 31} .             -- innprod <_|_>
+    op _x_ : Ket Bra -> Mat {prec: 31} .                 -- innprod |_><_|
     
-    op -_  : Mat -> Mat {prec: 15} .
+    op -_ : Mat -> Mat {prec: 15} .
     op _+_ : Mat Mat -> Mat {r-assoc prec: 33 comm} .
     op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
-    op _x_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- matmul
-    op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- tenprod, to be checked
+    op _x_ : Mat Mat -> Mat {prec: 31} .                -- matmul
+    op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- tenprod
     
     op _*_ : Complex Mat -> Mat {r-assoc prec: 31} .
     op _x_ : Mat Ket -> Ket {r-assoc prec: 31} .        -- matmul with Ket
 
+    op _===_ : Bra Ket -> Bool {prec: 51} .             -- Check co-vector
+    op _===_ : Ket Bra -> Bool {prec: 51} .             -- Check co-vector
+
+    op _====_ : Ket Ket -> Bool {prec: 51 comm} .       -- Number of qubit equality
+    
     vars BB BB1 BB2 : BasisBra .
     vars BK BK1 BK2 : BasisKet .
-    vars BRA BRA1 BRA2 : Bra .
+    vars BRA : Bra .
     vars KET KET1 KET2 KET3 KET4 : Ket .
     vars M M1 M2 M3 : Mat .
     vars C C1 C2 : Complex .
-    vars N N1 N2 : Nat .
-    vars V V1 V2 V3 : Vect .
 
-    -- bra equalities
-    eq (<0| = <0|) = true .
-    eq (<0| = <1|) = false .
-    eq (<1| = <0|) = false .
-    eq (<1| = <1|) = true .
+    eq (<0| === |0>) = true .
+    eq (<0| === |1>) = false .
+    eq (<1| === |0>) = false .
+    eq (<1| === |1>) = true .
+    eq (BB * BRA === BK * KET) = (BB === BK) and (BRA === KET) .
+    eq (KET === BRA) = (BRA === KET) .
+    eq BRA === C * KET = (BRA === KET) .
+    eq C * BRA === KET = (BRA === KET) .
+    
+    eq - bkzero = bkzero .
+    eq bkzero * BK = bkzero * bkzero .
+    eq - (bkzero * KET) = bkzero * KET .
+    eq C * (bkzero * KET) = bkzero * KET .
+    -- eq bkzero * (BK * KET) = bkzero * (bkzero * KET) .              -- To ensure the dimensions
+    eq bkzero + bkzero = bkzero .
+    eq bkzero + BK = BK .
+    eq bkzero + (BK1 + BK2) = BK1 + BK2 .
 
-    -- dagger/conjugate transpose
-    eq |0> ^+ = <0| .
-    eq |1> ^+ = <1| .
-    eq (KET1 + KET2)^+ = (KET1 ^+) + (KET2 ^+) .
-    eq (BK * KET)^+ = (KET ^+) * (BK ^+) .
-    eq (C * KET)^+  = (C ^*) * (KET ^+) .
+    -- Only work well with orthogonal bases
+    eq BRA x KET = if (BRA === KET) then cos(rzero) else rzero fi .
 
-    -- outprod in orthogonal bases
-    eq BRA x KET = if (KET ^+ = BRA) then cos(rzero) else rzero fi .
+    -- Number of qubit equality
+    eq (bkzero ==== bkzero) = true .
+    eq (BK ==== bkzero) = true .
+    eq (BK1 ==== BK2) = true .
+    eq KET1 * KET2 ==== KET3 * KET4 = if ((KET1 ==== KET3) and (KET2 ==== KET4)) then true else false fi .
+    eq (KET1 ==== C * KET2) = (KET1 ==== KET2) .
+    ceq (KET1 ==== (KET2 + KET3)) = true if (KET1 ==== KET2 and KET1 ==== KET3) .
+    eq (KET1 ==== (- KET2)) = (KET1 ==== KET2) .
+
     eq |0><0| = |0> x <0| .
     eq |0><1| = |0> x <1| .
     eq |1><0| = |1> x <0| .
     eq |1><1| = |1> x <1| .
 
-    -- handling kO = [0 0]^T
-    eq rzero * KET = kO .
-    eq - kO        = kO .
-    eq kO * KET    = kO .
-    eq KET * kO    = kO .
-    eq C * kO      = kO .
-    eq kO + kO     = kO .
-    eq kO + KET    = KET .
-    eq M x kO      = kO .
-
-    -- substraction
     eq M1 - M2 = M1 + (- M2) .
+    eq (M1 + M2) x M3 = M1 x M3 + M2 x M3 .
+    -- eq (M1 + M2) * M3 = M1 * M3 + M2 * M3 .
+    ceq bkzero * KET1 + KET2 = KET2 if (bkzero * KET1 ==== KET2) .  -- To ensure the dimensions
+    eq BK * (KET * bkzero) = bkzero * (BK * KET) .
+    eq BK * (bkzero * KET) = bkzero * (BK * KET) .
+    -- eq bkzero * KET1 + (- (bkzero * KET2)) = bkzero * (KET1 - KET2) .
 
-    -- matmul
-    eq (BK x BB) x BK1     = (BB x BK1) * BK .
-    eq (M1 x M2) x KET     = M1 x (M2 x KET) .
+    eq (BK x BB) x BK1 = if (BB === BK1) then BK else bkzero fi .
+    eq (BK x BB) x bkzero = bkzero .
+    eq BRA x (C * KET) = if (BRA === KET) then C * cos(rzero) else rzero fi .
+    
+    -- eq BK1 * (- BK2) = (- BK1) * BK2 .
+    eq BK * (BK1 + BK2) = BK * BK1 + BK * BK2 .
+    eq BK1 * BK2 + bkzero * bkzero = BK1 * BK2 .
 
-    -- distribition of operators into addition
-    eq (M1 + M2) x KET     = M1 x KET + M2 x KET .
-    eq (M1 + M2) * M3      = M1 * M3 + M2 * M3 .
+    eq M x (KET1 + KET2) = M x KET1 + M x KET2 .
+    eq (M1 + M2) x KET = M1 x KET + M2 x KET .
     eq (KET1 + KET2) * KET = KET1 * KET + KET2 * KET .
-    eq M x (KET1 + KET2)   = M x KET1 + M x KET2 .
 
-    eq (KET1 + KET2) x BRA = KET1 x BRA + KET2 x BRA .
-    eq KET x (BRA1 + BRA2) = KET x BRA1 + KET x BRA2 .
+    eq (C * M1) * M2 = C * (M1 * M2) .
+    eq (C * M) x KET = C * (M x KET) .
+    eq M1 * (C * M2) = C * (M1 * M2) .
+    eq KET1 * (C * KET2) = C * (KET1 * KET2) .
+    eq M x (C * KET) = C * (M x KET) .
+    eq C * KET1 + C * KET2 = C * (KET1 + KET2) .
 
-    -- complex coefficient isolation
-    eq cos(rzero) * KET    = KET .
-    eq KET1 * (C * KET2)   = C * (KET1 * KET2) .
-    eq (C * M1) * M2       = C * (M1 * M2) .
-    eq (C * M) x KET       = C * (M x KET) .
-    eq (C * KET1) * KET2   = C * (KET1 * KET2) .
-    eq M x (C * KET)       = C * (M x KET) .
-    eq C * (- KET)         = (- C) * KET .
-    eq C1 * (C2 * KET)     = (C1 * C2) * KET .
+    eq - (C * KET) = (- C) * KET .
 
-    eq KET x (C * BRA) = C * (KET x BRA) .
-    eq (C * KET) x BRA = C * (KET x BRA) .
-
-    -- negative elements
-    eq (- M) x KET         = - (M x KET) .
-    eq M x (- KET)         = - (M x KET) .
-    eq KET1 * (- KET2)     = - (KET1 * KET2) .
-    eq ((- M1) * M2) x KET = - ((M1 * M2) x KET) .
+    eq (- M) x KET = - (M x KET) .
+    eq M x (- KET) = - (M x KET) .
+    eq ((- M1) * M2) x KET = -((M1 * M2) x KET) .
+    eq KET * KET1 + KET * KET2 = KET * (KET1 + KET2) .
 }
 
 mod! NATLIST {
     pr(NAT)
-    -- a lite version for NatList (with no empty list)
+    -- A lite version for NatList (with no empty list)
 
     [NatList]
     op _ _ : Nat Nat -> NatList .
@@ -309,26 +309,25 @@ mod! NATLIST {
 }
 
 mod! GATE {
+    -- pr(NAT)
     pr(NATLIST)
     pr(BRAKET)
     
     [Gate ControlledGate < Mat]
     [Controller GateName]
 
-    -- gates supported
-    ops X Y Z H P0 P1 : -> GateName .       -- GN(K): operator matrix for qubit K
+    -- Gates supported
+    ops X Y Z H P0 P1 : -> GateName .           -- GN(K): operator matrix for qubit K
     ops S SI T TI : -> GateName .
-    -- ops Rx Ry Rz R1 : -> GateName .      -- rotation gates with theta angle
+    -- ops Rx Ry Rz R1 : -> GateName .          -- rotation gates with theta angle
     op _ _ : GateName Nat -> Gate {prec: 15} .
-    -- try op _`_ : GateName Nat -> Gate {prec: 15} .
     
-    -- controlled and multi-controlled mechanisms
+    -- Controlled and Multi-controlled Mechanism
     op C _ _ _ : Nat GateName Nat -> ControlledGate {prec: 15} .
-    -- try op C`_`(_`,_`) : GateName Nat Nat -> ControlledGate {prec: 15} .
-    op MC [_] _ _ : NatList GateName Nat -> ControlledGate {prec: 13} .
+    op MC [_] _ _ : NatList GateName Nat -> ControlledGate {prec: 15} .
 
-    op I : Nat -> Gate .    -- I(N): identity gate for N qubits
-    op I : -> Gate .        -- Dimension helper: General identity gate, contextual size (from 0 to N)
+    op I : Nat -> Gate .                        -- I(N): identity gate for N qubits
+    op I : -> Gate .                            -- General identity gate, its size is based on context (from 0 to N)
 
     op basemat : GateName -> Mat .
 
@@ -336,15 +335,18 @@ mod! GATE {
     op _x_ : Gate Ket -> Ket {r-assoc prec: 31} .   -- matmul
     
     vars GN : GateName .
+    vars G G1 G2 : Gate .
+    vars CG : ControlledGate .
     vars N K K1 K2 K3 : Nat .
     vars KET : Ket .
-    vars BK BK1 : BasisKet .
-    vars BB : BasisBra .
-    vars M : Mat .
+    vars BK BK1 BK2 BK3 : BasisKet .
+    vars BB BB1 BB2 BB3 : BasisBra .
+    vars M M1 M2 : Mat .
     vars NL : NatList .
+    vars BKB BKB1 BKB2 : BasisKetBra .
     
     eq basemat(X)  = (|0><1| + |1><0|) .
-    eq basemat(Y)  = (i cos(rzero)) * (- |0><1| + |1><0|) .
+    eq basemat(Y)  = - (i cos(rzero)) * (|0><1| - |1><0|) .
     eq basemat(Z)  = |0><0| - |1><1| .
     eq basemat(H)  = cos(1/4 pi) * ((|0><0| + |0><1|) + (|1><0| - |1><1|)) .
     eq basemat(P0) = |0><0| .
@@ -353,22 +355,29 @@ mod! GATE {
     eq basemat(S)  = |0><0| + (i cos(rzero)) * |1><1| .
     eq basemat(SI) = |0><0| - (i cos(rzero)) * |1><1| .     -- Inverse S gate
     eq basemat(T)  = |0><0| + (e^(i (1/4 pi))) * |1><1| .
-    eq basemat(TI) = |0><0| + (e^(- i (1/4 pi))) * |1><1| . -- Inverse T gate
+    eq basemat(TI)  = |0><0| + (e^(- i (1/4 pi))) * |1><1| .  -- Inverse T gate
 
-    -- K: qubit index (0, 1, 2, ...)
-    -- gate mechanisms
-    eq GN(K)           = (I(K) * basemat(GN) * I) .
-    eq C(K1)GN(K2)     = P0(K1) +       GN(K2) x P1(K1) .
-    eq MC[K1 K2]GN(K3) = P0(K1) +  C(K2)GN(K3) x P1(K1) .
-    eq MC[K1 NL]GN(K2) = P0(K1) + MC[NL]GN(K2) x P1(K1) .
+    -- qubit index: 0, 1, 2, ...
+    -- K: qubit index, N: number of qubit in KET
+    eq GN(K) x KET = (I(K) * basemat(GN) * I) x KET .
+    eq C(K1)GN(K2) x KET = P0(K1) x KET + GN(K2) x (P1(K1) x KET) .
 
-    -- handling I(N) while ensuring the dimensions
-    eq (I(N) * M) x (BK * KET) = BK * ((I(sd(N, 1)) * M) x KET) .
+    eq MC[K1 K2]GN(K3) x KET = P0(K1) x KET +  C(K2)GN(K3) x (P1(K1) x KET) .   -- Not sure, need to be checked
+    eq MC[K1 NL]GN(K2) x KET = P0(K1) x KET + MC[NL]GN(K2) x (P1(K1) x KET) .   -- Not sure, need to be checked
+
+    eq I(0) * M = M .
+    -- eq M * I(0) = M .
+
     eq (I(1) * M) x (BK * KET) = BK * (M x KET) .
-    eq I(0) * M =  M .
+    eq (I(K) * M) x (BK * KET) = BK * ((I(sd(K, 1)) * M) x KET) .
 
-    -- handling dimension helper I
-    eq ((BK x BB) * M) x (BK1 * KET) = ((BK x BB) x BK1) * (M x KET) .
-    eq ((BK x BB) * I) x BK1 = (BK x BB) x BK1 .
-    eq I x KET = KET .
+    eq (I(1) * M) x (bkzero * KET) = bkzero * (M x KET) .                   -- To ensure the dimensions
+    eq (I(K) * M) x (bkzero * KET) = bkzero * ((I(sd(K, 1)) * M) x KET) .   -- To ensure the dimensions
+    
+    eq (M1 + M2) * I = M1 * I + M2 * I .                                    -- To ensure the dimensions
+    eq (M * I) x BK = M x BK .
+    eq (M * I) x bkzero = M x bkzero .
+    
+    eq ((BK x BB) * I) x (BK1 * KET) = ((BK x BB) x BK1) * KET .
+    eq ((BK x BB) * I) x (bkzero * bkzero) = bkzero * bkzero .
 }

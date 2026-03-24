@@ -1,0 +1,108 @@
+-- input ../qc-old.cafe .
+-- input ../qc-main.cafe .
+input ../qc.cafe .
+
+-- -- open SQRT .
+-- -- open GATE .
+
+-- red (- i cos(rzero)) * |1><1| + |0><0| . -- give Mat
+-- red |0><0| - (i cos(rzero)) * |1><1| .   -- give Mat
+-- red |0><0| + (- i cos(rzero)) * |1><1| . -- give ?Mat
+
+-- open GATE .
+
+-- close
+-- eof
+
+open GATE .
+    -- --> TEST 1
+    -- red - |1> .
+    -- red |0> + |1> .
+    -- red |0> * |1> .
+    -- red |1> * (|0> + (- |1>)) .
+    -- -->
+    -- --> TEST 2
+    -- red (X 0) x |0> .
+    -- red (X 1) x |0> * |1> .
+    -- red (X 1) x |0> * |1> .
+    -- red X(1) x |0> * |1> .
+    -- red X 0 .
+    -- red X 5 .
+    -- red C 5 X 7 .
+    -- red MC [1 2 3] H 7 .
+    -->
+    --> TEST 3
+    red C 0 X 1 x (|0> * |0>) .
+    red C 0 X 1 x |0> * |1> .
+    red C 0 X 1 x |1> * |0> .
+    red C 0 X 1 x |1> * |1> .
+    -->
+    --> TEST 4
+    red C 0 H 1 x |1> * |1> .
+    red C 0 Z 1 x |1> * |1> .
+    red C 0 Y 1 x |1> * |1> .
+    -->
+    --> TEST 5
+    red MC [0 2 3] Y 1 x |0> * |1> * |1> * |1> .
+    red MC [0 2 3] Y 1 x |1> * |1> * |1> * |1> .
+    red MC [0 2 3] Y 1 x |1> * |0> * |1> * |0> .
+    red MC [0 2 3] Y 1 x |1> * |0> * |1> * |1> .
+    -->
+    --> TEST 6
+    red MC [0 2 3] SI 1 x |0> * |1> * |1> * |1> .
+    red MC [0 2 3] SI 1 x |1> * |1> * |1> * |1> .
+    red MC [0 2 3] SI 1 x |1> * |0> * |1> * |0> .
+    red MC [0 2 3] SI 1 x |1> * |0> * |1> * |1> .
+    -->
+    -- --> TEST 7
+    -- red basemat(X) .
+    -- red basemat(S) .
+    -- red basemat(SI) .
+    -- red basemat(T) .
+    -- red basemat(TI) .
+    -->
+    --> TEST 8
+    red (kO * (|0> * (|1> * |1>))) .
+    red (|1> x <1|) x |0> .
+    -->
+close
+
+eof
+
+(
+    display(
+        tenprod(
+            I(4),(matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+        )
+    )
+):String
+
+
+tenprod(X(tidx(3)), X(tidx(5))) = (
+    tenprod(
+        tenprod(
+            tenprod(
+                I(8),
+                (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+            ),
+            I(32)
+        ),
+        (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+    )
+):Mat
+
+(Im(-1) * outprod("0","1")) + outprod("0","1") = (
+    (
+        Im(-1) * matmul(ket("0"),bra("1"))
+    ) + matmul(ket("0"),bra("1"))
+):Mat
+
+apply(Y(tidx(5)),ket("011101")) = (
+    matmul(
+        tenprod(
+            I(32),
+            ((Im(-1) * matmul(ket("0"),bra("1"))) + (Im(1) * matmul(ket("1"),bra("0"))))
+        ),
+        ket("011101")
+    )
+):Mat

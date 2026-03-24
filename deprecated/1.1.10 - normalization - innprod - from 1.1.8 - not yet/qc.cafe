@@ -128,18 +128,21 @@ mod! COMPLEX {
     
     [Real Imaginary < Complex]
 
+    op | _ |^2 : Complex -> Real .
+    op sqrt : Complex -> Complex .
     op -_ : Complex -> Complex {prec: 15} .
 
     op _+_ : Complex Complex -> Complex {l-assoc prec: 33 comm} .
     op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
-    op _*_ : Complex Complex -> Complex {l-assoc prec: 31 comm} .
-    -- op _/_ : Complex NzComplex -> Complex {l-assoc prec: 31} .
+    op _*_ : Complex Complex -> Complex {r-assoc prec: 31 comm} .
+    op _/_ : Complex Complex -> Complex {l-assoc prec: 31} .
 
     op _+_ : Real Imaginary -> Complex {l-assoc prec: 33} .
     op _+_ : Imaginary Real -> Complex {l-assoc prec: 33} .
     op _+_ : Imaginary Imaginary -> Imaginary {l-assoc prec: 33 comm} .
     
-    op _^* : Complex -> Complex .
+    op _^* : Complex -> Complex {prec: 15} .
+    op _^* : Real -> Real {prec: 15} .
 
     op _=_  : Complex Complex -> Bool {prec: 51 comm} .
     op _>_  : Complex Complex -> Bool {prec: 51} .
@@ -150,9 +153,19 @@ mod! COMPLEX {
     op i_ : Real -> Imaginary .
     op e^_ : Complex -> Complex .
 
-    vars C C1 C2 C3 : Complex .
+    vars C C1 C2 C3 C4 : Complex .
     vars IMG IMG1 IMG2 : Imaginary .
     vars R R1 R2 : Real .
+
+    -- squared norm
+    eq | R1 + i R2 |^2 = R1 * R1 + R2 * R2 .
+    eq | R * C |^2 = R * R * | C |^2 .
+
+    -- square root
+    eq sqrt(C1) * sqrt(C1) = C1 .
+    eq sqrt(C1) * sqrt(C2) = sqrt(C1 * C2) .
+    eq sqrt(cos(rzero)) = cos(rzero) .
+    eq sqrt(R * R * R1) = R * sqrt(R1) .
 
     -- constructor
     eq i rzero = rzero .
@@ -161,6 +174,8 @@ mod! COMPLEX {
     eq - (- C) = C .
     eq C1 * (- C2) = - (C1 * C2) .
     eq - i R   = i (- R) .
+    -- eq - (C * R) = (- R) * C .
+    eq (- C1) * (- C2) = C1 * C2 .
 
     -- addition, substraction
     eq rzero + C   = C .
@@ -172,13 +187,31 @@ mod! COMPLEX {
     eq R1 * (i R2)     = i (R1 * R2) .
     eq (i R1) * (i R2) = - (R1 * R2) .
 
+    -- division
+    eq (C1 / C2) * (C3 / C4) = (C1 * C3) / (C2 * C4) .
+    ceq R1 / R1 = cos(rzero) if (not (R1 = rzero)) .
+
     -- conjugate
     eq R ^*     = R .
+    eq (C * R) ^*     = R * (C ^*) .
     eq (i R) ^* = i (- R) .
     eq (R1 + (i R2)) ^* = R1 + (i (- R2)) .
+    eq (C1 / C2) ^* = (C1 ^*) / (C2 ^*) .
+    eq (sqrt(C)^*) * sqrt(C) = sqrt(| C |^2) .
+    -- eq (- (C * R)) ^* = - (R * (C ^*)) .
+    eq (- C) ^* = - (C ^*) .
 
     -- Euler formula
     eq e^(i R)  = cos(R) + (i sin(R)) .
+
+    -- coefficient isolation
+    eq (C ^*) * C = | C |^2 .
+    -- eq C * ((C1 ^*) * (C * C1)) = C * (C * | C1 |^2) .
+    -- eq C * ((C1 * C2) * C3) = C * (C1 * (C2 * C3)) .
+    eq (C1 * C2) * (C1 * C3) = C1 * (C1 * (C2 * C3)) .
+    eq R * C1 + R * C2 = R * (C1 + C2) .
+    eq (C1 / (C2 * C3)) * (C2 * C4) = (C1 * C4) / C3 .
+    -- eq (C1 / C2) * C3 = (C1 * C3) / C2 .
 }
 
 mod! BRAKET {
@@ -197,8 +230,10 @@ mod! BRAKET {
     op bO : -> BraZero . -- [ 0 0 ] = O
     op kO : -> KetZero . -- [ 0 0 ]^T = kO
 
+    op ||_||^2 : Vect -> Real .
     op _=_ : Bra Bra -> Bool {prec: 51 comm} .
-
+    
+    op _^+ : Bra -> Ket {prec: 15} .                    -- dagger/conjugate transpose
     op _^+ : Ket -> Bra {prec: 15} .                    -- dagger/conjugate transpose
     op -_  : Ket -> Ket {prec: 15} .
     op -_  : BasisKet -> BasisKet {prec: 15} .
@@ -226,12 +261,20 @@ mod! BRAKET {
 
     vars BB BB1 BB2 : BasisBra .
     vars BK BK1 BK2 : BasisKet .
-    vars BRA BRA1 BRA2 : Bra .
+    vars BRA BRA1 BRA2 BRA3 : Bra .
     vars KET KET1 KET2 KET3 KET4 : Ket .
     vars M M1 M2 M3 : Mat .
     vars C C1 C2 : Complex .
     vars N N1 N2 : Nat .
-    vars V V1 V2 V3 : Vect .
+    vars R R1 R2 : Real .
+
+    -- L2-norm
+    eq || C * KET ||^2 = ((C ^*) * C) * || KET ||^2 .
+    ceq sqrt(BRA x KET) ^* = sqrt(BRA x KET) if (KET ^+ = BRA) .
+    -- eq || BK * KET ||^2 = ((KET ^+) * BK ^+) x (BK * KET) .
+    eq (BB * BRA) x (BK * KET) = (BB x BK) * (BRA x KET) .
+    eq (BRA1 * BRA2) * BRA3 = BRA1 * (BRA2 * BRA3) .
+    eq || KET ||^2 = (KET ^+) x KET .
 
     -- bra equalities
     eq (<0| = <0|) = true .
@@ -242,12 +285,13 @@ mod! BRAKET {
     -- dagger/conjugate transpose
     eq |0> ^+ = <0| .
     eq |1> ^+ = <1| .
-    eq (KET1 + KET2)^+ = (KET1 ^+) + (KET2 ^+) .
     eq (BK * KET)^+ = (KET ^+) * (BK ^+) .
     eq (C * KET)^+  = (C ^*) * (KET ^+) .
+    eq (KET1 + KET2)^+ = (KET1 ^+) + (KET2 ^+) .
 
     -- outprod in orthogonal bases
-    eq BRA x KET = if (KET ^+ = BRA) then cos(rzero) else rzero fi .
+    eq BB x BK = if (BK ^+ = BB) then cos(rzero) else rzero fi .
+    -- eq BRA x KET = if (KET ^+ = BRA) then cos(rzero) else rzero fi .
     eq |0><0| = |0> x <0| .
     eq |0><1| = |0> x <1| .
     eq |1><0| = |1> x <0| .
@@ -275,9 +319,8 @@ mod! BRAKET {
     eq (M1 + M2) * M3      = M1 * M3 + M2 * M3 .
     eq (KET1 + KET2) * KET = KET1 * KET + KET2 * KET .
     eq M x (KET1 + KET2)   = M x KET1 + M x KET2 .
-
-    eq (KET1 + KET2) x BRA = KET1 x BRA + KET2 x BRA .
-    eq KET x (BRA1 + BRA2) = KET x BRA1 + KET x BRA2 .
+    eq (BRA1 + BRA2) x KET = BRA1 x KET + BRA2 x KET .
+    eq BRA x (KET1 + KET2) = BRA x KET1 + BRA x KET2 .
 
     -- complex coefficient isolation
     eq cos(rzero) * KET    = KET .
@@ -289,8 +332,13 @@ mod! BRAKET {
     eq C * (- KET)         = (- C) * KET .
     eq C1 * (C2 * KET)     = (C1 * C2) * KET .
 
-    eq KET x (C * BRA) = C * (KET x BRA) .
-    eq (C * KET) x BRA = C * (KET x BRA) .
+    eq C1 * (C2 * BRA) = (C1 * C2) * BRA .
+    eq C * (BRA1 + BRA2) = C * BRA1 + C * BRA2 .
+    eq BRA x (C * KET) = C * (BRA x KET) .
+    eq (C * BRA) x KET = C * (BRA x KET) .
+    eq C * cos(rzero) = C .
+
+    eq C1 * (C * (C1 * C2)) = C1 * (C2 * C) .
 
     -- negative elements
     eq (- M) x KET         = - (M x KET) .
@@ -334,7 +382,9 @@ mod! GATE {
 
     op _*_ : Gate Gate -> Gate {r-assoc prec: 31} . -- tenprod
     op _x_ : Gate Ket -> Ket {r-assoc prec: 31} .   -- matmul
-    
+
+    op msment-op : Mat -> Gate .
+
     vars GN : GateName .
     vars N K K1 K2 K3 : Nat .
     vars KET : Ket .
@@ -362,8 +412,8 @@ mod! GATE {
     eq MC[K1 K2]GN(K3) = P0(K1) +  C(K2)GN(K3) x P1(K1) .
     eq MC[K1 NL]GN(K2) = P0(K1) + MC[NL]GN(K2) x P1(K1) .
 
-    -- handling I(N) while ensuring the dimensions
-    eq (I(N) * M) x (BK * KET) = BK * ((I(sd(N, 1)) * M) x KET) .
+    -- handling I(K) while ensuring the dimensions
+    eq (I(K) * M) x (BK * KET) = BK * ((I(sd(K, 1)) * M) x KET) .
     eq (I(1) * M) x (BK * KET) = BK * (M x KET) .
     eq I(0) * M =  M .
 
@@ -371,4 +421,6 @@ mod! GATE {
     eq ((BK x BB) * M) x (BK1 * KET) = ((BK x BB) x BK1) * (M x KET) .
     eq ((BK x BB) * I) x BK1 = (BK x BB) x BK1 .
     eq I x KET = KET .
+
+    eq msment-op(M) x KET = (cos(rzero) / sqrt(|| M x KET ||^2)) * (M x KET) .
 }
