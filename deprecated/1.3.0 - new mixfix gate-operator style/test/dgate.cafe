@@ -1,0 +1,188 @@
+input ../qc.cafe .
+
+-- -- open SQRT .
+-- -- open GATE .
+-- open GATE .
+open DISPLAY .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 1: misc/debug
+    red p (0:Nat) .     -- (p 0:Nat):?FindResult+Float
+    red p (5 + 10) .    -- 14
+    red 1 = 1 .         -- true
+    red 1 = 2 .         -- (1 = 2):Bool
+    red 1 == 2 .        -- false
+    red 1 > 0 .         -- true
+    red 0 = 0 .
+    -->
+    red sd(1, 2) > 0 .
+    red sd(2, 1) > 0 .
+    red length("123") .
+    red p (sd(nqubits(ket("0101")), 2)) .
+    -->
+    red nqubits(ket("")) .
+    red ncols(I(8)) .
+    red nrows(ket("01")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 2: tenprod
+    red display(tenprod(ket("11"), ket("101"))) .
+    red display(tenprod(bra("11"), ket("101"))) .
+    red display(tenprod(ket("100001"), ket("123"))) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 3: matmul
+    red display(matmul(I(4), ket("01"))) .
+    red display(matmul(I(8), ket("01"))) .
+    
+    red display(matmul(bra("01"), I(4))) .
+    red display(matmul(bra("01"), I(8))) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 4: outprod
+    red display(outprod("1", "0")) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 5: X gate
+    red tidx(sd(1, 1)) .
+    red display(X[tidx(sd(1, 1))]) .
+    red display(tenprod(I(2), X[tidx(sd(1, 1))])) .
+    red ncols(X[tidx(5)]) .
+    -->
+    red display(X[tidx(0)]) .
+    red display(X[tidx(1)]) .
+    red display(X[tidx(2)]) .
+    -->
+    red ncols(X[tidx(2)]) .
+    -->
+    red display(tenprod(X[tidx(3)], X[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red display(apply(X[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(X[tidx(0)], ket("01"))) .
+    red display(apply(X[tidx(5)], ket("01"))) .
+    red display(apply(X[tidx(2)], ket("011101"))) .
+    red display(apply(X[tidx(5)], ket("011101"))) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 6: Y gate
+    red display(outprod("0", "1")) .
+    red display(Im(-1) * ket("1")) .
+    red display(Im(-1) * matmul(ket("0"),bra("1"))) .
+    red display(Im(-1) * outprod("0", "1")) .
+    red display(Im(-1) * outprod("0", "1") + outprod("0", "1")) .
+    -->
+    red display(Y[tidx(0)]) .
+    red display(Y[tidx(1)]) .
+    red display(Y[tidx(2)]) .
+    -->
+    red display(tenprod(Y[tidx(3)], Y[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red display(apply(Y[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(Y[tidx(0)], ket("01"))) .
+    red display(apply(Y[tidx(5)], ket("01"))) .
+    red display(apply(Y[tidx(2)], ket("011101"))) .
+    red display(apply(Y[tidx(5)], ket("011101"))) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 7: Z gate
+    red display(Z[tidx(0)]) .
+    red display(Z[tidx(1)]) .
+    red display(Z[tidx(2)]) .
+    -->
+    red display(tenprod(Z[tidx(3)], Z[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red display(apply(Z[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(Z[tidx(0)], ket("01"))) .
+    red display(apply(Z[tidx(5)], ket("01"))) .
+    red display(apply(Z[tidx(2)], ket("011101"))) .
+    red display(apply(Z[tidx(5)], ket("011101"))) .
+    --> ----------------------------------------------------
+    --> ----------------------------------------------------
+    --> TEST 8: H gate
+    red display(H[tidx(0)]) .
+    red display(H[tidx(1)]) .
+    red display(H[tidx(2)]) .
+    -->
+    red display(tenprod(H[tidx(3)], H[tidx(5)])) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -->
+    red display(apply(H[tidx(-1)], ket("01"))) . -- Not implemented
+    red display(apply(H[tidx(0)], ket("01"))) .
+    red display(apply(H[tidx(5)], ket("01"))) .
+    red display(apply(H[tidx(2)], ket("011101"))) .
+    red display(apply(H[tidx(5)], ket("011101"))) .
+    -- --> ----------------------------------------------------
+    -- --> ----------------------------------------------------
+    --> TEST 9: Ctrl(X) gate
+    red display((X[tidx(0)]) - I(2)) . -- works well without {prec: <= _-_} on _[_]
+    red display(X[tidx(0)] - I(2)) . -- gives error if _[_] is not set to {prec: <= _-_}
+    red cidx(1) .
+    red tidx(2) .
+    -- -->
+    red ncols(Ctrl(X)[cidx(0) tidx(1)]) .
+    red ncols(Ctrl(X)[cidx(1) tidx(2)]) .
+    red ncols(Ctrl(X)[cidx(2) tidx(3)]) .
+    -- -->
+    red display(Ctrl(X)[cidx(0) tidx(1)]) .
+    red display(Ctrl(X)[cidx(1) tidx(2)]) .
+    red display(Ctrl(X)[cidx(2) tidx(3)]) .
+    -- -- -->
+    -- -- red tenprod(H(tidx(3)), H(tidx(5))) . -- Just to see what will happen, I don't think this is a meaningful operation in theory
+    -- -- -->
+    -- -- red apply(H(tidx(-1)), ket("01")) . -- Not implemented
+    -- -- red apply(H(tidx(0)), ket("01")) .
+    -- -- red apply(H(tidx(5)), ket("01")) .
+    -- -- red apply(H(tidx(5)), ket("011101")) .
+    -- --> ----------------------------------------------------
+    -- --> ----------------------------------------------------
+    -->
+    red apply(Ctrl(X)[cidx(2) tidx(0)], ket("0100")) . -- Ctrl(X) might look weird if it is not used with apply
+    red display(apply(Ctrl(X)[cidx(2) tidx(0)], ket("0100"))) . -- Ctrl(X) might look weird if it is not used with apply
+    --> TEST 10: display
+    red int2str(0 - 100) .
+    red display(X[tidx(2)]) .
+    red display(Ctrl(X)[cidx(0) tidx(2)]) . -- Ctrl(X) might look weird if it is not used with apply
+    red display(Ctrl(X)[cidx(2) tidx(0)]) . -- Ctrl(X) might look weird if it is not used with apply
+    red display(Ctrl(X)[cidx(2) tidx(3)]) . -- Ctrl(X) might look weird if it is not used with apply
+    red display(Ctrl(X)[cidx(3) tidx(2)]) . -- Ctrl(X) might look weird if it is not used with apply
+
+close
+
+eof
+
+(
+    display(
+        tenprod(
+            I(4),(matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+        )
+    )
+):String
+
+
+tenprod(X(tidx(3)), X(tidx(5))) = (
+    tenprod(
+        tenprod(
+            tenprod(
+                I(8),
+                (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+            ),
+            I(32)
+        ),
+        (matmul(ket("0"),bra("1")) + matmul(ket("1"),bra("0")))
+    )
+):Mat
+
+(Im(-1) * outprod("0","1")) + outprod("0","1") = (
+    (
+        Im(-1) * matmul(ket("0"),bra("1"))
+    ) + matmul(ket("0"),bra("1"))
+):Mat
+
+apply(Y(tidx(5)),ket("011101")) = (
+    matmul(
+        tenprod(
+            I(32),
+            ((Im(-1) * matmul(ket("0"),bra("1"))) + (Im(1) * matmul(ket("1"),bra("0"))))
+        ),
+        ket("011101")
+    )
+):Mat
