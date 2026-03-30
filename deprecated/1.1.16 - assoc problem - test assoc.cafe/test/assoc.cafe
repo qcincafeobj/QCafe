@@ -10,6 +10,7 @@ mod! COMPLEX {
     [Real Imaginary < Complex]
 
     op _*_ : Complex Complex -> Complex {assoc prec: 31 comm} .
+    -- op _*_ : Complex Real -> Complex {prec: 31} .
     op _^* : Complex -> Complex .
     
     vars C C1 C2 : Complex .
@@ -27,9 +28,9 @@ mod! BRAKET {
     ops <0| <1| : -> BasisBra .
     ops |1> |0> : -> BasisKet .
     op _*_ : Bra Bra -> Bra {assoc prec: 31} . 
-    -- op _*_ : Ket Ket -> Ket {assoc prec: 31} . -- Unexpected behavior
+    op _*_ : Ket Ket -> Ket {assoc prec: 31} . -- Unexpected behavior
     -- op _*_ : Ket Ket -> Ket {l-assoc prec: 31} . -- Work well
-    op _*_ : Ket Ket -> Ket {r-assoc prec: 31} . -- Work well
+    -- op _*_ : Ket Ket -> Ket {r-assoc prec: 31} . -- Work well
     op _*_ : Complex Ket -> Ket {prec: 31} .
     op _*_ : Complex Bra -> Bra {prec: 31} .
     op _^+ : Ket -> Bra {prec: 15} .
