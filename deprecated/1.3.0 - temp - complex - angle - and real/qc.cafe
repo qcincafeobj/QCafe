@@ -139,11 +139,11 @@ mod! COMPLEX {
 
     op _+_ : Complex Complex -> Complex {l-assoc prec: 33 comm} .
     op _-_ : Complex Complex -> Complex {l-assoc prec: 33} .
-    op _*_ : Complex Complex -> Complex {assoc prec: 31 comm} .
+    op _*_ : Complex Complex -> Complex {l-assoc prec: 31 comm} .
     op _/_ : Complex Complex -> Complex {l-assoc prec: 31} . -- check l-assoc, try to remove, use Real instead
 
-    op _*_ : Complex Rat -> Complex {l-assoc prec: 31} .
-    op _*_ : Rat Complex -> Complex {l-assoc prec: 31} .
+    op _*_ : Complex Rat -> Complex {l-assoc prec: 31 comm} .
+    op _*_ : Rat Complex -> Complex {l-assoc prec: 31 comm} .
 
     op _+_ : Real Imaginary -> Complex {l-assoc prec: 33} .
     op _+_ : Imaginary Real -> Complex {l-assoc prec: 33} .
@@ -244,6 +244,17 @@ mod! COMPLEX {
     eq sqrt(2 * cos(rzero)) = cos(rzero) / cos(1/4 pi) .
 }
 
+mod! TRIGONOMETRIC {
+    pr(COMPLEX)
+    op cos : Complex -> Real .
+    
+    vars C : Complex .
+    eq cos(C) = Re(C) .
+    eq sin(C) = Im(C) .
+
+    eq cos(C1) + cos(C2)
+}
+
 mod! BRAKET {
     pr(NAT)
     pr(COMPLEX)
@@ -267,12 +278,11 @@ mod! BRAKET {
     op -_  : Ket -> Ket {prec: 15} .
     op -_  : BasisKet -> BasisKet {prec: 15} .
     op _+_ : Ket Ket -> Ket {prec: 33 comm} .
-    -- op _+_ : Ket Ket -> Ket {assoc prec: 33 comm} .
     op _+_ : Bra Bra -> Bra {prec: 33 comm} .
     -- _`(*`)_
     -- _*_ : tenprod, Complex * Mat
-    op _*_ : Ket Ket -> Ket {assoc prec: 31} .        -- tenprod |_> (x) |_>
-    op _*_ : Bra Bra -> Bra {assoc prec: 31} .        -- tenprod <_| (x) <_|
+    op _*_ : Ket Ket -> Ket {r-assoc prec: 31} .        -- tenprod |_> (x) |_>
+    op _*_ : Bra Bra -> Bra {r-assoc prec: 31} .        -- tenprod <_| (x) <_|
     op _*_ : Complex Bra -> Bra {prec: 31} .
     op _*_ : Complex Ket -> Ket {prec: 31} .
     
@@ -281,13 +291,13 @@ mod! BRAKET {
     op _x_ : Ket Bra -> Mat {prec: 31} .                 -- outerprod |_><_|
     
     op -_  : Mat -> Mat {prec: 15} .
-    op _+_ : Mat Mat -> Mat {l-assoc prec: 33 comm} .
+    op _+_ : Mat Mat -> Mat {r-assoc prec: 33 comm} .
     op _-_ : Mat Mat -> Mat {l-assoc prec: 33} .
-    op _x_ : Mat Mat -> Mat {assoc prec: 31} .        -- matmul
-    op _*_ : Mat Mat -> Mat {assoc prec: 31} .        -- tenprod, to be checked
+    op _x_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- matmul
+    op _*_ : Mat Mat -> Mat {r-assoc prec: 31} .        -- tenprod, to be checked
     
-    op _*_ : Complex Mat -> Mat {prec: 31} .
-    op _x_ : Mat Ket -> Ket {prec: 31} .        -- matmul with Ket
+    op _*_ : Complex Mat -> Mat {r-assoc prec: 31} .
+    op _x_ : Mat Ket -> Ket {r-assoc prec: 31} .        -- matmul with Ket
 
     vars BB BB1 BB2 : BasisBra .
     vars BK BK1 BK2 : BasisKet .
@@ -300,6 +310,7 @@ mod! BRAKET {
 
     -- norm squared
     eq || KET ||^2 = (KET ^+) x KET .
+    -- eq || C * KET ||^2 = | C |^2 * || KET ||^2 .
 
     -- bra equalities
     eq (<0| = <0|) = true .
@@ -311,8 +322,9 @@ mod! BRAKET {
     eq |0> ^+ = <0| .
     eq |1> ^+ = <1| .
     eq (KET1 + KET2)^+ = (KET1 ^+) + (KET2 ^+) .
+    -- eq (KET1 * KET2)^+ = (KET2 ^+) * (KET1 ^+) .
     eq (KET1 * KET2)^+ = (KET1 ^+) * (KET2 ^+) .
-    eq (C * KET)^+     = (C ^*) * (KET ^+) .
+    eq (C * KET)^+  = (C ^*) * (KET ^+) .
 
     -- outprod in orthogonal bases
     eq BB x BK = if (BK ^+ = BB) then cos(rzero) else rzero fi .
@@ -351,17 +363,17 @@ mod! BRAKET {
     eq C * (KET1 + KET2) = C * KET1 + C * KET2 .
 
     eq (BRA1 + BRA2) x KET = BRA1 x KET + BRA2 x KET .
-    eq BRA x (KET1 + KET2) = BRA x KET1 + BRA x KET2 .
+    eq BRA x (KET1 + KET2)   = BRA x KET1 + BRA x KET2 .
     eq KET * (KET1 + KET2) = KET * KET1 + KET * KET2 .
 
     -- complex coefficient isolation
     eq cos(rzero) * KET    = KET .
     eq KET1 * (C * KET2)   = C * (KET1 * KET2) .
-    eq (C * KET1) * KET2   = C * (KET1 * KET2) .
-    eq (C * M) x KET       = C * (M x KET) .
-    eq M x (C * KET)       = C * (M x KET) .
     eq (C * M1) * M2       = C * (M1 * M2) .
-    -- eq C * (- KET)         = (- C) * KET .
+    eq (C * M) x KET       = C * (M x KET) .
+    eq (C * KET1) * KET2   = C * (KET1 * KET2) .
+    eq M x (C * KET)       = C * (M x KET) .
+    eq C * (- KET)         = (- C) * KET .
     eq C1 * (C2 * KET)     = (C1 * C2) * KET .
 
     eq KET x (C * BRA) = C * (KET x BRA) .
@@ -372,25 +384,20 @@ mod! BRAKET {
 
     eq (C1 * KET + KET1) + (C2 * KET + KET2) = (C1 + C2) * KET + (KET1 + KET2) . -- check assoc
     eq C1 * KET + C2 * KET = (C1 + C2) * KET .
-    
-    eq BRA1 * (C * BRA2)   = C * (BRA1 * BRA2) .
-    eq (C * BRA1) * BRA2   = C * (BRA1 * BRA2) .
 
     -- innprod
     eq (BB * BRA) x (BK * KET) = (BB x BK) * (BRA x KET) .
 
     -- assoc
-    -- eq (BRA1 * BRA2) * BRA3 = BRA1 * (BRA2 * BRA3) .
+    eq (BRA1 * BRA2) * BRA3 = BRA1 * (BRA2 * BRA3) .
 
     -- negative elements
-    -- eq (- M1) * M2         = - (M1 * M2) . -- ignore
-    -- eq (- M) x KET         = - (M x KET) .
-    -- eq M x (- KET)         = - (M x KET) .
-    -- eq KET1 * (- KET2)     = - (KET1 * KET2) .
-    -- eq ((- M1) * M2) x KET = - ((M1 * M2) x KET) .
+    -- eq (- M1) * M2         = - (M1 * M2) .
     -- Change to (scalar * element)
-    eq - M = (- cos(rzero)) * M .
-    eq - KET = (- cos(rzero)) * KET .
+    eq (- M) x KET         = - (M x KET) .
+    eq M x (- KET)         = - (M x KET) .
+    eq KET1 * (- KET2)     = - (KET1 * KET2) .
+    eq ((- M1) * M2) x KET = - ((M1 * M2) x KET) .
 }
 
 mod! NATLIST {
@@ -432,6 +439,8 @@ mod! GATE {
     op _x_ : Measurement Ket -> Ket {r-assoc prec: 31 strat: (2 1 0)} .
     
     op msment-op : Mat -> Measurement .
+    -- op msment-op : Mat -> Mat .
+    -- msop(M) x (KET1 + KET2) = msop(M) x KET2 + msop(M) x KET2
 
     vars GN : GateName .
     vars N K K1 K2 K3 : Nat .
@@ -463,15 +472,13 @@ mod! GATE {
 
     -- handling I(N) while ensuring the dimensions
     eq (I(N) * M) x (BK * KET) = BK * ((I(sd(N, 1)) * M) x KET) .
-    -- eq (I(1) * M) x (BK * KET) = BK * (M x KET) .
+    eq (I(1) * M) x (BK * KET) = BK * (M x KET) .
     eq I(0) * M =  M .
 
     -- handling dimension helper I
     eq ((BK x BB) * M) x (BK1 * KET) = ((BK x BB) x BK1) * (M x KET) .
-    -- eq ((BK x BB) * I) x BK1 = (BK x BB) x BK1 .
+    eq ((BK x BB) * I) x BK1 = (BK x BB) x BK1 .
     -- eq (BK x BB) * I = (BK x BB) . -- check it
-    -- eq M * I = M .
-    eq (M * I) x BK = M x BK .
     eq I x KET = KET .
 
     -- normalization
