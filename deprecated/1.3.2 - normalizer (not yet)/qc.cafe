@@ -415,7 +415,7 @@ mod! GATE {
     op _x_ : Measurement Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
     
     op msment-op : Mat -> Measurement .
-    -- op normalizer : -> Gate .
+    op normalizer : -> Gate .
 
     vars GN : GateName .
     vars N K K1 K2 K3 : Nat .
@@ -457,16 +457,14 @@ mod! GATE {
     eq I x KET = KET .
 
     -- normalization
-    -- eq normalizer x KET = (cos(rzero) / sqrt(|| KET ||^2)) * KET . -- Affected by M x (KET1 + KET2) = M x KET1 + M x KET2
-    -- eq msment-op(M) x KET = normalizer x (M x KET) .
-    eq msment-op(M) x KET = (cos(rzero) / sqrt(|| M x KET ||^2)) * (M x KET) .
+    eq normalizer x KET = (cos(rzero) / sqrt(|| KET ||^2)) * KET . -- Affected by M x (KET1 + KET2) = M x KET1 + M x KET2
+    -- eq msment-op(M) x KET = (cos(rzero) / sqrt(|| M x KET ||^2)) * (M x KET) .
+    eq msment-op(M) x KET = normalizer x (M x KET) .
 }
 
 mod! QCIRCUIT-INTERPRETER {
     pr(GATE)
     [Circuit]
-
-    op normalize : Ket -> Ket .
     op _ _ : Gate Gate -> Circuit {prec: 15} .
     op _ _ : Circuit Gate -> Circuit {prec: 14} .
     op if _ then {_} else {_} : Gate Gate Gate -> Gate .
@@ -474,10 +472,8 @@ mod! QCIRCUIT-INTERPRETER {
     vars G G1 G2 : Gate .
     var K : Nat .
     
-    -- eq if P1(K) then {G1} else {G2} = G1 x (normalizer x P1(K)) + G2 x (normalizer x P0(K)) .
-    -- eq if P0(K) then {G1} else {G2} = G1 x (normalizer x P0(K)) + G2 x (normalizer x P1(K)) .
-    eq if P1(K) then {G1} else {G2} = G1 x P1(K) + G2 x P0(K) .
-    eq if P0(K) then {G1} else {G2} = G1 x P0(K) + G2 x P1(K) .
+    eq if P1(K) then {G1} else {G2} = G1 x (normalizer x P1(K)) + G2 x (normalizer x P0(K)) .
+    eq if P0(K) then {G1} else {G2} = G1 x (normalizer x P0(K)) + G2 x (normalizer x P1(K)) .
 }
 
 mod! N-HOP-VERIFIER {

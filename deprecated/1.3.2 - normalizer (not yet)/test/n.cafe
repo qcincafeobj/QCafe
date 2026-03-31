@@ -1,15 +1,5 @@
 input ../qc.cafe .
 
-open GATE .
-    op ketpsi : -> Ket .
-    ops a1 a2 a3 a4 : -> Complex .
-    eq (a1 ^*) * a1 + (a2 ^*) * a2 + (a3 ^*) * a3 + (a4 ^*) * a4 = cos(rzero) .
-    eq ketpsi = a1 * |0> @ |0> + a2 * |0> @ |1> + a3 * |1> @ |0> + a4 * |1> @ |1> .
-    red (cos(rzero) / || ketpsi ||^2) * ketpsi .
-    red (cos(rzero) / || a1 * |0> ||^2) * (a1 * |0>) .
-close
-
-eof
 open N-HOP-VERIFIER .
     op teleport-prog : -> Program .
     op teleport-simplfr : -> Simplifer .
