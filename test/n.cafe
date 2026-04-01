@@ -64,11 +64,11 @@ open SIMPLIFIER .
     -- ) .
     
     eq teleport-prog = (
+        normalizer;
         if measure(0) then {Z(2);} else {skip;}
         if measure(1) then {X(2);} else {skip;}
         H(0) x C X ( 0 , 1 ) x C X ( 1 , 2 ) x  H(1);
     ) .
-    red cos((1/4 pi)) / cos((1/4 pi)) .
     -- red teleport-prog .
     -- red (state: |0>;) = (state: |0>;) .
     red verify(teleport-prog, teleport-simplfr, state: initketpsi;) .
@@ -78,15 +78,19 @@ open SIMPLIFIER .
     -- red teleport-simplfr[verify(teleport-prog, state: ketpsi;)] .
     -- red n-hop-verify(0, teleport-prog, teleport-simplfr, state: ketpsi;) .
 
+    -- red (
+    --     verify(teleport-prog, teleport-simplfr, state: ketpsi;) = (state: ketpsi;)
+    -- ) implies (
+    --     verify(
+    --         teleport-prog, 
+    --         teleport-simplfr, 
+    --         (teleport-simplfr[teleport-prog (state: initketpsi;)])
+    --     ) = (state: ketpsi;)
+    -- ) .
+    red cos((1/4 pi)) / cos((1/4 pi)) .
     red (
-        verify(teleport-prog, teleport-simplfr, state: ketpsi;) = (state: ketpsi;)
-    ) implies (
-        verify(
-            teleport-prog, 
-            teleport-simplfr, 
-            verify(teleport-prog, teleport-simplfr, state: initketpsi;)
-        ) = (state: ketpsi;)
-    ) .
+        teleport-simplfr[teleport-prog (teleport-simplfr[teleport-prog (state: initketpsi;)])]
+    ) = (state: ketpsi;) .
 close
 
 eof
