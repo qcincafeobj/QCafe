@@ -11,19 +11,21 @@ set trace off
 open GATE .
     ops a b : -> Complex .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
-    
     --> 
     --> Case 1.1
     --> Teleport P0(0), P0(1)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P0(0))
-        x (P0(1))
+        x msment-op(P0(0))
+        x msment-op(P0(1))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 -- eof
 
@@ -34,15 +36,18 @@ open GATE .
     --> 
     --> Case 1.2
     --> Teleport P0(0), P1(1)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P0(0))
-        x (P1(1))
+        x msment-op(P0(0))
+        x msment-op(P1(1))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 -- eof
 
@@ -53,15 +58,18 @@ open GATE .
     --> 
     --> Case 1.3
     --> Teleport P1(0), P0(1)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P1(0))
-        x (P0(1))
+        x msment-op(P1(0))
+        x msment-op(P0(1))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 open GATE .
@@ -71,15 +79,18 @@ open GATE .
     --> 
     --> Case 1.4
     --> Teleport P1(0), P1(1)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P1(0))
-        x (P1(1))
+        x msment-op(P1(0))
+        x msment-op(P1(1))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 open GATE .
@@ -89,15 +100,18 @@ open GATE .
     --> 
     --> Case 2.1
     --> Teleport P0(1), P0(0)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P0(1))
-        x (P0(0))
+        x msment-op(P0(1))
+        x msment-op(P0(0))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 open GATE .
@@ -107,15 +121,18 @@ open GATE .
     --> 
     --> Case 2.2
     --> Teleport P0(1), P1(0)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P0(1))
-        x (P1(0))
+        x msment-op(P0(1))
+        x msment-op(P1(0))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 open GATE .
@@ -125,15 +142,18 @@ open GATE .
     --> 
     --> Case 2.3
     --> Teleport P1(1), P0(0)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P1(1))
-        x (P0(0))
+        x msment-op(P1(1))
+        x msment-op(P0(0))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 open GATE .
@@ -143,23 +163,18 @@ open GATE .
     --> 
     --> Case 2.4
     --> Teleport P1(1), P1(0)
-    red (C Z ( 0 , 2 ))
+    red getKthQubit(
+        2,
+        (C Z (0, 2))
         x (C X ( 1 , 2 ))
-        x (P1(1))
-        x (P1(0))
+        x msment-op(P1(1))
+        x msment-op(P1(0))
         x (H(0))
         x (C X ( 0 , 1 ))
         x (C X ( 1 , 2 ))
         x (H(1))
-        x ((a * |0> + b * |1>) @ |0> @ |0>) .
+        x ((a * |0> + b * |1>) @ |0> @ |0>)
+    ) .
 close
 
 eof
-(
-    (
-        (
-            a / (
-                sqrt(
-                    (
-                        (
-                            ((a ^*) * a) / (sqrt((2 * ((| a |^2) + (| b |^2)))) * (sqrt((2 * ((| a |^2) + (| b |^2)))) ^*))) + ((b * (b ^*)) / ((sqrt((2 * ((| a |^2) + (| b |^2)))) ^*) * sqrt((2 * ((| a |^2) + (| b |^2)))))))) * sqrt((2 * ((| a |^2) + (| b |^2)))))) * (|1> * (|0> @ |0>))) + ((b / (sqrt(((((a ^*) * a) / (sqrt((2 * ((| a |^2) + (| b |^2)))) * (sqrt((2 * ((| a |^2) + (| b |^2)))) ^*))) + ((b * (b ^*)) / ((sqrt((2 * ((| a |^2) + (| b |^2)))) ^*) * sqrt((2 * ((| a |^2) + (| b |^2)))))))) * sqrt((2 * ((| a |^2) + (| b |^2)))))) * (|1> * (|0> * |1>)))):Ket
