@@ -479,7 +479,6 @@ mod! QUANTUM-INTERPRETER {
     op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
     op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
     op _U_ : KetStatement KetStatement -> KetStatement {prec: 73 assoc comm} .
-    -- op _=_ : KetStatement KetStatement -> Bool {prec: 81} .
     
     op M : Nat -> Flag .
     op skip : -> Statement .

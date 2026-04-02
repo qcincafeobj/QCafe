@@ -71,7 +71,7 @@ open N-HOP-TELEPORT .
     --> teleport (the result received from the previous hop)
     --> from the current hop to the next hop in any n-th time
     --> always maintains the original ketpsi state
-    --> 
+    -->
     --> fc: (nzn):NzNat
     --> IH: no need
     --> w2s: run-n-hop(n + 1, auxiliary constants) = run-n-hop(n, auxiliary constants)
