@@ -201,6 +201,7 @@ mod! COMPLEX {
     -- eq C / ((C ^*) * C) = cos(rzero) / C ^* .
 
     -- ceq C / C = cos(rzero) if (C = rzero) = false .
+    -- ceq R / R = cos(rzero) if (R = rzero) = false .
 
     eq C / cos(rzero) = C .
     eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
@@ -483,18 +484,21 @@ mod! GATE {
 
 mod! QUANTUM-INTERPRETER {
     pr(GATE)
-    [KetProgram < Program]
+    [KetProgram MetrologyProgram < Program]
     [InterpreterFlag]
 
     op state: _; : Ket -> KetProgram {prec: 61} .
 
-    op _; : MetrologyHandler -> Program {prec: 61} .
+    op _; : MetrologyHandler -> MetrologyProgram {prec: 61} .
     op _; : Mat -> Program {prec: 61} .
     
     -- op _ _ : Program Program -> Program {prec: 71 l-assoc} .
     -- op _ _ : Program KetProgram -> KetProgram {prec: 71 l-assoc} .
-    op _ _ : Program Program -> Program {prec: 71 assoc} .
-    op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc} .
+    op _ _ : Program Program -> Program {prec: 71 assoc strat: (2 0)} .
+    op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc strat: (2 0)} .
+    op _ _ : MetrologyProgram KetProgram -> KetProgram {prec: 71 assoc strat: (2 0)} .
+    op _ _ : MetrologyProgram Program -> MetrologyProgram {prec: 71 assoc strat: (2 0)} .
+    op _U_ : MetrologyProgram MetrologyProgram -> MetrologyProgram {prec: 73 assoc comm} .
     op _U_ : Program Program -> Program {prec: 73 assoc comm} .
     op _U_ : KetProgram KetProgram -> KetProgram {prec: 73 assoc comm} .
     
@@ -511,6 +515,7 @@ mod! QUANTUM-INTERPRETER {
     vars K : Nat .
     vars PROG PROG1 PROG2 : Program .
     vars KPROG KPROG1 KPROG2 : KetProgram .
+    vars MPROG MPROG1 MPROG2 : MetrologyProgram .
     vars MH MH1 MH2 : MetrologyHandler .
     vars MSMENT : Measurement .
 
@@ -520,17 +525,19 @@ mod! QUANTUM-INTERPRETER {
     -- eq if measure(K) then M1 else M2 = (M1 x P1(K) + M2 x P0(K)); .
 
     -- eq if measure(K) then {PROG1} else {PROG2} = (P1(K); (normalizer; PROG1)) U (P0(K); (normalizer; PROG2)) .
-    -- eq if measure(K) then {PROG1} else {PROG2} = ((PROG1) P1(K);) U ((PROG2) P0(K);) .
-    eq if measure(K) then {PROG1} else {PROG2} = (PROG1 normalizer; P1(K);) U (PROG2 normalizer; P0(K);) .
+    -- eq if measure(K) then {PROG1} else {PROG2} = (PROG1 normalizer; P1(K);) U (PROG2 normalizer; P0(K);) .
+    eq if measure(K) then {PROG1} else {PROG2} = ((PROG1) P1(K);) U ((PROG2) P0(K);) .
 
     eq if measure(K) then M1 else M2 ; = if measure(K) then {M1;} else {M2;} .
     
     eq  M; state: KET; = state:  M x KET; .
-    eq MH; state: KET; = state: MH x KET; .
+    eq (MH;) (state: KET;) = state: (MH x KET;) .
     -- eq (PROG1 PROG2) KPROG = PROG2 (PROG1 KPROG) .
     
     eq PROG U (state: kO;) = PROG .
     eq (PROG1 U PROG2) PROG = (PROG1 PROG) U (PROG2 PROG) .
+    -- eq (PROG1 U PROG2) KPROG = (PROG1 KPROG) U (PROG2 KPROG) .
+    -- eq (MPROG1 U MPROG2) KPROG = (MPROG1 KPROG) U (MPROG2 KPROG) .
     eq PROG (PROG1 U PROG2) = (PROG PROG1) U (PROG PROG2) .
 
     eq PROG U PROG = PROG .
@@ -538,6 +545,8 @@ mod! QUANTUM-INTERPRETER {
     -- eq I; PROG = PROG .
 
     -- eq (PROG1 PROG2) KPROG = PROG1 (PROG2 KPROG) .
+
+    -- eq (PROG1 PROG2) PROG = PROG1 (PROG2 PROG) .
 }
 
 mod! N-HOP-VERIFIER {
@@ -549,8 +558,7 @@ mod! N-HOP-VERIFIER {
     op verify : Program KetProgram -> KetProgram .
     -- op n-hop-verify : Program Simplifer KetProgram -> Bool .
     op n-hop-verify : Nat Program Simplifer KetProgram -> Bool {strat: (4 0)} .
-    -- op _ [_] : Program Ket -> Ket .
-    op _ [_] : Simplifer KetProgram -> KetProgram .
+    op _ [_] : Simplifer KetProgram -> KetProgram {strat: (2)} .
 
     -- vars BK : BasisKet .
     vars KET KET1 KET2 : Ket .
@@ -581,8 +589,6 @@ mod! N-HOP-VERIFIER {
     eq verify(PROG, SMPLFR, KPROG) = SMPLFR[PROG KPROG] .
     eq verify(PROG, KPROG) = PROG KPROG .
     -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
-    -- eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = SMPLFR[KPROG]) .
-    eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, SMPLFR[PROG KPROG]) = SMPLFR[KPROG]) .
-    eq n-hop-verify(0, PROG, SMPLFR, KPROG) = (SMPLFR[KPROG] = SMPLFR[PROG KPROG]) .
-    -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
+    -- eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, SMPLFR[PROG KPROG]) = SMPLFR[KPROG]) .
+    -- eq n-hop-verify(0, PROG, SMPLFR, KPROG) = (SMPLFR[KPROG] = SMPLFR[PROG KPROG]) .
 }

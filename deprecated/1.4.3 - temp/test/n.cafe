@@ -1,0 +1,279 @@
+input ../qc.cafe .
+
+-- set print mode normal
+-- set print mode fancy
+-- set print mode tree
+set print mode s-expr
+
+-- open BRAKET .
+
+-- close
+
+-- eof
+
+-- open GATE .
+--     op ketpsi : -> Ket .
+--     ops a1 a2 a3 a4 : -> Complex .
+--     eq (a1 ^*) * a1 + (a2 ^*) * a2 + (a3 ^*) * a3 + (a4 ^*) * a4 = cos(rzero) .
+--     eq ketpsi = a1 * |0> @ |0> + a2 * |0> @ |1> + a3 * |1> @ |0> + a4 * |1> @ |1> .
+--     red (cos(rzero) / || ketpsi ||^2) * ketpsi .
+--     red (cos(rzero) / || a1 * |0> ||^2) * (a1 * |0>) .
+--     red normalizer x ketpsi .
+-- close
+
+-- eof
+
+mod! SIMPLIFIER {
+    pr(N-HOP-VERIFIER)
+
+    op teleport-simplfr : -> Simplifer .
+    op getKthQubit : Nat Ket -> Ket .
+    
+    vars KET KET1 KET2 : Ket .
+    vars KPROG KPROG1 KPROG2 : KetProgram .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars SMPLFR : Simplifer .
+    
+    eq SMPLFR[KPROG1 U KPROG2] = SMPLFR[KPROG1] U SMPLFR[KPROG2] .
+
+    eq teleport-simplfr[state: KET;] = state: getKthQubit(2, KET); .
+    
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+}
+
+open SIMPLIFIER .
+    op teleport-prog : -> Program .
+    op ketpsi : -> Ket .
+    op initketpsi : -> Ket .
+    
+    ops a b : -> Complex .
+
+    eq ketpsi = (a * |0> + b * |1>) .
+    eq initketpsi = ketpsi @ |0> @ |0> .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+
+    -- -- reverse the order (???)
+    -- eq teleport-prog = (
+    --     H(1); C X ( 1 , 2 ); C X ( 0 , 1 ); H(0);
+
+    --     if measure(1) then {X(2);} else {skip;}
+    --     if measure(0) then {Z(2);} else {skip;}
+        
+    -- ) .
+    
+    eq teleport-prog = (
+        normalizer;
+        if measure(0) then {Z(2);} else {skip;}
+        if measure(1) then {X(2);} else {skip;}
+        H(0) x C X ( 0 , 1 ) x C X ( 1 , 2 ) x  H(1);
+    ) .
+    -- red teleport-prog .
+    -- red (state: |0>;) = (state: |0>;) .
+    red verify(teleport-prog, teleport-simplfr, state: initketpsi;) .
+    -- red verify(
+    --     teleport-prog, teleport-simplfr, state: initketpsi;
+    -- ) = (state: ketpsi;) .
+    -- -- red teleport-simplfr[verify(teleport-prog, state: ketpsi;)] .
+    -- -- red n-hop-verify(0, teleport-prog, teleport-simplfr, state: ketpsi;) .
+
+    -- -- red (
+    -- --     verify(teleport-prog, teleport-simplfr, state: ketpsi;) = (state: ketpsi;)
+    -- -- ) implies (
+    -- --     verify(
+    -- --         teleport-prog, 
+    -- --         teleport-simplfr, 
+    -- --         (teleport-simplfr[teleport-prog (state: initketpsi;)])
+    -- --     ) = (state: ketpsi;)
+    -- -- ) .
+    -- red cos((1/4 pi)) / cos((1/4 pi)) .
+    -- -- red (
+    -- --     teleport-simplfr[teleport-prog (teleport-simplfr[teleport-prog (state: initketpsi;)])]
+    -- -- ) = (state: ketpsi;) .
+    -- red teleport-simplfr[teleport-prog (teleport-simplfr[teleport-prog (state: initketpsi;)])] .
+    red (
+                ((((normalizer) ;)
+                (((I (2)) @
+                    ((((|0>) x (<0|)) @ (I)) +
+                    ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))
+                ;))
+                ((((|1>) x (<1|)) @ (I)) ;))
+                (((I) ;)
+                ((((I (1)) @ (((|0>) x (<0|)) @ (I))) ;)
+                (((((cos ((1/4) pi)) *
+                    ((((|0>) x (<0|)) @ (I)) +
+                    ((((|1>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) +
+                        ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))))
+                    x
+                    ((((|0>) x (<0|)) @ (I)) +
+                    (((I (1)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                    (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((((I (1)) @ (((|0>) x (<0|)) @ (I))) +
+                    (((I (2)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                    ((I (1)) @ (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((I (1)) @
+                    ((cos ((1/4) pi)) *
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                        ((((|0>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))))))))
+                ;)))
+        ) .
+close
+
+eof
+
+((teleport-simplfr) [
+ ((
+        (
+                ((((normalizer) ;)
+                (((I (2)) @
+                    ((((|0>) x (<0|)) @ (I)) +
+                    ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))
+                ;))
+                ((((|1>) x (<1|)) @ (I)) ;))
+                (((I) ;)
+                ((((I (1)) @ (((|0>) x (<0|)) @ (I))) ;)
+                (((((cos ((1/4) pi)) *
+                    ((((|0>) x (<0|)) @ (I)) +
+                    ((((|1>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) +
+                        ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))))
+                    x
+                    ((((|0>) x (<0|)) @ (I)) +
+                    (((I (1)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                    (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((((I (1)) @ (((|0>) x (<0|)) @ (I))) +
+                    (((I (2)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                    ((I (1)) @ (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((I (1)) @
+                    ((cos ((1/4) pi)) *
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                        ((((|0>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))))))))
+                ;)))
+        ) U (
+                (((((normalizer) ;) ((I) ;)) ((((|0>) x (<0|)) @ (I)) ;))
+                (((I) ;)
+                ((((I (1)) @ (((|0>) x (<0|)) @ (I))) ;)
+                (((((cos ((1/4) pi)) *
+                    ((((|0>) x (<0|)) @ (I)) +
+                        ((((|1>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) +
+                        ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))))
+                    x
+                    ((((|0>) x (<0|)) @ (I)) +
+                    (((I (1)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                        (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((((I (1)) @ (((|0>) x (<0|)) @ (I))) +
+                    (((I (2)) @ ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))) x
+                        ((I (1)) @ (((|1>) x (<1|)) @ (I)))))
+                    x
+                    ((I (1)) @
+                    ((cos ((1/4) pi)) *
+                        (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                        ((((|0>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))))))))
+                    ;))))
+                U
+                ((((((normalizer) ;) ((I) ;)) ((((|0>) x (<0|)) @ (I)) ;)) U
+                ((((normalizer) ;)
+                    (((I (2)) @
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                    (((|0>) x (<0|)) @ (I))))
+                    ;))
+                ((((|1>) x (<1|)) @ (I)) ;)))
+                (((((I (2)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) ;)
+                (((I (1)) @ (((|1>) x (<1|)) @ (I))) ;))
+                (((((cos ((1/4) pi)) *
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                    ((((|0>) x (<0|)) @ (I)) +
+                        ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I))))))
+                    x
+                    ((((I (1)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) x
+                    (((|1>) x (<1|)) @ (I)))
+                    + (((|0>) x (<0|)) @ (I))))
+                    x
+                    (((((I (2)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) x
+                    ((I (1)) @ (((|1>) x (<1|)) @ (I))))
+                    + ((I (1)) @ (((|0>) x (<0|)) @ (I))))
+                    x
+                    ((I (1)) @
+                    ((cos ((1/4) pi)) *
+                    ((((|1>) x (<0|)) @ (I)) +
+                        (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                        ((((|0>) x (<1|)) @ (I)) + (((|0>) x (<0|)) @ (I)))))))))
+                ;)))
+        )
+    )
+  (state:
+   (((b) * ((|1>) @ ((|0>) @ (|0>)))) + ((a) * ((|0>) @ ((|0>) @ (|0>))))) ;))
+ ]):KetProgram
+
+ ((teleport-simplfr) [
+ (
+        (
+            (
+                        ((((((normalizer) ;)
+                    (((I (2)) @
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                    (((|0>) x (<0|)) @ (I))))
+                    ;))
+                ((((|1>) x (<1|)) @ (I)) ;))
+                ((I) ;))
+                (((I (1)) @ (((|0>) x (<0|)) @ (I))) ;))
+                U
+                (((((((normalizer) ;) ((I) ;)) ((((|0>) x (<0|)) @ (I)) ;)) ((I) ;))
+                (((I (1)) @ (((|0>) x (<0|)) @ (I))) ;))
+                U
+                (((((((normalizer) ;)
+                    (((I (2)) @
+                        (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                        (((|0>) x (<0|)) @ (I))))
+                    ;))
+                    ((((|1>) x (<1|)) @ (I)) ;))
+                    (((I (2)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) ;))
+                (((I (1)) @ (((|1>) x (<1|)) @ (I))) ;))
+                U
+                ((((((normalizer) ;) ((I) ;)) ((((|0>) x (<0|)) @ (I)) ;))
+                    (((I (2)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) ;))
+                (((I (1)) @ (((|1>) x (<1|)) @ (I))) ;))))
+            )
+            (
+                ((((cos ((1/4) pi)) *
+                ((((|0>) x (<0|)) @ (I)) +
+                    ((((|1>) x (<0|)) @ (I)) +
+                    ((((|0>) x (<1|)) @ (I)) +
+                    ((- (cos (rzero))) * (((|1>) x (<1|)) @ (I)))))))
+                x
+                ((((I (1)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) x
+                    (((|1>) x (<1|)) @ (I)))
+                + (((|0>) x (<0|)) @ (I))))
+                x
+                (((((I (2)) @ ((((|1>) x (<0|)) @ (I)) + (((|0>) x (<1|)) @ (I)))) x
+                    ((I (1)) @ (((|1>) x (<1|)) @ (I))))
+                + ((I (1)) @ (((|0>) x (<0|)) @ (I))))
+                x
+                ((I (1)) @
+                ((cos ((1/4) pi)) *
+                    (((- (cos (rzero))) * (((|1>) x (<1|)) @ (I))) +
+                    ((((|0>) x (<0|)) @ (I)) +
+                    ((((|0>) x (<1|)) @ (I)) + (((|1>) x (<0|)) @ (I)))))))))
+                ;
+            )
+        )
+            (state:
+            (((b) * ((|1>) @ ((|0>) @ (|0>)))) + ((a) * ((|0>) @ ((|0>) @ (|0>))))) ;)
+    )
+ ]):KetProgram

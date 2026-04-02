@@ -519,8 +519,8 @@ mod! QUANTUM-INTERPRETER {
     -- eq if measure(K) then {PROG1} else {PROG2} = PROG1 P1(K); + PROG2 P0(K); .
     -- eq if measure(K) then M1 else M2 = (M1 x P1(K) + M2 x P0(K)); .
 
-    -- eq if measure(K) then {PROG1} else {PROG2} = ((PROG1) P1(K);) U ((PROG2) P0(K);) .
     -- eq if measure(K) then {PROG1} else {PROG2} = (P1(K); (normalizer; PROG1)) U (P0(K); (normalizer; PROG2)) .
+    -- eq if measure(K) then {PROG1} else {PROG2} = ((PROG1) P1(K);) U ((PROG2) P0(K);) .
     eq if measure(K) then {PROG1} else {PROG2} = (PROG1 normalizer; P1(K);) U (PROG2 normalizer; P0(K);) .
 
     eq if measure(K) then M1 else M2 ; = if measure(K) then {M1;} else {M2;} .
@@ -581,6 +581,8 @@ mod! N-HOP-VERIFIER {
     eq verify(PROG, SMPLFR, KPROG) = SMPLFR[PROG KPROG] .
     eq verify(PROG, KPROG) = PROG KPROG .
     -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
-    eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = SMPLFR[KPROG]) .
+    -- eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = SMPLFR[KPROG]) .
+    eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, SMPLFR[PROG KPROG]) = SMPLFR[KPROG]) .
     eq n-hop-verify(0, PROG, SMPLFR, KPROG) = (SMPLFR[KPROG] = SMPLFR[PROG KPROG]) .
+    -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
 }
