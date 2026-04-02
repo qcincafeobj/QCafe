@@ -484,70 +484,114 @@ mod! GATE {
 
 mod! QUANTUM-INTERPRETER {
     pr(GATE)
-    [Ket < KetStatement < Statement]
-    [Mat < Statement]
-    [MetrologyHandler < Statement]
-    [Bool < Flag]
+    [KetStatement < Statement]
+    [InterpreterFlag]
 
-    op _;_ : KetStatement Statement -> KetStatement {prec: 71 assoc} .
-    op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
+    op state: _; : Ket -> KetStatement {prec: 61} .
+
+    op _; : MetrologyHandler -> Statement {prec: 61} .
+    op _; : Mat -> Statement {prec: 61} .
+    
+    -- op _ _ : Statement Statement -> Statement {prec: 71 l-assoc} .
+    -- op _ _ : Statement KetStatement -> KetStatement {prec: 71 l-assoc} .
+    -- op _ _ : Statement Statement -> Statement {prec: 71 assoc strat: (2 0 1)} .
+    -- op _ _ : Statement KetStatement -> KetStatement {prec: 71 assoc strat: (2 0 1)} .
+    op _ _ : Statement Statement -> Statement {prec: 71 assoc} .
+    op _ _ : Statement KetStatement -> KetStatement {prec: 71 assoc} .
     op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
     op _U_ : KetStatement KetStatement -> KetStatement {prec: 73 assoc comm} .
-    -- op _=_ : KetStatement KetStatement -> Bool {prec: 81} .
     
-    op M : Nat -> Flag .
-    op skip : -> Statement .
-    op if _ then _ else _ endif : Flag Statement Statement -> Statement {prec: 61} .
-    -- using "fi" at the end will create error
-    -- fii is ugly 
-    -- brackets: if ... then {...} else {...}; -> ugly
-    -- endif -> also ugly but familiar (to some language)
+    op measure : Nat -> InterpreterFlag .
+    op skip : -> Gate .
+    -- [Gate < Statement]
+    -- op _; _ : Statement Statement -> Statement
+    op if _ then {_} else {_} : InterpreterFlag Statement Statement -> Statement {prec: 61} .
+    op if _ then _ else _ ; : InterpreterFlag Mat Mat -> Statement {prec: 61} .
+    
+    op _=_ : KetStatement KetStatement -> Bool {prec: 81} .
 
-    vars M1 M2 : Mat .
+    vars M M1 M2 : Mat .
     vars KET KET1 KET2 : Ket .
     vars K : Nat .
     vars STMNT STMNT1 STMNT2 : Statement .
+    vars KSTMNT KSTMNT1 KSTMNT2 : KetStatement .
     vars MH MH1 MH2 : MetrologyHandler .
     vars MSMENT : Measurement .
 
-    eq if M(K) then STMNT1 else STMNT2 endif = (
-        (P1(K); normalizer; STMNT1) U (P0(K); normalizer; STMNT2)
-    ) .
-    
-    eq STMNT; skip = STMNT .
-    eq KET;  M1 =  M1 x KET .
-    eq KET; MH = MH x KET .
-    
-    eq KET U kO = KET .
-    eq KET U KET = KET .
+    eq skip = I .
 
-    eq KET; (STMNT1 U STMNT2) = (KET; STMNT1) U (KET; STMNT2) .
-    eq (KET1 U KET2); STMNT = (KET1; STMNT) U (KET2; STMNT) .
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = STMNT1 P1(K); + STMNT2 P0(K); .
+    -- eq if measure(K) then M1 else M2 = (M1 x P1(K) + M2 x P0(K)); .
+
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = (P1(K); (normalizer; STMNT1)) U (P0(K); (normalizer; STMNT2)) .
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = ((STMNT1) P1(K);) U ((STMNT2) P0(K);) .
+    eq if measure(K) then {STMNT1} else {STMNT2} = (STMNT1 normalizer; P1(K);) U (STMNT2 normalizer; P0(K);) .
+    -- measure -> M
+    eq if measure(K) then M1 else M2 ; = if measure(K) then {M1;} else {M2;} .
+    
+    eq  M; state: KET; = state:  M x KET; .
+    eq MH; state: KET; = state: MH x KET; .
+    -- eq (STMNT1 STMNT2) KSTMNT = STMNT2 (STMNT1 KSTMNT) .
+    
+    eq KSTMNT U (state: kO;) = KSTMNT .
+    eq (STMNT1 U STMNT2) KSTMNT = (STMNT1 KSTMNT) U (STMNT2 KSTMNT) .
+    eq STMNT (KSTMNT1 U KSTMNT2) = (STMNT KSTMNT1) U (STMNT KSTMNT2) .
+
+    eq KSTMNT U KSTMNT = KSTMNT .
+    -- eq STMNT I; = STMNT .
+    -- eq I; STMNT = STMNT .
+
+    -- eq (STMNT1 STMNT2) KSTMNT = STMNT1 (STMNT2 KSTMNT) .
 }
 
-mod! N-HOP-PROCESSOR {
+mod! N-HOP-VERIFIER {
     pr(QUANTUM-INTERPRETER)
 
-    [Preprocessor Postprocessor]
+    [Simplifer]
     
-    -- op run-n-hop : Nat KetStatement Statement Preprocessor Postprocessor -> KetStatement {strat: (2 0)} .
-    op run-n-hop : Nat KetStatement Statement Preprocessor Postprocessor -> KetStatement .
-    op run-n-hop : Nat Ket Statement Preprocessor Postprocessor -> KetStatement .
-    op _ [_] : Preprocessor KetStatement -> KetStatement .
-    op _ [_] : Postprocessor KetStatement -> KetStatement .
+    op verify : Statement Simplifer KetStatement -> KetStatement .
+    op verify : Statement KetStatement -> KetStatement .
+    -- op n-hop-verify : Statement Simplifer KetStatement -> Bool .
+    op n-hop-verify : Nat Statement Simplifer KetStatement -> Bool {strat: (4 0)} .
+    -- op _ [_] : Statement Ket -> Ket .
+    op _ [_] : Simplifer KetStatement -> KetStatement .
 
-    vars KSTMNT : KetStatement .
+    -- vars BK : BasisKet .
+    vars KET KET1 KET2 : Ket .
+    -- vars NzN : NzNat .
+    -- vars C C1 C2 : Complex .
+    -- vars N : Nat .
+
     var STMNT : Statement .
-    var PRE : Preprocessor .
-    var POST : Postprocessor .
-    var NzN : NzNat .
+    var KSTMNT : KetStatement .
+    var SMPLFR : Simplifer .
+    var N : Nat .
     
-    eq run-n-hop(0, KSTMNT, STMNT, PRE, POST) = POST[PRE[KSTMNT]; STMNT] .
-    eq run-n-hop(NzN, KSTMNT, STMNT, PRE, POST) = run-n-hop(p NzN, POST[PRE[KSTMNT]; STMNT], STMNT, PRE, POST) .
+    -- op getKthQubit : Nat Ket -> Ket .
+    -- -- Strategy 1: mixed coefficient
+    --     eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    --     eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    --     eq getKthQubit(0, BK @ KET)    = BK .
+    --     eq getKthQubit(0, BK)          = BK .
+        
+    --     eq getKthQubit(N, C * KET)  = C * getKthQubit(N, KET) .
+    
+    -- -- Strategy 2: exact, no, also mixed coefficient (in general), e.g.: C1 = C * C3, C2 = C * C4
+    --     -- eq getKthQubit(NzN, C1 * (BK @ KET1) + C2 * (BK @ KET2)) = getKthQubit(p NzN, C1 * KET1 + C2 * KET2) .
+    --     -- eq getKthQubit(0, C1 * BK + KET) = C1 * BK + KET .
 
-    -- structural induction on N
-    -- IH: n-tele(N, ketpsi) = state: ketpsi1; U state: ketpsi2;
-    -- w2s: n-tele(N + 1, ketpsi) = ketpsi
+    -- -- Strategy 3: User-defined result simplifier
+
+    eq verify(STMNT, SMPLFR, KSTMNT) = SMPLFR[STMNT KSTMNT] .
+    eq verify(STMNT, KSTMNT) = STMNT KSTMNT .
+    -- eq n-hop-verify(STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = KSTMNT) .
+    -- eq n-hop-verify(N, STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = SMPLFR[KSTMNT]) .
+    eq n-hop-verify(N, STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, SMPLFR[STMNT KSTMNT]) = SMPLFR[KSTMNT]) .
+    eq n-hop-verify(0, STMNT, SMPLFR, KSTMNT) = (SMPLFR[KSTMNT] = SMPLFR[STMNT KSTMNT]) .
+    -- eq n-hop-verify(STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = KSTMNT) .
+    --> structural induction on N
+    --> IH: n-tele(N, ketpsi) = state: ketpsi1; U state: ketpsi2;
+    --> w2s: n-tele(N + 1, ketpsi) = ketpsi
     -- qstate equivalent modulo global phase
     -- |psi> \equiv e^{i\theta} |psi>
 }
