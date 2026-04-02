@@ -18,6 +18,11 @@ input ../qc.cafe .
 
 -- eof
 
+-- set print mode fancy
+-- set print mode tree
+set print mode s-expr
+set print mode normal
+
 mod! SIMPLIFIER {
     pr(N-HOP-VERIFIER)
 
@@ -25,14 +30,14 @@ mod! SIMPLIFIER {
     op getKthQubit : Nat Ket -> Ket .
     
     vars KET KET1 KET2 : Ket .
-    vars KPROG KPROG1 KPROG2 : KetProgram .
+    vars KSTMNT KSTMNT1 KSTMNT2 : KetStatement .
     vars N : Nat .
     vars NzN : NzNat .
     vars BK : BasisKet .
     vars C : Complex .
     vars SMPLFR : Simplifer .
     
-    eq SMPLFR[KPROG1 U KPROG2] = SMPLFR[KPROG1] U SMPLFR[KPROG2] .
+    eq SMPLFR[KSTMNT1 U KSTMNT2] = SMPLFR[KSTMNT1] U SMPLFR[KSTMNT2] .
 
     eq teleport-simplfr[state: KET;] = state: getKthQubit(2, KET); .
     
@@ -44,10 +49,10 @@ mod! SIMPLIFIER {
 }
 
 open SIMPLIFIER .
-    op teleport-prog : -> Program .
+    op teleport-prog : -> Statement .
     op ketpsi : -> Ket .
     op initketpsi : -> Ket .
-    op initstate : -> KetProgram .
+    op initstate : -> KetStatement .
     
     ops a b : -> Complex .
 
@@ -65,11 +70,19 @@ open SIMPLIFIER .
         
     -- ) .
     
+    -- eq teleport-prog = (
+    --     if measure(0) then {Z(2);} else {skip;}
+    --     if measure(1) then {X(2);} else {skip;}
+    --     P0(0); P1(1);
+    --     H(0) x C X ( 0 , 1 ) x C X ( 1 , 2 ) x  H(1);
+    -- ) .
+    
     eq teleport-prog = (
         if measure(0) then {Z(2);} else {skip;}
         if measure(1) then {X(2);} else {skip;}
         H(0) x C X ( 0 , 1 ) x C X ( 1 , 2 ) x  H(1);
     ) .
+
     red cos((1/4 pi)) / cos((1/4 pi)) .
     -- red teleport-prog .
     -- red (state: |0>;) = (state: |0>;) .
@@ -78,6 +91,11 @@ open SIMPLIFIER .
         teleport-prog, teleport-simplfr, state: initketpsi;
     ) = (state: ketpsi;) .
     -- red teleport-simplfr[verify(teleport-prog, state: ketpsi;)] .
+    
+    op check : -> Bool .
+    eq check = (initstate = teleport-simplfr[teleport-prog teleport-simplfr[teleport-prog initstate]]) .
+    red check .
+    
     red teleport-simplfr[teleport-prog teleport-simplfr[teleport-prog initstate]] .
     red initstate = teleport-simplfr[teleport-prog teleport-simplfr[teleport-prog initstate]] .
     -- red n-hop-verify(0, teleport-prog, teleport-simplfr, initstate) .
@@ -110,7 +128,7 @@ eof
                 )
             )
         ) * |0>
-    ) + (((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / ((cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * sqrt(2))))) / (cos((1/4 pi)) * (cos((1/4 pi)) * sqrt(2))))) * |1>)) ;):KetProgram
+    ) + (((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / ((cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * sqrt(2))))) / (cos((1/4 pi)) * (cos((1/4 pi)) * sqrt(2))))) * |1>)) ;):KetStatement
 (
     (
         state: (
@@ -133,4 +151,4 @@ eof
         state: (
             (
                 (
-                    (2 * (cos((1/4 pi)) * (cos((1/4 pi)) * b))) / (sqrt(b) * sqrt((b ^*)))) * |0>) + (((- ((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / (sqrt((b ^*)) * sqrt(b)))) + ((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / (sqrt((b ^*)) * sqrt(b)))) * |1>)) ;)):KetProgram
+                    (2 * (cos((1/4 pi)) * (cos((1/4 pi)) * b))) / (sqrt(b) * sqrt((b ^*)))) * |0>) + (((- ((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / (sqrt((b ^*)) * sqrt(b)))) + ((cos((1/4 pi)) * (cos((1/4 pi)) * b)) / (sqrt((b ^*)) * sqrt(b)))) * |1>)) ;)):KetStatement

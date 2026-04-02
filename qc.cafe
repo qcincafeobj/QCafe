@@ -28,7 +28,7 @@ mod! REAL {
 
     vars R R1 R2 R3 : Real .
     vars RT RT1 RT2 : Rat .
-    vars NzR NzR1 NzR2 : NzReal .
+    -- vars NzR NzR1 NzR2 : NzReal .
     vars NzRT : NzRat .
     
     eq - (RT pi) = (- RT) pi .
@@ -43,6 +43,7 @@ mod! REAL {
     eq rzero * R = rzero .
 
     eq (R1 / R2) * R3 = (R1 * R3) / R2 .
+    -- ceq R / R = cos(rzero) if (R = rzero) = false .
     
     -- Built toward cosine and angles in the range [0, pi / 2]
     eq 0 pi = rzero .
@@ -483,63 +484,63 @@ mod! GATE {
 
 mod! QUANTUM-INTERPRETER {
     pr(GATE)
-    [KetProgram < Program]
+    [KetStatement < Statement]
     [InterpreterFlag]
 
-    op state: _; : Ket -> KetProgram {prec: 61} .
+    op state: _; : Ket -> KetStatement {prec: 61} .
 
-    op _; : MetrologyHandler -> Program {prec: 61} .
-    op _; : Mat -> Program {prec: 61} .
+    op _; : MetrologyHandler -> Statement {prec: 61} .
+    op _; : Mat -> Statement {prec: 61} .
     
-    -- op _ _ : Program Program -> Program {prec: 71 l-assoc} .
-    -- op _ _ : Program KetProgram -> KetProgram {prec: 71 l-assoc} .
-    -- op _ _ : Program Program -> Program {prec: 71 assoc strat: (2 0 1)} .
-    -- op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc strat: (2 0 1)} .
-    op _ _ : Program Program -> Program {prec: 71 assoc} .
-    op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc} .
-    op _U_ : Program Program -> Program {prec: 73 assoc comm} .
-    op _U_ : KetProgram KetProgram -> KetProgram {prec: 73 assoc comm} .
+    -- op _ _ : Statement Statement -> Statement {prec: 71 l-assoc} .
+    -- op _ _ : Statement KetStatement -> KetStatement {prec: 71 l-assoc} .
+    -- op _ _ : Statement Statement -> Statement {prec: 71 assoc strat: (2 0 1)} .
+    -- op _ _ : Statement KetStatement -> KetStatement {prec: 71 assoc strat: (2 0 1)} .
+    op _ _ : Statement Statement -> Statement {prec: 71 assoc} .
+    op _ _ : Statement KetStatement -> KetStatement {prec: 71 assoc} .
+    op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
+    op _U_ : KetStatement KetStatement -> KetStatement {prec: 73 assoc comm} .
     
     op measure : Nat -> InterpreterFlag .
     op skip : -> Gate .
     
-    op if _ then {_} else {_} : InterpreterFlag Program Program -> Program {prec: 61} .
-    op if _ then _ else _ ; : InterpreterFlag Mat Mat -> Program {prec: 61} .
+    op if _ then {_} else {_} : InterpreterFlag Statement Statement -> Statement {prec: 61} .
+    op if _ then _ else _ ; : InterpreterFlag Mat Mat -> Statement {prec: 61} .
     
-    op _=_ : KetProgram KetProgram -> Bool {prec: 81} .
+    op _=_ : KetStatement KetStatement -> Bool {prec: 81} .
 
     vars M M1 M2 : Mat .
     vars KET KET1 KET2 : Ket .
     vars K : Nat .
-    vars PROG PROG1 PROG2 : Program .
-    vars KPROG KPROG1 KPROG2 : KetProgram .
+    vars STMNT STMNT1 STMNT2 : Statement .
+    vars KSTMNT KSTMNT1 KSTMNT2 : KetStatement .
     vars MH MH1 MH2 : MetrologyHandler .
     vars MSMENT : Measurement .
 
     eq skip = I .
 
-    -- eq if measure(K) then {PROG1} else {PROG2} = PROG1 P1(K); + PROG2 P0(K); .
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = STMNT1 P1(K); + STMNT2 P0(K); .
     -- eq if measure(K) then M1 else M2 = (M1 x P1(K) + M2 x P0(K)); .
 
-    -- eq if measure(K) then {PROG1} else {PROG2} = (P1(K); (normalizer; PROG1)) U (P0(K); (normalizer; PROG2)) .
-    -- eq if measure(K) then {PROG1} else {PROG2} = ((PROG1) P1(K);) U ((PROG2) P0(K);) .
-    eq if measure(K) then {PROG1} else {PROG2} = (PROG1 normalizer; P1(K);) U (PROG2 normalizer; P0(K);) .
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = (P1(K); (normalizer; STMNT1)) U (P0(K); (normalizer; STMNT2)) .
+    -- eq if measure(K) then {STMNT1} else {STMNT2} = ((STMNT1) P1(K);) U ((STMNT2) P0(K);) .
+    eq if measure(K) then {STMNT1} else {STMNT2} = (STMNT1 normalizer; P1(K);) U (STMNT2 normalizer; P0(K);) .
 
     eq if measure(K) then M1 else M2 ; = if measure(K) then {M1;} else {M2;} .
     
     eq  M; state: KET; = state:  M x KET; .
     eq MH; state: KET; = state: MH x KET; .
-    -- eq (PROG1 PROG2) KPROG = PROG2 (PROG1 KPROG) .
+    -- eq (STMNT1 STMNT2) KSTMNT = STMNT2 (STMNT1 KSTMNT) .
     
-    eq KPROG U (state: kO;) = KPROG .
-    eq (PROG1 U PROG2) KPROG = (PROG1 KPROG) U (PROG2 KPROG) .
-    eq PROG (KPROG1 U KPROG2) = (PROG KPROG1) U (PROG KPROG2) .
+    eq KSTMNT U (state: kO;) = KSTMNT .
+    eq (STMNT1 U STMNT2) KSTMNT = (STMNT1 KSTMNT) U (STMNT2 KSTMNT) .
+    eq STMNT (KSTMNT1 U KSTMNT2) = (STMNT KSTMNT1) U (STMNT KSTMNT2) .
 
-    eq KPROG U KPROG = KPROG .
-    -- eq PROG I; = PROG .
-    -- eq I; PROG = PROG .
+    eq KSTMNT U KSTMNT = KSTMNT .
+    -- eq STMNT I; = STMNT .
+    -- eq I; STMNT = STMNT .
 
-    -- eq (PROG1 PROG2) KPROG = PROG1 (PROG2 KPROG) .
+    -- eq (STMNT1 STMNT2) KSTMNT = STMNT1 (STMNT2 KSTMNT) .
 }
 
 mod! N-HOP-VERIFIER {
@@ -547,12 +548,12 @@ mod! N-HOP-VERIFIER {
 
     [Simplifer]
     
-    op verify : Program Simplifer KetProgram -> KetProgram .
-    op verify : Program KetProgram -> KetProgram .
-    -- op n-hop-verify : Program Simplifer KetProgram -> Bool .
-    op n-hop-verify : Nat Program Simplifer KetProgram -> Bool {strat: (4 0)} .
-    -- op _ [_] : Program Ket -> Ket .
-    op _ [_] : Simplifer KetProgram -> KetProgram .
+    op verify : Statement Simplifer KetStatement -> KetStatement .
+    op verify : Statement KetStatement -> KetStatement .
+    -- op n-hop-verify : Statement Simplifer KetStatement -> Bool .
+    op n-hop-verify : Nat Statement Simplifer KetStatement -> Bool {strat: (4 0)} .
+    -- op _ [_] : Statement Ket -> Ket .
+    op _ [_] : Simplifer KetStatement -> KetStatement .
 
     -- vars BK : BasisKet .
     vars KET KET1 KET2 : Ket .
@@ -560,8 +561,8 @@ mod! N-HOP-VERIFIER {
     -- vars C C1 C2 : Complex .
     -- vars N : Nat .
 
-    var PROG : Program .
-    var KPROG : KetProgram .
+    var STMNT : Statement .
+    var KSTMNT : KetStatement .
     var SMPLFR : Simplifer .
     var N : Nat .
     
@@ -580,11 +581,11 @@ mod! N-HOP-VERIFIER {
 
     -- -- Strategy 3: User-defined result simplifier
 
-    eq verify(PROG, SMPLFR, KPROG) = SMPLFR[PROG KPROG] .
-    eq verify(PROG, KPROG) = PROG KPROG .
-    -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
-    -- eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = SMPLFR[KPROG]) .
-    eq n-hop-verify(N, PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, SMPLFR[PROG KPROG]) = SMPLFR[KPROG]) .
-    eq n-hop-verify(0, PROG, SMPLFR, KPROG) = (SMPLFR[KPROG] = SMPLFR[PROG KPROG]) .
-    -- eq n-hop-verify(PROG, SMPLFR, KPROG) = (verify(PROG, SMPLFR, verify(PROG, SMPLFR, KPROG)) = KPROG) .
+    eq verify(STMNT, SMPLFR, KSTMNT) = SMPLFR[STMNT KSTMNT] .
+    eq verify(STMNT, KSTMNT) = STMNT KSTMNT .
+    -- eq n-hop-verify(STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = KSTMNT) .
+    -- eq n-hop-verify(N, STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = SMPLFR[KSTMNT]) .
+    eq n-hop-verify(N, STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, SMPLFR[STMNT KSTMNT]) = SMPLFR[KSTMNT]) .
+    eq n-hop-verify(0, STMNT, SMPLFR, KSTMNT) = (SMPLFR[KSTMNT] = SMPLFR[STMNT KSTMNT]) .
+    -- eq n-hop-verify(STMNT, SMPLFR, KSTMNT) = (verify(STMNT, SMPLFR, verify(STMNT, SMPLFR, KSTMNT)) = KSTMNT) .
 }
