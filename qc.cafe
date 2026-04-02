@@ -404,9 +404,6 @@ mod! GATE {
     -- ops Rx Ry Rz R1 : -> GateName .      -- rotation gates with theta angle
     op _ _ : GateName Nat -> Gate {prec: 15} .
     
-    -- classical controlled
-    -- op M _ ( _ , _ ) : GateName Nat Nat -> ControlledGate {prec: 13} .
-
     -- controlled and multi-controlled mechanisms
     op C _ ( _ , _ ) : GateName Nat Nat -> ControlledGate {prec: 13} .
     op MC_ ( [ _ ] , _ ) : GateName NatList Nat -> ControlledGate {prec: 13} .
@@ -419,12 +416,8 @@ mod! GATE {
     op _@_ : Gate Gate -> Gate {prec: 31 r-assoc} . -- tenprod
     op _x_ : Gate Ket -> Ket {prec: 31 r-assoc} .   -- matmul
 
-    -- op _x_ : Measurement Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
-    -- op _x_ : Normalizer Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
     op _x_ : MetrologyHandler Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
     op _x_ : MetrologyHandler MetrologyHandler -> MetrologyHandler {prec: 31} .
-    -- op _x_ : MetrologyHandler Mat -> MetrologyHandler {prec: 32 r-assoc} .
-    -- op _x_ : Mat MetrologyHandler -> MetrologyHandler {prec: 32 r-assoc} .
     
     op msment-op : Mat -> Measurement .
     op normalizer : -> Normalizer .
@@ -460,8 +453,6 @@ mod! GATE {
     eq MC GN ([K1 K2], K3)  = P0(K1) +  C GN (K2, K3)   x P1(K1) .
     eq MC GN ([K1 NL], K2)  = P0(K1) + MC GN ([NL], K2) x P1(K1) .
     
-    -- eq  (M GN (K1, K2)) x KET = if (P1(K1) x (P1(K1) x KET) = (P1(K1) x KET)) then GN(K2) x (P1(K1) x KET) else (P1(K1) x KET) fi .
-
     -- handling I(N) while ensuring the dimensions
     eq (I(N) @ M) x (BK @ KET) = BK @ ((I(sd(N, 1)) @ M) x KET) .
     eq I(0) @ M =  M .
@@ -472,14 +463,9 @@ mod! GATE {
     eq I x KET = KET .
 
     -- normalization
-    -- eq normalizer x KET = (cos(rzero) / sqrt(|| KET ||^2)) * KET . -- Affected by M x (KET1 + KET2) = M x KET1 + M x KET2 if normalizer is a Gate
-    -- eq msment-op(M) x KET = normalizer x (M x KET) .
     eq (MH1 x MH2) x KET = MH1 x (MH2 x KET) .
     eq normalizer x KET = (cos(rzero) / sqrt(|| KET ||^2)) * KET . 
     eq msment-op(M) x KET = normalizer x (M x KET) .
-    -- eq msment-op(M) x KET = (cos(rzero) / sqrt(|| M x KET ||^2)) * (M x KET) .
-
-    -- eq (MH x G) x KET = MH x (G x KET) .
 }
 
 mod! QUANTUM-INTERPRETER {
@@ -530,9 +516,7 @@ mod! N-HOP-PROCESSOR {
 
     [Preprocessor Postprocessor]
     
-    -- op run-n-hop : Nat KetStatement Statement Preprocessor Postprocessor -> KetStatement {strat: (2 0)} .
     op run-n-hop : Nat KetStatement Statement Preprocessor Postprocessor -> KetStatement .
-    op run-n-hop : Nat Ket Statement Preprocessor Postprocessor -> KetStatement .
     op _ [_] : Preprocessor KetStatement -> KetStatement .
     op _ [_] : Postprocessor KetStatement -> KetStatement .
 
@@ -544,10 +528,4 @@ mod! N-HOP-PROCESSOR {
     
     eq run-n-hop(0, KSTMNT, STMNT, PRE, POST) = POST[PRE[KSTMNT]; STMNT] .
     eq run-n-hop(NzN, KSTMNT, STMNT, PRE, POST) = run-n-hop(p NzN, POST[PRE[KSTMNT]; STMNT], STMNT, PRE, POST) .
-
-    -- structural induction on N
-    -- IH: n-tele(N, ketpsi) = state: ketpsi1; U state: ketpsi2;
-    -- w2s: n-tele(N + 1, ketpsi) = ketpsi
-    -- qstate equivalent modulo global phase
-    -- |psi> \equiv e^{i\theta} |psi>
 }

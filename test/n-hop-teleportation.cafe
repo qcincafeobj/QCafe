@@ -1,0 +1,128 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+set print mode normal
+
+mod! N-HOP-TELEPORT {
+    pr(N-HOP-PROCESSOR)
+
+    op teleport-pre-processor : -> Preprocessor .
+    op teleport-post-processor : -> Postprocessor .
+    op teleport-program : -> Statement .
+    op getKthQubit : Nat Ket -> Ket .
+    
+    vars KET KET1 KET2 : Ket .
+    vars KSTMNT KSTMNT1 KSTMNT2 : KetStatement .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    
+    eq teleport-pre-processor[KET]  = KET @ |0> @ |0> .
+    eq teleport-post-processor[KET] = getKthQubit(2, KET) .
+
+    eq teleport-post-processor[KSTMNT1 U KSTMNT2] = (
+        teleport-post-processor[KSTMNT1] U teleport-post-processor[KSTMNT2]
+    ) .
+    
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+
+    eq teleport-program = (
+        H(1);
+        C X ( 1 , 2 ) ;  
+        C X ( 0 , 1 ) ; 
+        H(0) ; 
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif
+    ) .
+}
+
+open N-HOP-TELEPORT .
+    op ketpsi : -> Ket .
+    ops a b : -> Complex .
+
+    eq ketpsi = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+
+    --> Proof of
+    --> (∀N:Nat) run-n-hop(N, KSTMNT, teleport-program, PRE, POST)
+    --> by structural induction on N
+
+    -->
+    --> Base case: N = 0 (i.e teleport from the (0 + 1) = 1st hop to its next hop)
+    --> w2s: run-n-hop(0, auxiliary constants) = ketpsi
+    
+    red run-n-hop(
+        0,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) = ketpsi .
+
+    -->
+    --> Induction case:
+    --> fc: (nzn):NzNat
+    --> IH: no need
+    --> w2s: run-n-hop(n + 1, auxiliary constants) = run-n-hop(n, auxiliary constants)
+    op nzn : -> NzNat .
+    var NZN : NzNat .
+    eq [lemma] : p (NZN + 1) = NZN .
+    red run-n-hop(
+        s nzn,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) = run-n-hop(
+        nzn,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) .
+
+    -- i dont think this is a good w2s for Induction case
+    -- w2s: run-n-hop(n + 1, auxiliary constants) = run-n-hop(n, auxiliary constants)
+    -- IH
+    -- eq run-n-hop(
+    --     n,
+    --     ketpsi,
+    --     teleport-program,
+    --     teleport-pre-processor,
+    --     teleport-post-processor
+    -- ) = ketpsi .
+    -- red run-n-hop(
+    --     n + 1,
+    --     ketpsi,
+    --     teleport-program,
+    --     teleport-pre-processor,
+    --     teleport-post-processor
+    -- ) = ketpsi .
+close
+
+eof
+
+-- open GATE .
+--     op ketpsi : -> Ket .
+--     ops a1 a2 a3 a4 : -> Complex .
+--     eq (a1 ^*) * a1 + (a2 ^*) * a2 + (a3 ^*) * a3 + (a4 ^*) * a4 = cos(rzero) .
+--     eq ketpsi = a1 * |0> @ |0> + a2 * |0> @ |1> + a3 * |1> @ |0> + a4 * |1> @ |1> .
+--     red (cos(rzero) / || ketpsi ||^2) * ketpsi .
+--     red (cos(rzero) / || a1 * |0> ||^2) * (a1 * |0>) .
+--     red normalizer x ketpsi .
+-- close
+
+-- eof
+
+-- open QUANTUM-INTERPRETER .
+--     red |0>; X(0) .
+-- close
+
+-- eof
