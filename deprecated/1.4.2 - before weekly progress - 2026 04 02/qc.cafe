@@ -493,6 +493,8 @@ mod! QUANTUM-INTERPRETER {
     
     -- op _ _ : Program Program -> Program {prec: 71 l-assoc} .
     -- op _ _ : Program KetProgram -> KetProgram {prec: 71 l-assoc} .
+    -- op _ _ : Program Program -> Program {prec: 71 assoc strat: (2 0 1)} .
+    -- op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc strat: (2 0 1)} .
     op _ _ : Program Program -> Program {prec: 71 assoc} .
     op _ _ : Program KetProgram -> KetProgram {prec: 71 assoc} .
     op _U_ : Program Program -> Program {prec: 73 assoc comm} .
@@ -529,11 +531,11 @@ mod! QUANTUM-INTERPRETER {
     eq MH; state: KET; = state: MH x KET; .
     -- eq (PROG1 PROG2) KPROG = PROG2 (PROG1 KPROG) .
     
-    eq PROG U (state: kO;) = PROG .
-    eq (PROG1 U PROG2) PROG = (PROG1 PROG) U (PROG2 PROG) .
-    eq PROG (PROG1 U PROG2) = (PROG PROG1) U (PROG PROG2) .
+    eq KPROG U (state: kO;) = KPROG .
+    eq (PROG1 U PROG2) KPROG = (PROG1 KPROG) U (PROG2 KPROG) .
+    eq PROG (KPROG1 U KPROG2) = (PROG KPROG1) U (PROG KPROG2) .
 
-    eq PROG U PROG = PROG .
+    eq KPROG U KPROG = KPROG .
     -- eq PROG I; = PROG .
     -- eq I; PROG = PROG .
 

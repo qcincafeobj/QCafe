@@ -78,8 +78,9 @@ open SIMPLIFIER .
         teleport-prog, teleport-simplfr, state: initketpsi;
     ) = (state: ketpsi;) .
     -- red teleport-simplfr[verify(teleport-prog, state: ketpsi;)] .
+    red teleport-simplfr[teleport-prog teleport-simplfr[teleport-prog initstate]] .
     red initstate = teleport-simplfr[teleport-prog teleport-simplfr[teleport-prog initstate]] .
-    red n-hop-verify(0, teleport-prog, teleport-simplfr, state: ketpsi;) .
+    -- red n-hop-verify(0, teleport-prog, teleport-simplfr, initstate) .
     -- red n-hop-verify(0, teleport-prog, teleport-simplfr, state: ketpsi;) .
 
     -- red (
