@@ -52,6 +52,7 @@ open N-HOP-TELEPORT .
 
     --> Proof of
     --> (∀N:Nat) run-n-hop(N, KSTMNT, teleport-program, PRE, POST)
+    --> always maintains the original ketpsi state
     --> by structural induction on N
 
     -->
