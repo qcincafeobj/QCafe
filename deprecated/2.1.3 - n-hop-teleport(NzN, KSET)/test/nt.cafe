@@ -78,7 +78,7 @@ open N-HOP-TELEPORT .
     op nzn : -> NzNat .
 
     -- lemma
-    -- var N1 : Nat .
+    -- var NzN : NzNat .
     eq [lemma] : sd(NzN + 1, 1) = NzN .
 
     -- IH
