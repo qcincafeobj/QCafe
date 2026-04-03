@@ -1,0 +1,108 @@
+input ../qc.cafe .
+
+-- set print mode tree
+-- set print mode fancy
+-- set print mode s-expr
+set print mode normal
+
+mod! N-HOP-TELEPORT {
+    pr(N-HOP-PROCESSOR)
+
+    op teleport-pre-processor : -> Statement .
+    op teleport-post-processor : -> Statement .
+    op teleport-program : -> Statement .
+    op getKthQubit : Nat Ket -> Ket .
+    
+    vars KET KET1 KET2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    
+    eq KET; teleport-pre-processor  = KET @ |0> @ |0> .
+    eq KET; teleport-post-processor = getKthQubit(2, KET) .
+
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+
+    eq teleport-program = (
+        teleport-pre-processor;
+        H(1);
+        C X ( 1 , 2 ) ;  
+        C X ( 0 , 1 ) ; 
+        H(0) ; 
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif;
+        teleport-post-processor
+    ) .
+}
+
+--> Proof of
+--> (∀N:Nat) n-hops(N, KET, teleport-program)
+--> always maintains the original ketpsi state
+--> by structural induction on N
+-->
+--> Base case:
+--> w2s: n-hops(0, ketpsi, teleport-program) = ketpsi
+open N-HOP-TELEPORT .
+    op ketpsi : -> Ket .
+    ops a b : -> Complex .
+
+    eq ketpsi = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+
+    red n-hops(0, ketpsi, teleport-program) = ketpsi .
+close
+
+-->
+--> Induction case: 
+--> fc: (n):Nat
+--> IH: n-hops(n, ketpsi, teleport-program) = ketpsi
+--> w2s: n-hops(n + 1, ketpsi, teleport-program) = ketpsi
+open N-HOP-TELEPORT .
+    op ketpsi : -> Ket .
+    ops a b : -> Complex .
+
+    eq ketpsi = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+    
+    -- eq [lemma] : p (NZN + 1) = NZN .
+    eq [lemma] : sd(n + 1, 1) = n .
+
+    op n : -> NzNat .
+    -- eq n-hops(n, ketpsi, teleport-program) = ketpsi .
+    eq n-hops(n, ketpsi, teleport-program) = (a * |0> + b * |1>) .
+    red n-hops(n + 1, ketpsi, teleport-program) = ketpsi .
+close
+
+eof
+
+-- open GATE .
+--     op ketpsi : -> Ket .
+--     ops a1 a2 a3 a4 : -> Complex .
+--     eq (a1 ^*) * a1 + (a2 ^*) * a2 + (a3 ^*) * a3 + (a4 ^*) * a4 = cos(rzero) .
+--     eq ketpsi = a1 * |0> @ |0> + a2 * |0> @ |1> + a3 * |1> @ |0> + a4 * |1> @ |1> .
+--     red (cos(rzero) / || ketpsi ||^2) * ketpsi .
+--     red (cos(rzero) / || a1 * |0> ||^2) * (a1 * |0>) .
+--     red normalizer x ketpsi .
+--     red ketpsi = (ketpsi U ketpsi) .
+-- close
+
+-- eof
+
+-- open QUANTUM-INTERPRETER .
+--     red |0>; X(0) .
+-- close
+
+-- eof
+
+(
+    n-hops(
+        n, 
+        b * |1> + a * |0>, 
+        teleport-pre-processor ; I(1) @ (cos(1/4 pi) * (- cos(rzero) * ((|1> x <1|) @ I) + (|0> x <0|) @ I + (|0> x <1|) @ I + (|1> x <0|) @ I)) ; (I(2) @ ((|1> x <0|) @ I + (|0> x <1|) @ I)) x (I(1) @ (|1> x <1|) @ I) + I(1) @ (|0> x <0|) @ I ; (I(1) @ ((|1> x <0|) @ I + (|0> x <1|) @ I)) x ((|1> x <1|) @ I) + (|0> x <0|) @ I ; cos(1/4 pi) * ((|0> x <0|) @ I + (|1> x <0|) @ I + (|0> x <1|) @ I + - cos(rzero) * ((|1> x <1|) @ I)) ; (I(1) @ (|0> x <0|) @ I ; normalizer ; skip U I(1) @ (|1> x <1|) @ I ; normalizer ; I(2) @ ((|1> x <0|) @ I + (|0> x <1|) @ I)) ; ((|0> x <0|) @ I ; normalizer ; skip U (|1> x <1|) @ I ; normalizer ; I(2) @ (- cos(rzero) * ((|1> x <1|) @ I) + (|0> x <0|) @ I)) ; teleport-post-processor
+    )
+):KetSet

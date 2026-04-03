@@ -112,6 +112,42 @@ open N-HOP-TELEPORT .
     -- ) = ketpsi .
 close
 
+
+open N-HOP-TELEPORT .
+    op ketpsi : -> Ket .
+    ops a b : -> Complex .
+
+    eq ketpsi = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+
+    --> Debug
+    red run-n-hop(
+        0,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) = ketpsi .
+
+    op nzn : -> NzNat .
+    var NZN : NzNat .
+    -- eq [lemma] : p (NZN + 1) = NZN .
+    red run-n-hop(
+        s nzn,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) .
+    red run-n-hop(
+        nzn,
+        ketpsi,
+        teleport-program,
+        teleport-pre-processor,
+        teleport-post-processor
+    ) .
+close
+
 eof
 
 -- open GATE .
