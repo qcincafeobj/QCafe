@@ -5,7 +5,6 @@ mod! PNAT {
     op 0 : -> PZero .
     op s : PNat -> NzPNat .
 
-    -- No need (at this moment)
     -- op _=_ : PNat PNat -> Bool .
     -- op _+_ : PNat PNat -> PNat {prec: 33 assoc comm} .
 
@@ -34,9 +33,6 @@ mod! REAL {
     op _/_ : Real Real -> Real {prec: 31 l-assoc} .
         
     op _=_  : Real Real -> Bool {prec: 51 comm} .
-    op _=_  : Real RZero -> Bool {prec: 51 comm} .
-    op _=_  : RZero Real -> Bool {prec: 51 comm} .
-    op _=_  : RZero RZero -> Bool {prec: 51 comm} .
     op _>_  : Real Real -> Bool {prec: 51} .
     op _<_  : Real Real -> Bool {prec: 51} .
     op _>=_ : Real Real -> Bool {prec: 51} .
@@ -66,7 +62,7 @@ mod! REAL {
     eq rzero * R = rzero .
 
     eq (R1 / R2) * R3 = (R1 * R3) / R2 .
-    ceq R / R = cos(rzero) if (R = rzero) = false .
+    -- ceq R / R = cos(rzero) if (R = rzero) = false .
     
     -- Built toward cosine and angles in the range [0, pi / 2]
     eq 0 pi = rzero .
@@ -148,7 +144,7 @@ mod! REAL {
     eq rzero <= RT pi = if (0 <= RT) then true else false fi .
 
     op _*_ : Rat Real -> Real {prec: 31} .
-    -- eq (cos(rzero) + cos(rzero)) * R = 2 * R .
+    eq (cos(rzero) + cos(rzero)) * R = 2 * R .
     eq (RT1 * R1) * (RT2 * R2) = (RT1 * RT2) * R1 * R2 .
 
     -- BEGIN: How to commutative
@@ -169,11 +165,8 @@ mod! COMPLEX {
     op _*_ : Complex Complex -> Complex {prec: 31 assoc comm} .
     op _/_ : Complex Complex -> Complex {prec: 31 l-assoc} . -- check l-assoc, try to remove, use Real instead --> can't remove, the 1st measuremnet have Complex / sqrt(Complex)
 
-    op _*_ : Complex Rat -> Complex {prec: 31 assoc} .
-    op _*_ : Rat Complex -> Complex {prec: 31 assoc} .
-    -- op _*_ : Rat Complex -> Complex {prec: 31 assoc comm} .
-
-    op _/_ : Complex Rat -> Complex {prec: 31 l-assoc comm} .
+    op _*_ : Complex Rat -> Complex {prec: 31 assoc comm} .
+    op _*_ : Rat Complex -> Complex {prec: 31 assoc comm} .
 
     op _+_ : Real Imaginary -> Complex {prec: 33 assoc comm} .
     op _+_ : Imaginary Real -> Complex {prec: 33 assoc comm} .
@@ -182,7 +175,6 @@ mod! COMPLEX {
     op _^* : Complex -> Complex .
 
     op _=_  : Complex Complex -> Bool {prec: 51 comm} .
-    op _=_  : Complex RZero -> Bool {prec: 51 comm} .
     op _>_  : Complex Complex -> Bool {prec: 51} .
     op _<_  : Complex Complex -> Bool {prec: 51} .
     op _>=_ : Complex Complex -> Bool {prec: 51} .
@@ -196,9 +188,8 @@ mod! COMPLEX {
 
     vars C C1 C2 C3 C4 : Complex .
     vars IMG IMG1 IMG2 : Imaginary .
-    vars R R1 R2 R3 : Real .
+    vars R R1 R2 : Real .
     vars RT RT1 RT2 : Rat .
-    vars NzRT : NzRat .
 
     -- identity element
     eq C * cos(rzero) = C .
@@ -208,7 +199,7 @@ mod! COMPLEX {
     
     -- negative elements
     eq - (- C) = C .
-    eq C + (- C) = rzero . -- for sdc
+    -- eq C + (- C) = rzero .
     eq - i R   = i (- R) .
 
     -- addition, substraction
@@ -226,18 +217,10 @@ mod! COMPLEX {
     eq (C1 / C2) / C3 = C1 / (C2 * C3) .
     ceq (R * C) / R = C if (R = rzero) = false .
     eq (C1 * C2) / (C1 * C3) = (C1 / C1) * (C2 / C3) .
-    -- eq C1 / (C2 / C3) = C1 * C3 / C2 .
-    -- ceq (R * C2) / C2 = R if (C2 = rzero) = false .
-    -- ceq (R * C2) / R = C2 if (R = rzero) = false .
+    -- eq (C1 * C2) / C1 = (C1 / C1) * C2 .
     -- eq C / ((C ^*) * C) = cos(rzero) / C ^* .
-    
-    eq (R1 / R2) / R = R1 / (R2 * R) .
-    ceq (R1 * R2) / R1 = R2 if (R1 = rzero) = false .
-    ceq (R1 * R2) / (R1 * R3) = R2 / R3 if (R1 = rzero) = false .
 
-    eq (RT * C = rzero) = ((C = rzero) or (RT = 0)) .
-    ceq C / C = cos(rzero) if (C = rzero) = false .
-    -- ceq R / R = cos(rzero) if (R = rzero) = false .
+    -- ceq C / C = cos(rzero) if (C = rzero) = false .
 
     eq C / cos(rzero) = C .
     eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
@@ -256,14 +239,10 @@ mod! COMPLEX {
 
     -- coefficient isolation
     eq C * C1 + C * C2 = C * (C1 + C2) .
-    eq C + C = (2 * cos(rzero)) * C . -- to be considered
+    eq C + C = (2 * cos(rzero)) * C .
     eq RT * C1 + RT * C2 = RT * (C1 + C2) .
     eq (RT * C1) * C2 = RT * (C1 * C2) .
     eq C1 * (RT * C2) = RT * (C1 * C2) .
-    
-    eq C1 / (NzRT * C2) = (1 / NzRT) * (C1 / C2) .
-    eq (RT * C1) / C2 = RT * (C1 / C2) .
-    eq RT1 * (RT2 * C) = (RT1 * RT2) * C .
     
     -- square root
     eq sqrt(C) * sqrt(C) = C .
@@ -274,16 +253,12 @@ mod! COMPLEX {
 
     -- eq sqrt(2 * C) = C / cos(1/4 pi) .
     eq sqrt(RT * C) = sqrt(RT) * sqrt(C) .
-    eq sqrt(C * RT) = sqrt(RT) * sqrt(C) .
     ceq (sqrt(C))^* = sqrt(C) if (C > rzero) .
     ceq (sqrt(RT))^* = sqrt(RT) if (RT > 0) .
     eq sqrt(RT) * sqrt(RT) = RT * cos(rzero) .
-    eq sqrt(RT1) * sqrt(RT2) = sqrt(RT1 * RT2) .
-    eq sqrt(1) = cos(rzero) .
-    ceq (R1 + R2 > rzero) = true if R1 > rzero and R2 > rzero .
-    -- eq (sqrt(C) = rzero) = (C = rzero) .
-    ceq sqrt(RT) / sqrt(RT) = cos(rzero) if (RT > - RT) .
     
+    ceq sqrt(RT) / sqrt(RT) = cos(rzero) if (RT > - RT) .
+
     -- negative element
     eq (- C1) * C2 = - (C1 * C2) .
     eq (- C1) / C2 = - (C1 / C2) .
@@ -521,8 +496,7 @@ mod! QUANTUM-INTERPRETER {
     [KetSet]
 
     op {_} : Ket -> KetSet .
-    op _@_ : KetSet KetSet -> KetSet {prec: 71 assoc} .
-    op _U_ : KetSet KetSet -> KetSet {prec: 73 assoc comm} .
+    op _U_ : KetSet KetSet -> KetSet .
     
     op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
     op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
@@ -536,7 +510,7 @@ mod! QUANTUM-INTERPRETER {
     op execute : Statement KetSet -> KetSet .
 
     vars M1 : Mat .
-    vars KET KET1 KET2 : Ket .
+    vars KET : Ket .
     vars KSET KSET1 KSET2 : KetSet .
     vars K : Nat .
     vars STMNT STMNT1 STMNT2 : Statement .
@@ -547,10 +521,6 @@ mod! QUANTUM-INTERPRETER {
         (P1(K); normalizer; STMNT1) U (P0(K); normalizer; STMNT2)
     ) .
     
-    eq {KET1} @ {KET2} = {KET1 @ KET2} .
-    eq (KSET1 U KSET2) @ KSET = (KSET1 @ KSET) U (KSET2 @ KSET) .
-    eq KSET @ (KSET1 U KSET2) = (KSET @ KSET1) U (KSET @ KSET2) .
-
     eq KSET U {kO} = KSET .
     eq KSET U KSET = KSET .
     

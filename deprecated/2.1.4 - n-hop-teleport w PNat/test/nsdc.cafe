@@ -17,7 +17,8 @@ mod! N-HOP-SUPER-DENSE-CODING {
     
     op n-hop-sdc : PNat KetSet -> KetSet .
 
-    op classical-state-set : -> KetSet .
+    op classical-state : -> Ket .
+    ops bk1 bk2 : -> BasisKet .
 
     vars KET KET1 KET2 : Ket .
     vars N : Nat .
@@ -26,9 +27,8 @@ mod! N-HOP-SUPER-DENSE-CODING {
     vars C : Complex .
     vars KSET : KetSet .
     vars PN : PNat .
-    vars R : Real .
 
-    eq classical-state-set = ({|0>} U {|1>}) @ ({|0>} U {|1>}) .
+    eq classical-state = (bk1 @ bk2) .
 
     eq execute(sdc-pre-processor , {BK1 @ BK2}) = {BK1 @ BK2 @ |0> @ |0>} .
     eq execute(sdc-post-processor, {KET}) = {getKthQubit(2, KET) @ getKthQubit(3, KET)} .
@@ -42,11 +42,11 @@ mod! N-HOP-SUPER-DENSE-CODING {
     eq sdc-program = (
         sdc-pre-processor;
         H(2);
-        C X ( 2 , 3 ) ;
+        C X ( 2 , 3 ) ;  
         if M(1) then X(2) else skip endif;
         if M(0) then Z(2) else skip endif;
         C X ( 2 , 3 ) ; 
-        H(2);
+        H(2) ; 
         sdc-post-processor
     ) .
 
@@ -61,32 +61,31 @@ mod! N-HOP-SUPER-DENSE-CODING {
 --> Proof of
 --> (∀NzN:NzNat) n-hop-sdc(NzN, {KET}) = {KET}
 --> by structural induction on NzN
+--> (NzN is the number of sdcations)
 --> ------------------------------------------------------------------------------------------
 --> Base case:
---> w2s: n-hop-sdc(1, classical-state-setas) = classical-state-set
-open N-HOP-SUPER-DENSE-CODING .
-    -- lemma
-    eq [lemma] : 2 * (cos(1/4 pi) * cos(1/4 pi)) = cos(rzero) .
-
+--> w2s: n-hop-sdc(1, {ketpsi}) = {ketpsi}
+open N-HOP-TELEPORT .
     -- w2s
-    red n-hop-sdc(0, classical-state-set) = classical-state-set .
+    red n-hop-sdc(0, {ketpsi}) = {ketpsi} .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
 --> fc : (nzn):NzNat
---> IH : n-hop-sdc(nzn, {|0> @ |0>} U {|0> @ |1>} U {|1> @ |0>} U {|1> @ |1>}) = classical-state-set
---> w2s: n-hop-sdc(nzn + 1, classical-state-set) = classical-state-set
-open N-HOP-SUPER-DENSE-CODING .
+--> IH : n-hop-sdc(nzn, {a * |0> + b * |1>}) = {ketpsi}
+--> w2s: n-hop-sdc(nzn + 1, {ketpsi}) = {ketpsi}
+open N-HOP-TELEPORT .
     -- fc
     op pn : -> PNat .
 
     -- IH
-    eq [IH] : n-hop-sdc(pn, ({|0> @ |0>} U {|0> @ |1>} U {|1> @ |0>} U {|1> @ |1>})) = classical-state-set .
-
-    -- lemma
-    eq [lemma] : 2 * (cos(1/4 pi) * cos(1/4 pi)) = cos(rzero) .
+    eq [IH] : n-hop-sdc(pn, {bk1 @ bk2}) = {classical-state} .   -- work
+    -- eq [flawed-IH] : n-hop-sdc(n, {ketpsi}) = {ketpsi} .      -- won't work
 
     -- w2s
-    red n-hop-sdc(s(pn), classical-state-set) = classical-state-set .
+    --> w2s version 1
+    red n-hop-sdc(s(pn), {bk1 @ bk2}) = {classical-state} .     -- work
+    --> w2s version 2
+    red n-hop-sdc(s(pn), {bk1 @ bk2}) = {classical-state} .                -- work
 close
 --> ==========================================================================================

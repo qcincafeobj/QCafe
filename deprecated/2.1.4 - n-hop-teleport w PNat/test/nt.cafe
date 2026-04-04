@@ -5,8 +5,6 @@ input ../qc.cafe .
 set print mode s-expr
 set print mode normal
 
-set trace off
-
 mod! N-HOP-TELEPORT {
     pr(PNAT)
     pr(QUANTUM-INTERPRETER)
