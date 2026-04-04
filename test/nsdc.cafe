@@ -58,9 +58,8 @@ mod! N-HOP-SUPER-DENSE-CODING {
 }
 
 --> ==========================================================================================
---> Proof of
---> (∀NzN:NzNat) n-hop-sdc(NzN, {KET}) = {KET}
---> by structural induction on NzN
+--> Proof of (∀PN:PNat) n-hop-sdc(PN, {KET}) = {KET}
+--> by structural induction on PN
 --> ------------------------------------------------------------------------------------------
 --> Base case:
 --> w2s: n-hop-sdc(1, classical-state-setas) = classical-state-set
@@ -73,9 +72,9 @@ open N-HOP-SUPER-DENSE-CODING .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
---> fc : (nzn):NzNat
---> IH : n-hop-sdc(nzn, {|0> @ |0>} U {|0> @ |1>} U {|1> @ |0>} U {|1> @ |1>}) = classical-state-set
---> w2s: n-hop-sdc(nzn + 1, classical-state-set) = classical-state-set
+--> fc : (pn):PNat
+--> IH : n-hop-sdc(pn, {|0> @ |0>} U {|0> @ |1>} U {|1> @ |0>} U {|1> @ |1>}) = classical-state-set
+--> w2s: n-hop-sdc(s(pn), classical-state-set) = classical-state-set
 open N-HOP-SUPER-DENSE-CODING .
     -- fc
     op pn : -> PNat .
