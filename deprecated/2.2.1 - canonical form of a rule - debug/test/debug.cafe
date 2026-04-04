@@ -39,7 +39,7 @@ open FOO .
     red bar(s(pn), {value}) . -- produce (bar(pn,({ f((n1 + n2),n2) }))):FooSet
 close
 
---> Work
+--> work
 open FOO .
     ops n1 n2 : -> Nat .
     op value : -> Foo .
