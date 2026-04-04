@@ -61,8 +61,7 @@ mod! N-HOP-TELEPORT {
 }
 
 --> ==========================================================================================
---> Proof of
---> (∀PN:PNat) n-hop-teleport(PN, {KET}) = {KET}
+--> Proof of (∀PN:PNat) n-hop-teleport(PN, {KET}) = {KET}
 --> by structural induction on PN
 --> ------------------------------------------------------------------------------------------
 --> Base case:
