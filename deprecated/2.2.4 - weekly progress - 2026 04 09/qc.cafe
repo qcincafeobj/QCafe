@@ -1,0 +1,574 @@
+mod! PNAT {
+    pr(BOOL)
+    
+    [PZero NzPNat < PNat]
+    op 0 : -> PZero .
+    op s : PNat -> NzPNat .
+
+    -- No need (at this moment)
+    -- op _=_ : PNat PNat -> Bool .
+    -- op _+_ : PNat PNat -> PNat {prec: 33 assoc comm} .
+
+    -- vars PN PN1 PN2 : PNat .
+    
+    -- eq (0 = s(PN)) = false .
+    -- eq (s(PN1) = s(PN2)) = (PN1 = PN2) .
+    
+    -- eq 0 + PN = PN .
+    -- eq s(PN1) + PN2 = s(PN1 + PN2) .
+}
+
+mod! REAL {
+    pr(BOOL)
+    pr(NAT)
+    pr(RAT)
+    -- RAT-VALUE: [NzInt < NzRat < Rat], [NzRat Int < Rat ], [Rat < Real], [Zero NzReal < Real]
+    [RZero NzReal < Real]
+    [Nat < Rat]
+
+    op -_ : Real -> Real {prec: 15} .
+
+    op _+_ : Real Real -> Real {prec: 33 assoc comm} .
+    op _-_ : Real Real -> Real {prec: 33 l-assoc} .
+    op _*_ : Real Real -> Real {prec: 31 assoc comm} .
+    op _/_ : Real Real -> Real {prec: 31 l-assoc} .
+        
+    op _=_  : Real Real -> Bool {prec: 51 comm} .
+    op _=_  : Real RZero -> Bool {prec: 51} .
+    op _=_  : RZero Real -> Bool {prec: 51} .
+    op _=_  : RZero RZero -> Bool {prec: 51 comm} .
+    op _>_  : Real Real -> Bool {prec: 51} .
+    op _<_  : Real Real -> Bool {prec: 51} .
+    op _>=_ : Real Real -> Bool {prec: 51} .
+    op _<=_ : Real Real -> Bool {prec: 51} .
+
+    op rzero : -> RZero .
+    -- op rone : -> Real .
+
+    op _ pi : Rat -> Real .
+    op cos : Real -> Real .
+    op sin : Real -> Real {prec: 15} .
+
+    vars R R1 R2 R3 : Real .
+    vars RT RT1 RT2 : Rat .
+    -- vars NzR NzR1 NzR2 : NzReal .
+    vars NzRT : NzRat .
+    
+    eq - (RT pi) = (- RT) pi .
+    eq - (- R) = R .
+    eq - rzero = rzero .
+
+    eq (RT1 pi) + (RT2 pi) = (RT1 + RT2) pi .
+    eq R + rzero = R .
+    eq R + (- R) = rzero .
+
+    eq R1 - R2 = R1 + (- R2) .
+    eq rzero * R = rzero .
+    
+    -- Built toward cosine and angles in the range [0, pi / 2]
+    eq 0 pi = rzero .
+    
+    eq sin(RT pi) = cos((1/2 - RT) pi) .            -- sin(x) = cos(pi/2 - x)
+
+    eq cos(1/2 pi) = rzero .
+    eq R * cos(rzero) = R .
+    eq cos(rzero) * R = R .
+    eq cos(1 pi) = - cos(rzero) .
+    eq R * (- cos(rzero)) = - R .
+    eq (- cos(rzero)) * R = - R .
+    
+    ceq - cos(RT pi) = cos((1 - RT) pi) if (RT > 1/2) .            -- cos(pi - x) = - cos(x)
+
+    -- Idea: (a1 + a2 + ... + an) = 0 = (A1 * A2 * ... * An) --> There is a Ai = 0 ~ cos(1/2 pi)
+    -- ceq cos(RT1 pi) + cos(RT2 pi) = rzero if (RT1 + RT2 = 1) .    
+    -- eq  cos(RT1 pi) + cos(RT2 pi) = (cos(rzero) + cos(rzero)) * (
+    --     cos(((RT1 + RT2) / 2) pi) * cos(((RT1 - RT2) / 2) pi)
+    -- ) .
+
+    -- theta > pi <=> theta - 2pi > -pi
+    ceq cos(RT pi) = cos((RT - 2) pi) if RT > 1 .   -- cos(x - 2pi) = cos(x)
+    ceq cos(RT pi) = cos((- RT) pi)    if RT < 0 .  -- cos(-x) = cos(x)
+    
+    -- (0 < R1, R2 < pi) and (R1 \neq R2)
+    ceq (cos(R1) = cos(R2)) = false if (
+        ((rzero < R1) and (R1 < (1 pi)))
+        and ((rzero < R2) and (R2 < 1 pi))
+        and ((R1 = R2) = false)
+    ) .
+    eq (- cos(rzero) = cos(rzero)) = false .
+    ceq ((R1 * R2) = rzero) = false if false = ((R1 = rzero) or (R2 = rzero)) .
+    ceq ((R1 + R2) = rzero) = false if (- R1 = R2) = false .
+
+    eq rzero >  rzero = false .
+    eq rzero >= rzero = true .
+    eq rzero <  rzero = false .
+    eq rzero <= rzero = true .
+
+    eq (cos(rzero) =  rzero) = false .
+    eq (cos(rzero) >  rzero) = true .
+    eq (cos(rzero) >= rzero) = true .
+    eq (cos(rzero) <  rzero) = false .
+    eq (cos(rzero) <= rzero) = false .
+    
+    eq (- cos(rzero) =  rzero) = false .
+    eq (- cos(rzero) >  rzero) = false .
+    eq (- cos(rzero) >= rzero) = false .
+    eq (- cos(rzero) <  rzero) = true .
+    eq (- cos(rzero) <= rzero) = true .
+
+    ceq (cos(R) = rzero) = false if (rzero <= R) and (R < 1/2 pi) .    -- 1st quadrant
+    ceq (cos(R) = rzero) = false if (1/2 pi < R) and (R <= 1 pi) .     -- 2nd quadrant
+
+    ceq (cos(R) >  rzero) = true if (rzero  <  R) and (R <  1/2 pi) .  -- 1st quadrant
+    ceq (cos(R) >= rzero) = true if (rzero  <= R) and (R <= 1/2 pi) .  -- 2nd quadrant
+    ceq (cos(R) <  rzero) = true if (1/2 pi <  R) and (R <    1 pi) .  -- 1st quadrant
+    ceq (cos(R) <= rzero) = true if (1/2 pi <= R) and (R <=   1 pi) .  -- 2nd quadrant
+    
+    ceq (cos(R) >  rzero) = false if (1/2 pi <= R) and (R <=   1 pi) . -- 2nd quadrant
+    ceq (cos(R) >= rzero) = false if (1/2 pi <  R) and (R <    1 pi) . -- 1st quadrant
+    ceq (cos(R) <  rzero) = false if (rzero  <= R) and (R <= 1/2 pi) . -- 2nd quadrant
+    ceq (cos(R) <= rzero) = false if (rzero  <  R) and (R <  1/2 pi) . -- 1st quadrant
+
+    eq RT1 pi >  RT2 pi = if (RT1 >  RT2) then true else false fi .
+    eq RT1 pi >= RT2 pi = if (RT1 >= RT2) then true else false fi .
+    eq RT1 pi <  RT2 pi = if (RT1 <  RT2) then true else false fi .
+    eq RT1 pi <= RT2 pi = if (RT1 <= RT2) then true else false fi .
+    
+    eq RT pi >  rzero = if (RT >  0) then true else false fi .
+    eq RT pi >= rzero = if (RT >= 0) then true else false fi .
+    eq RT pi <  rzero = if (RT <  0) then true else false fi .
+    eq RT pi <= rzero = if (RT <= 0) then true else false fi .
+    
+    eq rzero >  RT pi = if (0 >  RT) then true else false fi .
+    eq rzero >= RT pi = if (0 >= RT) then true else false fi .
+    eq rzero <  RT pi = if (0 <  RT) then true else false fi .
+    eq rzero <= RT pi = if (0 <= RT) then true else false fi .
+
+    op _*_ : Rat Real -> Real {prec: 31} .
+    -- eq (cos(rzero) + cos(rzero)) * R = 2 * R .
+    eq (RT1 * R1) * (RT2 * R2) = (RT1 * RT2) * R1 * R2 .
+
+    -- BEGIN: How to commutative
+        -- Ensuring the canonical form:
+        -- ceq  R1 * R2 = (R2 * R1) if (R2 > R1) .
+    -- END: How to commutative
+
+    eq (R1 / R2) * R3 = (R1 * R3) / R2 .
+    eq (R1 / R2) / R = R1 / (R2 * R) .
+    -- ceq (R1 * R2) / R1 = R2 if (R1 = rzero) = false .
+    -- ceq (R1 * R2) / (R1 * R3) = R2 / R3 if (R1 = rzero) = false .
+    ceq R / R = cos(rzero) if ((R = rzero) = false) .
+    ceq (R1 + R2 > rzero) = true if ((R1 > rzero) and (R2 > rzero)) .
+}
+
+mod! COMPLEX {
+    pr(REAL)
+    
+    [Real Imaginary < Complex]
+
+    op -_ : Complex -> Complex {prec: 15} .
+
+    op _+_ : Complex Complex -> Complex {prec: 33 assoc comm} .
+    op _-_ : Complex Complex -> Complex {prec: 33 l-assoc} .
+    op _*_ : Complex Complex -> Complex {prec: 31 assoc comm} .
+    op _/_ : Complex Complex -> Complex {prec: 31 l-assoc} . -- check l-assoc, try to remove, use Real instead --> can't remove, the 1st measuremnet have Complex / sqrt(Complex)
+
+    op _*_ : Complex Rat -> Complex {prec: 31 assoc} .
+    op _*_ : Rat Complex -> Complex {prec: 31 assoc} .
+    -- op _*_ : Rat Complex -> Complex {prec: 31 assoc comm} .
+    
+    op _/_ : Complex Rat -> Complex {prec: 31 l-assoc} .
+
+    op _+_ : Real Imaginary -> Complex {prec: 33 assoc comm} .
+    op _+_ : Imaginary Real -> Complex {prec: 33 assoc comm} .
+    op _+_ : Imaginary Imaginary -> Imaginary {prec: 33 assoc comm} .
+    -- eq i R2 + R1 = R1 + i R2 .
+    op _^* : Complex -> Complex .
+
+    op _=_  : Complex Complex -> Bool {prec: 51 comm} .
+    op _=_  : Complex RZero -> Bool {prec: 51} .
+    op _>_  : Complex Complex -> Bool {prec: 51} .
+    op _<_  : Complex Complex -> Bool {prec: 51} .
+    op _>=_ : Complex Complex -> Bool {prec: 51} .
+    op _<=_ : Complex Complex -> Bool {prec: 51} .
+
+    op i_ : Real -> Imaginary .
+    op e^_ : Complex -> Complex .
+
+    op sqrt : Complex -> Complex .
+    op sqrt : Rat -> Complex .
+
+    vars C C1 C2 C3 C4 : Complex .
+    vars IMG IMG1 IMG2 : Imaginary .
+    vars R R1 R2 R3 : Real .
+    vars RT RT1 RT2 : Rat .
+    vars NzRT : NzRat .
+
+    -- identity element
+    eq C * cos(rzero) = C .
+
+    -- constructor
+    eq i rzero = rzero .
+    
+    -- negative elements
+    eq - (- C) = C .
+    eq C + (- C) = rzero . -- for sdc
+    eq - i R   = i (- R) .
+
+    -- addition, substraction
+    eq rzero + C   = C .
+    eq i R1 + i R2 = i (R1 + R2) .
+    eq i R1 - i R2 = i (R1 - R2) .
+    
+    -- multiplication, division
+    eq rzero * C       = rzero .
+    eq R1 * (i R2)     = i (R1 * R2) .
+    eq (i R1) * (i R2) = - (R1 * R2) .
+    
+    eq C1 * (C2 / C3) = (C1 * C2) / C3 .
+    eq (C1 / C2) * C3 = (C1 * C3) / C2 .
+    eq (C1 / C2) / C3 = C1 / (C2 * C3) .
+    ceq (R * C) / R = C if (R = rzero) = false .
+    eq (C1 * C2) / (C1 * C3) = (C1 / C1) * (C2 / C3) .
+
+    eq (RT * C = rzero) = ((C = rzero) or (RT = 0)) .
+    ceq (C / C) = cos(rzero) if ((C = rzero) = false) .
+
+    eq C / cos(rzero) = C .
+    eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
+
+    -- conjugate
+    eq R ^*     = R .
+    eq (i R) ^* = i (- R) .
+    eq (R1 + (i R2)) ^* = R1 + (i (- R2)) .
+    eq (- C) ^* = - (C ^*) .
+    eq (C1 / C2)^* = (C1 ^*) / (C2 ^*) .
+    eq (C1 * C2)^* = (C1 ^*) * (C2 ^*) .
+    eq (C1 + C2)^* = (C1 ^*) + (C2 ^*) .
+
+    eq (C ^*) ^* = C .
+
+    -- Euler formula
+    eq e^(i R)  = cos(R) + (i sin(R)) .
+
+    -- coefficient isolation
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+    eq C + C = (2 * cos(rzero)) * C . -- to be considered
+    eq RT * C1 + RT * C2 = RT * (C1 + C2) .
+    eq (RT * C1) * C2 = RT * (C1 * C2) .
+    eq C1 * (RT * C2) = RT * (C1 * C2) .
+    
+    eq C1 / (NzRT * C2) = (1 / NzRT) * (C1 / C2) .
+    eq (RT * C1) / C2 = RT * (C1 / C2) .
+    eq RT1 * (RT2 * C) = (RT1 * RT2) * C .
+    
+    -- square root
+    eq sqrt(C) * sqrt(C) = C .
+    ceq (R * C) / sqrt(R) = sqrt(R) * C if (R = rzero) = false .
+    eq sqrt(C1 * C2) = sqrt(C1) * sqrt(C2) .
+    eq sqrt(C1 / C2) = sqrt(C1) / sqrt(C2) .
+    eq sqrt(cos(rzero)) = cos(rzero) .
+
+    -- eq sqrt(2 * C) = C / cos(1/4 pi) .
+    eq sqrt(RT * C) = sqrt(RT) * sqrt(C) .
+    eq sqrt(C * RT) = sqrt(RT) * sqrt(C) .
+    eq (sqrt(C))^* = sqrt(C ^*) .
+    ceq (sqrt(R))^* = sqrt(R) if (R > rzero) .
+    ceq (sqrt(RT))^* = sqrt(RT) if (RT > 0) .
+    eq sqrt(RT) * sqrt(RT) = RT * cos(rzero) .
+    eq sqrt(RT1) * sqrt(RT2) = sqrt(RT1 * RT2) .
+    eq sqrt(1) = cos(rzero) .
+    ceq sqrt(RT) / sqrt(RT) = cos(rzero) if (RT > - RT) .
+    
+    -- negative element
+    eq (- C1) * C2 = - (C1 * C2) .
+    eq (- C1) / C2 = - (C1 / C2) .
+
+    eq (C1 * C2 = rzero) = (C1 = rzero) or (C2 = rzero) .
+    eq (C * RT = rzero) = (C = rzero) or (not (RT > 0 and RT < 0)) .
+}
+
+mod! BRAKET {
+    -- pr(NAT)
+    pr(COMPLEX)
+
+    [BasisBra BraZero < Bra]
+    [BasisKet KetZero < Ket]
+    -- [Bra Ket < Vect]
+
+    [BasisKetBra < Mat]
+    
+    ops <0| <1| : -> BasisBra .
+    ops |1> |0> : -> BasisKet .
+    ops |0><0| |0><1| |1><0| |1><1| : -> BasisKetBra .
+    op bO : -> BraZero . -- [ 0 0 ] = O
+    op kO : -> KetZero . -- [ 0 0 ]^T = kO
+
+    op ||_||^2 : Ket -> Real .
+    op _=_ : Bra Bra -> Bool {prec: 51 comm} .
+    op _=_ : Ket Ket -> Bool {prec: 51 comm} .
+
+    op _^+ : Ket -> Bra {prec: 15} .                -- dagger/conjugate transpose
+    op _^+ : BasisKet -> BasisBra {prec: 15} .                -- dagger/conjugate transpose
+    -- op _^+ : Ket -> Bra .                -- dagger/conjugate transpose
+    -- op _^+ : BasisKet -> BasisBra .                -- dagger/conjugate transpose
+    op -_  : Ket -> Ket {prec: 15} .
+    op -_  : BasisKet -> BasisKet {prec: 15} .
+    -- op -_  : Ket -> Ket .
+    -- op -_  : BasisKet -> BasisKet .
+    op _+_ : Ket Ket -> Ket {prec: 33 assoc comm} .
+    op _+_ : Bra Bra -> Bra {prec: 33 assoc comm} .
+    
+    -- _*_ : tenprod, Complex * Mat
+    op _@_ : Ket Ket -> Ket {prec: 31 assoc} .          -- tenprod |_> (x) |_>
+    -- op _@_ : BasisKet Ket -> Ket {prec: 31 assoc} .          -- tenprod |_> (x) |_>
+    op _@_ : Bra Bra -> Bra {prec: 31 assoc} .          -- tenprod <_| (x) <_|
+    op _*_ : Complex Bra -> Bra {prec: 31} .
+    op _*_ : Complex Ket -> Ket {prec: 31} .
+    
+    -- _x_ : innprod, outprod, matmul
+    op _x_ : Bra Ket -> Complex {prec: 31 assoc} .                -- innprod   <_|_>
+    op _x_ : Ket Bra -> Mat {prec: 31 assoc} .                -- outerprod |_><_|
+    
+    op -_  : Mat -> Mat {prec: 15} .
+    op _+_ : Mat Mat -> Mat {prec: 33 assoc comm} .
+    op _-_ : Mat Mat -> Mat {prec: 33 l-assoc} .
+    op _x_ : Mat Mat -> Mat {prec: 31 assoc} .          -- matmul
+    op _@_ : Mat Mat -> Mat {prec: 31 assoc} .          -- tenprod, to be checked
+    -- (x)
+    op _*_ : Complex Mat -> Mat {prec: 31} .
+    op _x_ : Mat Ket -> Ket {prec: 31} .        -- matmul with Ket
+
+    vars BB BB1 BB2 : BasisBra .
+    vars BK BK1 BK2 : BasisKet .
+    vars BRA BRA1 BRA2 BRA3 : Bra .
+    vars KET KET1 KET2 KET3 : Ket .
+    vars M M1 M2 M3 : Mat .
+    vars C C1 C2 : Complex .
+    vars N N1 N2 : Nat .
+
+    -- norm squared
+    eq || KET ||^2 = (KET ^+) x KET .
+
+    -- bra equalities
+    eq (<0| = <0|) = true .
+    eq (<0| = <1|) = false .
+    eq (<1| = <0|) = false .
+    eq (<1| = <1|) = true .
+
+    -- dagger/conjugate transpose
+    eq |0> ^+ = <0| .
+    eq |1> ^+ = <1| .
+    eq (KET1 + KET2)^+ = (KET1 ^+) + (KET2 ^+) .
+    eq (KET1 @ KET2)^+ = (KET1 ^+) @ (KET2 ^+) .
+    eq (C * KET)^+     = (C ^*) * (KET ^+) .
+
+    -- outprod in orthogonal bases
+    -- eq BB x BK = if (BK ^+ = BB) then cos(rzero) else rzero fi .
+    ceq BB x BK = cos(rzero) if (BK ^+ = BB) .
+    ceq BB x BK = rzero if (BK ^+ = BB) = false .
+    eq |0><0| = |0> x <0| .
+    eq |0><1| = |0> x <1| .
+    eq |1><0| = |1> x <0| .
+    eq |1><1| = |1> x <1| .
+
+    -- handling kO = [0 0]^T
+    eq rzero * KET = kO .
+    eq - kO        = kO .
+    eq kO @ KET    = kO .
+    eq KET @ kO    = kO .
+    eq C * kO      = kO .
+    eq kO + KET    = KET .
+    eq M x kO      = kO .
+
+    -- substraction
+    eq M1 - M2 = M1 + (- M2) .
+
+    -- matmul
+    eq (BK x BB) x BK1     = (BB x BK1) * BK .
+    eq (M1 x M2) x KET     = M1 x (M2 x KET) .
+
+    -- distribition of operators into addition
+    eq C * (KET1 + KET2) = C * KET1 + C * KET2 .
+    
+    eq M x (KET1 + KET2)   = M x KET1 + M x KET2 .
+    eq (M1 + M2) x KET     = M1 x KET + M2 x KET .
+    eq (M1 + M2) @ M3      = M1 @ M3 + M2 @ M3 .
+    
+    eq (KET1 + KET2) @ KET = KET1 @ KET + KET2 @ KET .
+    eq KET @ (KET1 + KET2) = KET @ KET1 + KET @ KET2 .
+
+    eq (KET1 + KET2) x BRA = KET1 x BRA + KET2 x BRA .
+    eq KET x (BRA1 + BRA2) = KET x BRA1 + KET x BRA2 .
+    
+    eq (BRA1 + BRA2) x KET = BRA1 x KET + BRA2 x KET .
+    eq BRA x (KET1 + KET2) = BRA x KET1 + BRA x KET2 .
+
+    -- complex coefficient isolation
+    eq cos(rzero) * KET    = KET .
+    eq KET1 @ (C * KET2)   = C * (KET1 @ KET2) .
+    eq (C * KET1) @ KET2   = C * (KET1 @ KET2) .
+    eq (C * M) x KET       = C * (M x KET) .
+    eq M x (C * KET)       = C * (M x KET) .
+    eq (C * M1) @ M2       = C * (M1 @ M2) .
+    eq C1 * (C2 * KET)     = (C1 * C2) * KET .
+
+    eq KET x (C * BRA) = C * (KET x BRA) .
+    eq (C * KET) x BRA = C * (KET x BRA) .
+    
+    eq BRA x (C * KET) = C * (BRA x KET) .
+    eq (C * BRA) x KET = C * (BRA x KET) .
+
+    eq C1 * KET + C2 * KET = (C1 + C2) * KET .
+    
+    eq BRA1 @ (C * BRA2)   = C * (BRA1 @ BRA2) .
+    eq (C * BRA1) @ BRA2   = C * (BRA1 @ BRA2) .
+
+    -- innprod
+    eq (BB @ BRA) x (BK @ KET) = (BB x BK) * (BRA x KET) .
+
+    -- negative elements
+    eq - M = (- cos(rzero)) * M .
+    eq - KET = (- cos(rzero)) * KET .
+}
+
+mod! NATLIST {
+    pr(NAT)
+    -- a lite version for NatList (with no empty list)
+
+    [NatList]
+    op _ _ : Nat Nat -> NatList .
+    op _ _ : Nat NatList -> NatList .
+}
+
+mod! GATE {
+    pr(NATLIST)
+    pr(BRAKET)
+    
+    [Gate ControlledGate < Mat]
+    [GateName]
+    [Measurement Normalizer < MetrologyHandler]
+
+    -- gates supported
+    ops X Y Z H P0 P1 : -> GateName .       -- GN(K): operator matrix for qubit K
+    ops S SI T TI : -> GateName .
+    -- ops Rx Ry Rz R1 : -> GateName .      -- rotation gates with theta angle
+    op _ _ : GateName Nat -> Gate {prec: 15} .
+    
+    -- controlled and multi-controlled mechanisms
+    op C _ ( _ , _ ) : GateName Nat Nat -> ControlledGate {prec: 13} .
+    op MC_ ( [ _ ] , _ ) : GateName NatList Nat -> ControlledGate {prec: 13} .
+
+    op I : Nat -> Gate .    -- I(N): identity gate for N qubits
+    op I : -> Gate .        -- Dimension helper: General identity gate, contextual size (from 0 to N)
+
+    op basemat : GateName -> Mat .
+
+    op _@_ : Gate Gate -> Gate {prec: 31 r-assoc} . -- tenprod
+    op _x_ : Gate Ket -> Ket {prec: 31 r-assoc} .   -- matmul
+
+    op _x_ : MetrologyHandler Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
+    op _x_ : MetrologyHandler MetrologyHandler -> MetrologyHandler {prec: 31} .
+    
+    op msment-op : Mat -> Measurement .
+    op normalizer : -> Normalizer .
+    -- op normalizer : -> Gate .
+
+    vars GN : GateName .
+    vars N K K1 K2 K3 : Nat .
+    vars KET : Ket .
+    vars BK BK1 : BasisKet .
+    vars BB : BasisBra .
+    vars M : Mat .
+    vars NL : NatList .
+    vars KET1 KET2 : Ket .
+    vars MH1 MH2 : MetrologyHandler .   
+    vars G : Gate .   
+
+    eq basemat(X)  = (|0><1| + |1><0|) .
+    eq basemat(Y)  = (i cos(rzero)) * (- |0><1| + |1><0|) .
+    eq basemat(Z)  = |0><0| - |1><1| .
+    eq basemat(H)  = cos(1/4 pi) * ((|0><0| + |0><1|) + (|1><0| - |1><1|)) .
+    eq basemat(P0) = |0><0| .
+    eq basemat(P1) = |1><1| .
+
+    eq basemat(S)  = |0><0| + (i cos(rzero)) * |1><1| .
+    eq basemat(SI) = |0><0| - (i cos(rzero)) * |1><1| .     -- Inverse S gate
+    eq basemat(T)  = |0><0| + (e^(i (1/4 pi))) * |1><1| .
+    eq basemat(TI) = |0><0| + (e^(- i (1/4 pi))) * |1><1| . -- Inverse T gate
+
+    -- K: qubit index (0, 1, 2, ...)
+    -- gate mechanisms
+    eq    GN (K)            = I(K) @ (basemat(GN) @ I) .
+    eq  C GN (K1, K2)       = P0(K1) +    GN (K2)       x P1(K1) .
+    eq MC GN ([K1 K2], K3)  = P0(K1) +  C GN (K2, K3)   x P1(K1) .
+    eq MC GN ([K1 NL], K2)  = P0(K1) + MC GN ([NL], K2) x P1(K1) .
+    
+    -- handling I(N) while ensuring the dimensions
+    eq (I(N) @ M) x (BK @ KET) = BK @ ((I(sd(N, 1)) @ M) x KET) .
+    eq I(0) @ M =  M .
+
+    -- handling dimension helper I
+    eq ((BK x BB) @ M) x (BK1 @ KET) = ((BK x BB) x BK1) @ (M x KET) .
+    eq (M @ I) x BK = M x BK .
+    eq I x KET = KET .
+
+    -- normalization
+    eq (MH1 x MH2) x KET = MH1 x (MH2 x KET) .
+    eq normalizer x KET = (cos(rzero) / sqrt(|| KET ||^2)) * KET . 
+    eq msment-op(M) x KET = normalizer x (M x KET) .
+}
+
+mod! QUANTUM-INTERPRETER {
+    pr(GATE)
+    [Ket]
+    [Mat < Statement]
+    [MetrologyHandler < Statement]
+    [Bool < Flag]
+    [KetSet]
+
+    op {_} : Ket -> KetSet .
+    op _@_ : KetSet KetSet -> KetSet {prec: 71 assoc} .
+    op _U_ : KetSet KetSet -> KetSet {prec: 73 assoc comm} .
+    
+    op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
+    op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
+
+    op _=_ : KetSet KetSet -> Bool {prec: 81 comm} .
+    
+    op M : Nat -> Flag .
+    op skip : -> Statement .
+    op if _ then _ else _ endif : Flag Statement Statement -> Statement {prec: 61} .
+    -- op execute : Statement KetSet -> KetSet {strat: (2 1 0)} .
+    op execute : Statement KetSet -> KetSet .
+
+    vars M1 : Mat .
+    vars KET KET1 KET2 : Ket .
+    vars KSET KSET1 KSET2 : KetSet .
+    vars K : Nat .
+    vars STMNT STMNT1 STMNT2 : Statement .
+    vars MH MH1 MH2 : MetrologyHandler .
+
+    eq if M(K) then STMNT1 else STMNT2 endif = (
+        (P1(K); normalizer; STMNT1) U (P0(K); normalizer; STMNT2)
+    ) .
+    
+    eq {KET1} @ {KET2} = {KET1 @ KET2} .
+    eq (KSET1 U KSET2) @ KSET = (KSET1 @ KSET) U (KSET2 @ KSET) .
+    eq KSET @ (KSET1 U KSET2) = (KSET @ KSET1) U (KSET @ KSET2) .
+
+    eq KSET U {kO} = KSET .
+    eq KSET U KSET = KSET .
+    
+    eq STMNT; skip = STMNT .
+
+    eq execute(M1, {KET}) = {M1 x KET} .
+    eq execute(MH, {KET}) = {MH x KET} .
+
+    eq execute(STMNT1; STMNT2, KSET) = execute(
+        STMNT2,
+        execute(STMNT1, KSET)
+    ) .
+    eq execute(STMNT1 U STMNT2, KSET) = execute(STMNT1, KSET) U execute(STMNT2, KSET) .
+    eq execute(STMNT, KSET1 U KSET2) = execute(STMNT, KSET1) U execute(STMNT, KSET2) .
+}
