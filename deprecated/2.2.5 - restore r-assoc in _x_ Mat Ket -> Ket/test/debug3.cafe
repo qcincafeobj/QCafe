@@ -1,0 +1,9 @@
+input ../qc.cafe
+
+open QUANTUM-INTERPRETER .
+    red (|0> @ |0>) .
+    red X(1) x (|0> @ |0>) .
+    red H(0) x X(1) x (|0> @ |0>) .
+    red P0(0) x H(0) x X(1) x (|0> @ |0>) .
+    red msment-op(P0(0)) x H(0) x X(1) x (|0> @ |0>) .
+close
