@@ -539,7 +539,6 @@ mod! QUANTUM-INTERPRETER {
     op M : Nat -> Flag .
     op skip : -> Statement .
     op if _ then _ else _ endif : Flag Statement Statement -> Statement {prec: 61} .
-    -- op execute : Statement KetSet -> KetSet {strat: (2 1 0)} .
     op execute : Statement KetSet -> KetSet .
 
     vars M1 : Mat .
