@@ -34,8 +34,8 @@ mod! N-HOP-TELEPORT {
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    eq execute(teleport-pre-processor , KET) = KET @ |0> @ |0> .
-    eq execute(teleport-post-processor, KET) = getKthQubit(2, KET) .
+    eq execute(teleport-pre-processor , {KET}) = {KET @ |0> @ |0>} .
+    eq execute(teleport-post-processor, {KET}) = {getKthQubit(2, KET)} .
 
     eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
     eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
@@ -54,35 +54,35 @@ mod! N-HOP-TELEPORT {
         teleport-post-processor
     ) .
 
-    eq n-hop-teleport(0) = execute(teleport-program, |psi>) .
+    eq n-hop-teleport(0) = execute(teleport-program, {|psi>}) .
     eq n-hop-teleport(s(PN)) = execute(
         teleport-program,
         n-hop-teleport(PN)
     ) .
 }
 --> ==========================================================================================
---> Proof of (∀N:PNat) n-hop-teleport(N) = |psi>
+--> Proof of (∀N:PNat) n-hop-teleport(N) = {|psi>}
 --> by structural induction on N
 --> ------------------------------------------------------------------------------------------
 --> Base case:
---> w2s: n-hop-teleport(0) = |psi>
+--> w2s: n-hop-teleport(0) = {|psi>}
 open N-HOP-TELEPORT .
     -- w2s
-    red n-hop-teleport(0) = |psi> .
+    red n-hop-teleport(0) = {|psi>} .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
 --> fc : (n):PNat
---> IH : n-hop-teleport(n) = |psi>
---> w2s: n-hop-teleport(s(n)) = |psi>
+--> IH : n-hop-teleport(n) = {|psi>}
+--> w2s: n-hop-teleport(s(n)) = {|psi>}
 open N-HOP-TELEPORT .
     -- fc
     op n : -> PNat .
 
     -- IH
-    eq [IH] : n-hop-teleport(n) = |psi> .
+    eq [IH] : n-hop-teleport(n) = {|psi>} .
 
     -- w2s
-    red n-hop-teleport(s(n)) = |psi> .
+    red n-hop-teleport(s(n)) = {|psi>} .
 close
 --> ==========================================================================================

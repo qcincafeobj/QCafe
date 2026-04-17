@@ -522,13 +522,15 @@ mod! GATE {
 
 mod! QUANTUM-INTERPRETER {
     pr(GATE)
-    [MetrologyHandler < Statement]
+    [Ket]
     [Mat < Statement]
-    [Ket < KetSet]
+    [MetrologyHandler < Statement]
     [Bool < Flag]
+    [KetSet]
 
+    op {_} : Ket -> KetSet .
     op _@_ : KetSet KetSet -> KetSet {prec: 71 assoc} .
-    op _V_ : KetSet KetSet -> KetSet {prec: 73 assoc comm} .
+    op _U_ : KetSet KetSet -> KetSet {prec: 73 assoc comm} .
     
     op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
     op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
@@ -548,21 +550,25 @@ mod! QUANTUM-INTERPRETER {
     vars MH MH1 MH2 : MetrologyHandler .
 
     eq if M(K) then STMNT1 else STMNT2 endif = (
-        (P1(K); normalizer; STMNT1)
-        U (P0(K); normalizer; STMNT2)
+        (P1(K); normalizer; STMNT1) U (P0(K); normalizer; STMNT2)
     ) .
     
-    eq (KSET1 V KSET2) @ KSET = (KSET1 @ KSET) V (KSET2 @ KSET) .
-    eq KSET @ (KSET1 V KSET2) = (KSET @ KSET1) V (KSET @ KSET2) .
+    eq {KET1} @ {KET2} = {KET1 @ KET2} .
+    eq (KSET1 U KSET2) @ KSET = (KSET1 @ KSET) U (KSET2 @ KSET) .
+    eq KSET @ (KSET1 U KSET2) = (KSET @ KSET1) U (KSET @ KSET2) .
 
-    eq KSET V kO = KSET .
-    eq KSET V KSET = KSET .
+    eq KSET U {kO} = KSET .
+    eq KSET U KSET = KSET .
     
-    eq execute(STMNT1; STMNT2, KSET)  = execute(STMNT2, execute(STMNT1, KSET)) .
-    eq execute(STMNT1 U STMNT2, KSET) = execute(STMNT1, KSET) V execute(STMNT2, KSET) .
-    eq execute(STMNT, KSET1 V KSET2)  = execute(STMNT, KSET1) V execute(STMNT, KSET2) .
+    eq STMNT; skip = STMNT .
 
-    eq execute(M1, KET)   = M1 x KET .
-    eq execute(MH, KET)   = MH x KET .
-    eq execute(skip, KET) = KET .
+    eq execute(M1, {KET}) = {M1 x KET} .
+    eq execute(MH, {KET}) = {MH x KET} .
+
+    eq execute(STMNT1; STMNT2, KSET) = execute(
+        STMNT2,
+        execute(STMNT1, KSET)
+    ) .
+    eq execute(STMNT1 U STMNT2, KSET) = execute(STMNT1, KSET) U execute(STMNT2, KSET) .
+    eq execute(STMNT, KSET1 U KSET2) = execute(STMNT, KSET1) U execute(STMNT, KSET2) .
 }

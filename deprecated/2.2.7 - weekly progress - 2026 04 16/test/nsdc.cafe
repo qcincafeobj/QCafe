@@ -27,10 +27,10 @@ mod! N-HOP-SUPER-DENSE-CODING {
     vars PN : PNat .
     vars R : Real .
 
-    eq classical-ketset = (|0> V |1>) @ (|0> V |1>) .
+    eq classical-ketset = ({|0>} U {|1>}) @ ({|0>} U {|1>}) .
 
-    eq execute(sdc-pre-processor , BK1 @ BK2) = BK1 @ BK2 @ |0> @ |0> .
-    eq execute(sdc-post-processor, KET) = getKthQubit(2, KET) @ getKthQubit(3, KET) .
+    eq execute(sdc-pre-processor , {BK1 @ BK2}) = {BK1 @ BK2 @ |0> @ |0>} .
+    eq execute(sdc-post-processor, {KET}) = {getKthQubit(2, KET) @ getKthQubit(3, KET)} .
 
     eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
     eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
