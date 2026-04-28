@@ -43,6 +43,7 @@ mod! REAL {
     op _<=_ : Real Real -> Bool {prec: 51} .
 
     op rzero : -> RZero .
+    -- op rone : -> Real .
 
     op _ pi : Rat -> Real .
     op cos : Real -> Real .
@@ -50,6 +51,7 @@ mod! REAL {
 
     vars R R1 R2 R3 : Real .
     vars RT RT1 RT2 : Rat .
+    -- vars NzR NzR1 NzR2 : NzReal .
     vars NzRT : NzRat .
     
     eq - (RT pi) = (- RT) pi .
@@ -169,16 +171,18 @@ mod! COMPLEX {
     op _+_ : Complex Complex -> Complex {prec: 33 assoc comm} .
     op _-_ : Complex Complex -> Complex {prec: 33 l-assoc} .
     op _*_ : Complex Complex -> Complex {prec: 31 assoc comm} .
-    op _/_ : Complex Complex -> Complex {prec: 31 l-assoc} .
+    op _/_ : Complex Complex -> Complex {prec: 31 l-assoc} . -- check l-assoc, try to remove, use Real instead --> can't remove, the 1st measuremnet have Complex / sqrt(Complex)
 
     op _*_ : Complex Rat -> Complex {prec: 31 assoc} .
     op _*_ : Rat Complex -> Complex {prec: 31 assoc} .
+    -- op _*_ : Rat Complex -> Complex {prec: 31 assoc comm} .
     
     op _/_ : Complex Rat -> Complex {prec: 31 l-assoc} .
 
     op _+_ : Real Imaginary -> Complex {prec: 33 assoc comm} .
     op _+_ : Imaginary Real -> Complex {prec: 33 assoc comm} .
     op _+_ : Imaginary Imaginary -> Imaginary {prec: 33 assoc comm} .
+    -- eq i R2 + R1 = R1 + i R2 .
     op _^* : Complex -> Complex .
 
     op _=_  : Complex Complex -> Bool {prec: 51 comm} .
@@ -194,8 +198,9 @@ mod! COMPLEX {
     op sqrt : Complex -> Complex .
     op sqrt : Rat -> Complex .
 
-    vars C C1 C2 C3 : Complex .
-    vars R R1 R2 : Real .
+    vars C C1 C2 C3 C4 : Complex .
+    vars IMG IMG1 IMG2 : Imaginary .
+    vars R R1 R2 R3 : Real .
     vars RT RT1 RT2 : Rat .
     vars NzRT : NzRat .
 
@@ -282,13 +287,17 @@ mod! COMPLEX {
 
     eq (C1 * C2 = rzero) = (C1 = rzero) or (C2 = rzero) .
     eq (C * RT = rzero) = (C = rzero) or (not (RT > 0 and RT < 0)) .
+
+    eq RT * (- C) = - (RT * C) .
 }
 
 mod! BRAKET {
+    -- pr(NAT)
     pr(COMPLEX)
 
     [BasisBra BraZero < Bra]
     [BasisKet KetZero < Ket]
+    -- [Bra Ket < Vect]
 
     [BasisKetBra < Mat]
     
@@ -304,13 +313,18 @@ mod! BRAKET {
 
     op _^+ : Ket -> Bra {prec: 15} .                -- dagger/conjugate transpose
     op _^+ : BasisKet -> BasisBra {prec: 15} .                -- dagger/conjugate transpose
+    -- op _^+ : Ket -> Bra .                -- dagger/conjugate transpose
+    -- op _^+ : BasisKet -> BasisBra .                -- dagger/conjugate transpose
     op -_  : Ket -> Ket {prec: 15} .
     op -_  : BasisKet -> BasisKet {prec: 15} .
+    -- op -_  : Ket -> Ket .
+    -- op -_  : BasisKet -> BasisKet .
     op _+_ : Ket Ket -> Ket {prec: 33 assoc comm} .
     op _+_ : Bra Bra -> Bra {prec: 33 assoc comm} .
     
     -- _*_ : tenprod, Complex * Mat
     op _@_ : Ket Ket -> Ket {prec: 31 assoc} .          -- tenprod |_> (x) |_>
+    -- op _@_ : BasisKet Ket -> Ket {prec: 31 assoc} .          -- tenprod |_> (x) |_>
     op _@_ : Bra Bra -> Bra {prec: 31 assoc} .          -- tenprod <_| (x) <_|
     op _*_ : Complex Bra -> Bra {prec: 31} .
     op _*_ : Complex Ket -> Ket {prec: 31} .
@@ -324,16 +338,17 @@ mod! BRAKET {
     op _-_ : Mat Mat -> Mat {prec: 33 l-assoc} .
     op _x_ : Mat Mat -> Mat {prec: 31 assoc} .          -- matmul
     op _@_ : Mat Mat -> Mat {prec: 31 assoc} .          -- tenprod, to be checked
-    
+    -- (x)
     op _*_ : Complex Mat -> Mat {prec: 31} .
     op _x_ : Mat Ket -> Ket {prec: 31 r-assoc} .        -- matmul with Ket
 
-    vars BB : BasisBra .
-    vars BK BK1 : BasisKet .
-    vars BRA BRA1 BRA2 : Bra .
-    vars KET KET1 KET2 : Ket .
+    vars BB BB1 BB2 : BasisBra .
+    vars BK BK1 BK2 : BasisKet .
+    vars BRA BRA1 BRA2 BRA3 : Bra .
+    vars KET KET1 KET2 KET3 : Ket .
     vars M M1 M2 M3 : Mat .
     vars C C1 C2 : Complex .
+    vars N N1 N2 : Nat .
 
     -- norm squared
     eq || KET ||^2 = (KET ^+) x KET .
@@ -377,7 +392,11 @@ mod! BRAKET {
     eq (M1 x M2) x KET     = M1 x (M2 x KET) .
 
     -- distribition of operators into addition
-    eq C * (KET1 + KET2) = C * KET1 + C * KET2 .
+    -- eq C * (KET1 + KET2) = C * KET1 + C * KET2 .
+    -- eq (C * C1) * KET1 + (C * C2) * KET2 = C * (C1 * KET1 + C2 * KET2) .
+    eq C * KET1 + C * KET2 = C * (KET1 + KET2) .
+    eq (- C) * KET1 + C * KET2 = C * (- KET1 + KET2) .
+    eq (- C) * (KET1 + KET2) = C * (- KET1 + (- KET2)) .
     
     eq M x (KET1 + KET2)   = M x KET1 + M x KET2 .
     eq (M1 + M2) x KET     = M1 x KET + M2 x KET .
@@ -400,6 +419,7 @@ mod! BRAKET {
     eq M x (C * KET)       = C * (M x KET) .
     eq (C * M1) @ M2       = C * (M1 @ M2) .
     eq C1 * (C2 * KET)     = (C1 * C2) * KET .
+    -- eq C1 * ((- C2) * KET)     = (- (C1 * C2)) * KET .
 
     eq KET x (C * BRA) = C * (KET x BRA) .
     eq (C * KET) x BRA = C * (KET x BRA) .
@@ -469,6 +489,7 @@ mod! GATE {
     vars M : Mat .
     vars NL : NatList .
     vars MH1 MH2 : MetrologyHandler .   
+    vars G : Gate .   
 
     eq bmat(X)  = (|0><1| + |1><0|) .
     eq bmat(Y)  = (i cos(rzero)) * (- |0><1| + |1><0|) .
