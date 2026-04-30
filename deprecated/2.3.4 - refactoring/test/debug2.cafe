@@ -1,6 +1,0 @@
-input ../qc.cafe
-
-open QUANTUM-INTERPRETER .
-    red (C X (0 , 1)) .
-    red (C X (0 , 1))^+ x C X (0, 1) .
-close

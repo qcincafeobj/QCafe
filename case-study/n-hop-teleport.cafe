@@ -1,13 +1,5 @@
 input ../qc.cafe .
 
--- set print mode tree
--- set print mode fancy
-set print mode s-expr
-set print mode normal
-
-set trace on
-set trace off
-
 mod! N-HOP-TELEPORT {
     pr(PNAT)
     pr(QUANTUM-INTERPRETER)
