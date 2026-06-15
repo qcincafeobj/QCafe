@@ -1,0 +1,485 @@
+input ../qc.cafe
+-- open GATE .
+--     ops a b : -> Complex .
+--     red ((<1| @ (<0| @ <0|))) x (|1> @ (|1> @ |1>)) .
+--     red ((cos((1/4 pi)) * a) ^*) .
+-- close
+-- eof
+
+set trace off
+open GATE .
+    ops a b : -> Complex .
+    op init-ket : -> Ket .
+    op tele-k-to-kplus2 : Nat Ket -> Ket .
+    
+    -- IH: tele-k-to-kplus2(K, initstate) = checker-kplus2(k) x succ-state .
+    -- w2s tele-k-to-kplus2(K + 2, initstate) = checker-kplus2(k + 2) x succ-state .
+    -- (tele(|psi> * |0> * |0>) ) * |0> * |0>
+    -- (tele(|psi> * |0> * |0>) ) = |...> * |...> * |psi>
+
+    eq tele-k-to-kplus2(K, KET) = (
+        (C Z ( K , K + 2 ))
+        x (C X ( K + 1 , K + 2 ))
+        x msment-op(P0 ( K ))
+        x msment-op(P0 ( K + 1 ))
+        x (H ( K ))
+        x (C X ( K , K + 1 ))
+        x (C X ( K + 1 , K + 2 ))
+        x (H(K + 1))
+        x KET
+    ) .
+
+    op ketpsi : -> Ket .
+    op succ-state : -> Ket .
+    eq ketpsi = a * |0> + b * |1> .
+    -- eq | a |^2 + | b |^2 = cos(rzero) .
+    eq ((a ^*) * a) + ((b ^*) * b) = cos(rzero) .
+    eq init-ket = ketpsi @ (|0> @ |0>) .
+
+    red tele-k-to-kplus2(0, init-ket) .
+
+    op checker-kplus2 : Nat -> Gate .
+    eq checker-kplus2(K) = I(K + 2) @ (ketpsi x (ketpsi ^+)) .
+
+    eq succ-state = tele-k-to-kplus2(0, init-ket) .
+
+    red checker-kplus2(0) x succ-state .
+    red succ-state = checker-kplus2(0) x succ-state .
+close
+
+eof
+(
+    (
+        (b / (sqrt(2) / sqrt(2))) * (|0> @ (|0> @ |1>))
+    ) + ((a / (sqrt(2) / sqrt(2))) * (|0> @ (|0> @ |0>)))):Ket
+(
+    (
+        (
+            b / (
+                sqrt(2) * sqrt(
+                    (
+                        (
+                            ((a ^*) * a) / (2 * cos(rzero))
+                        ) + (
+                            ((b ^*) * b) / (2 * cos(rzero))
+                        )
+                    )
+                )
+            )
+        ) * (|0> @ (|0> @ |1>))) + ((a / (sqrt(2) * sqrt(((((a ^*) * a) / (2 * cos(rzero))) + (((b ^*) * b) / (2 * cos(rzero))))))) * (|0> @ (|0> @ |0>)))):Ket
+(
+    (
+        (
+            b / (
+                sqrt(
+                    (
+                        (2 * ((b ^*) * b)) + (2 * ((a ^*) * a))
+                    )
+                ) * sqrt(
+                    (
+                        (
+                            ((a ^*) * a) / (
+                                (
+                                    sqrt(
+                                        (
+                                            (2 * ((b ^*) * b)) + (2 * ((a ^*) * a))
+                                        )
+                                    ) ^*
+                                ) * sqrt(
+                                    (
+                                        (2 * ((b ^*) * b)) + (2 * ((a ^*) * a))
+                                    )
+                                )
+                            )
+                        ) + (
+                            ((b ^*) * b) / (
+                                (
+                                    sqrt(
+                                        ((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))
+                                    ) ^*
+                                ) * sqrt(
+                                    (
+                                        (2 * ((b ^*) * b)) + (2 * ((a ^*) * a))
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ) * (|0> @ (|0> @ |1>))) + ((a / (sqrt(((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))) * sqrt(((((a ^*) * a) / ((sqrt(((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))) ^*) * sqrt(((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))))) + (((b ^*) * b) / ((sqrt(((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))) ^*) * sqrt(((2 * ((b ^*) * b)) + (2 * ((a ^*) * a)))))))))) * (|0> @ (|0> @ |0>)))):Ket
+
+(
+    (
+        (
+            b / (
+                sqrt(
+                    (
+                        (
+                            (
+                                (a ^*) * a
+                            ) / (
+                                cos((1/4 pi)) * 2
+                            )
+                        ) + (
+                            (
+                                (b ^*) * b
+                            ) / (
+                                cos((1/4 pi)) * 2
+                            )
+                        )
+                    )
+                ) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |1>))) + ((a / (sqrt(((((a ^*) * a) / (cos((1/4 pi)) * 2)) + (((b ^*) * b) / (cos((1/4 pi)) * 2)))) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |0>)))):Ket
+(
+    (
+        (
+            b / (
+                sqrt(
+                    (
+                        (
+                            ((a ^*) * a) / (cos((1/4 pi)) * 2)
+                        ) + (
+                            ((b ^*) * b) / (cos((1/4 pi)) * 2)
+                        )
+                    )
+                ) * (
+                    sqrt(cos((1/4 pi))) * sqrt(2)
+                )
+            )
+        ) * (|0> @ (|0> @ |1>))
+    ) + ((a / (sqrt(((((a ^*) * a) / (cos((1/4 pi)) * 2)) + (((b ^*) * b) / (cos((1/4 pi)) * 2)))) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |0>)))):Ket
+(
+    (
+        (
+            b / (
+                sqrt(
+                    (
+                        (
+                            (
+                                (a ^*) * a
+                            ) / (
+                                cos((1/4 pi)) * (
+                                    sqrt(2) * (sqrt(2) ^*)
+                                )
+                            )
+                        ) + (
+                            (
+                                (b ^*) * b
+                            ) / (
+                                cos((1/4 pi)) * (
+                                    sqrt(2) * (
+                                        sqrt(2) ^*
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |1>))) + ((a / (sqrt(((((a ^*) * a) / (cos((1/4 pi)) * (sqrt(2) * (sqrt(2) ^*)))) + (((b ^*) * b) / (cos((1/4 pi)) * (sqrt(2) * (sqrt(2) ^*)))))) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |0>)))):Ket
+(
+    (
+        (b / (
+            sqrt(
+                (
+                    (
+                        (
+                            (a ^*) * a) / (
+                        sqrt(2) * (
+                            (
+                                sqrt(cos((1/4 pi))) ^*) * (
+                                    sqrt(cos((1/4 pi))) * (sqrt(2) ^*)
+                                )
+                            )
+                        )
+                    ) + (((b ^*) * b) / (sqrt(2) * ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt(2) ^*))))))) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |1>))) + ((a / (sqrt(((((a ^*) * a) / (sqrt(2) * ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt(2) ^*))))) + (((b ^*) * b) / (sqrt(2) * ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt(2) ^*))))))) * (sqrt(cos((1/4 pi))) * sqrt(2)))) * (|0> @ (|0> @ |0>)))):Ket
+
+(
+    (
+        (
+            (cos((1/4 pi)) * a) / (
+                sqrt(cos((1/4 pi))) * (
+                    sqrt(
+                        (
+                            (
+                                (
+                                    cos((1/4 pi)) * (
+                                        cos((1/4 pi)) * (b * (b ^*))
+                                    )
+                                ) / (
+                                    (
+                                        sqrt(cos((1/4 pi))) ^*
+                                    ) * (
+                                        sqrt(cos((1/4 pi))) * (
+                                            sqrt(
+                                                (cos((1/4 pi)) * 2)
+                                            ) * (
+                                                sqrt((cos((1/4 pi)) * 2)) ^*
+                                            )
+                                        )
+                                    )
+                                )
+                            ) + (
+                                (
+                                    cos((1/4 pi)) * (cos((1/4 pi)) * (a * (a ^*)))
+                                ) / ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt((cos((1/4 pi)) * 2)) * (sqrt((cos((1/4 pi)) * 2)) ^*))))))) * sqrt((cos((1/4 pi)) * 2))))) * (|0> @ (|1> @ |0>))) + (((cos((1/4 pi)) * b) / (sqrt(cos((1/4 pi))) * (sqrt((((cos((1/4 pi)) * (cos((1/4 pi)) * (b * (b ^*)))) / ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt((cos((1/4 pi)) * 2)) * (sqrt((cos((1/4 pi)) * 2)) ^*))))) + ((cos((1/4 pi)) * (cos((1/4 pi)) * (a * (a ^*)))) / ((sqrt(cos((1/4 pi))) ^*) * (sqrt(cos((1/4 pi))) * (sqrt((cos((1/4 pi)) * 2)) * (sqrt((cos((1/4 pi)) * 2)) ^*))))))) * sqrt((cos((1/4 pi)) * 2))))) * (|0> @ (|1> @ |1>)))):Ket
+
+-- begin
+eq qr(init, 0) = { (a | 0 > + b | 1 >, 1.0) } .
+ceq qr(init, X) = empMS if X > 0 .
+eq index(init) = 0 .
+eq label(init) = l1 .
+
+eq c-pre-act(S) = (label(S) = l1) .
+ceq qr(pre-act(S), X) = (if X = index(S) + 1 then map(x)(qr(S,index(S)), | 0 > (x) | 0 >) else qr(S,X) fi)  if c-pre-act(S) .
+ceq index(pre-act(S)) = index(S) + 1 if c-pre-act(S) .
+ceq label(pre-act(S)) = l2 if c-pre-act(S) .
+ceq pre-act(S) = S if not c-pre-act(S) .
+
+eq c-teleport-H2(S) = (label(S) = l2) .
+ceq qr(teleport-H2(S), X) = (if X = index(S) then Apply the operator I (x) H (x) I to every state contained in qr(S, index(S))
+                                                                       else qr(S,X) fi) if c-teleport-H2(S) .
+ceq index(teleport-H2(S)) = index(S) if c-teleport-H2(S) .
+ceq label(teleport-H2(S)) = l3 if c-teleport-H2(S) .
+ceq teleport-H2(S) = S if not c-teleport-H2(S) .
+
+eq c-teleport-CNOT2->3(S) = (label(S) = l3) .
+ceq qr(teleport-CNOT2->3(S), X) = (if X = index(S) then Apply I (x) CNOT to each state in qr(S, index(S))
+                                                                      else qr(S,X) fi) if c-teleport-CNOT2->3(S) .
+ceq index(teleport-CNOT2->3(S)) = index(S) if c-teleport-CNOT2->3(S) .
+ceq label(teleport-CNOT2->3(S)) = l4 if c-teleport-CNOT2->3(S) .
+ceq teleport-CNOT2->3(S) = S if not c-teleport-CNOT2->3(S) .
+
+eq c-teleport-CNOT1->2(S) = (label(S) = l4) .
+ceq qr(teleport-CNOT1->2(S), X) = (if X = index(S) then Apply CNOT (x) I to each state in qr(S, index(S))
+                                                                      else qr(S,X) fi) if c-teleport-CNOT1->2(S) .
+ceq index(teleport-CNOT1->2(S)) = index(S) if c-teleport-CNOT1->2(S) .
+ceq label(teleport-CNOT1->2(S)) = l5 if c-teleport-CNOT1->2(S) .
+ceq teleport-CNOT1->2(S) = S if not c-teleport-CNOT1->2(S) .
+
+eq c-teleport-H1(S) = (label(S) = l5) .
+ceq qr(teleport-H1(S), X) = (if X = index(S) then Apply H (x) I (x) I to each state in qr(S, index(S))
+                                                                       else qr(S,X) fi) if c-teleport-H1(S) .
+ceq index(teleport-H1(S)) = index(S) if c-teleport-H1(S) .
+ceq label(teleport-H1(S)) = l6 if c-teleport-H1(S) .
+ceq teleport-H1(S) = S if not c-teleport-H1(S) .
+
+eq c-teleport-M2Z3(S) = (label(S) = l6) .
+ceq qr(teleport-M2Z3(S), X) = (if X = index(S)
+                                                   then Measure the second qubit of each state in qr(S, index(S)),
+                                                           causing each state to split into two branches.
+                                                           If the measurement outcome is 1, apply I (x) 1 (x) Z to the post‑measurement state.
+                                                           Otherwise, apply I (x) 0 (x) X to the post‑measurement state.
+                                                           (The probabilities are computed appropriately, and each post‑measurement branch is normalized.)
+                                                   else qr(S,X) fi)
+      if c-teleport-M2Z3(S) .
+ceq index(teleport-M2Z3(S)) = index(S) if c-teleport-M2Z3(S) .
+ceq label(teleport-M2Z3(S)) = l7 if c-teleport-M2Z3(S) .
+ceq teleport-M2Z3(S) = S if not c-teleport-M2Z3(S) .
+
+eq c-teleport-M1X3(S) = (label(S) = l7) .
+ceq qr(teleport-M1X3(S), X) = (if X = index(S)
+                                                   then Measure the first qubit of each state in qr(S, index(S)),
+                                                           causing each state to split into two branches.
+                                                           If the measurement outcome is 1, apply <1| (x) Z to the post‑measurement state.
+                                                           Otherwise, apply <0| (x) I to the post‑measurement state.
+                                                           (The probabilities are computed appropriately, and each post‑measurement branch is normalized.)
+                                                   else qr(S,X) fi)
+      if c-teleport-M1X3(S) .
+ceq index(teleport-M1X3(S)) = index(S) if c-teleport-M1X3(S) .
+ceq label(teleport-M1X3(S)) = l8 if c-teleport-M1X3(S) .
+ceq teleport-M1X3(S) = S if not c-teleport-M1X3(S) .
+
+eq c-post-act(S) = (label(S) = l8) .
+ceq qr(post-act(S), X) = (if X = index(S) then mergeMSP(qr(S)) else qr(S,X) fi) if c-post-act(S) .
+ceq index(post-act(S)) = index(S) if c-post-act(S) .
+ceq label(post-act(S)) = l1 if c-post-act(S) .
+ceq post-act(S) = S if not c-post-act(S) .
+-- end
+
+What to formally prove invariant is as follows:
+label(S) = l1 implies qr(S,index(S)) = qr(init,0)
+which means as follows:
+Just after completing the index(S)-th hop, the following always holds:
+qr(S,index(S)) = { (a | 0 > + b | 1 >, 1) }
+
+eof
+(
+    (
+        (a * (|0> * (|0> * |0>))) + (b * (|0> * (|0> * |1>)))
+    ) = (
+        (a * (|0> * (|0> * |0>))) + (b * (|1> * (|0> * |0>)))
+    )
+):Bool
+
+(
+    (
+        (
+            (a * (| a |^2)) * (|0> * (|0> * |0>))
+        ) + (
+            (b * (| a |^2)) * (|0> * (|0> * |1>))
+        )
+    ) + (
+        (
+            (a * (| b |^2)) * (|0> * (|0> * |0>))) + ((b * (| b |^2)) * (|0> * (|0> * |1>)))
+    )
+):Ket
+(
+    (
+        ((a * (| a |^2)) * (|0> * (|0> * |0>))) + ((b * (| a |^2)) * (|0> * (|0> * |1>)))
+    ) + (
+        ((a * (| b |^2)) * (|0> * (|0> * |0>))) + ((b * (| b |^2)) * (|0> * (|0> * |1>)))
+    )
+):Ket
+
+(
+    (
+        ((a * (| a |^2)) * (|0> * (|0> * |0>))) + ((b * (| a |^2)) * (|0> * (|0> * |1>)))
+    ) + (
+        ((a * (| b |^2)) * (|0> * (|0> * |0>))) + ((b * (| b |^2)) * (|0> * (|0> * |1>)))
+    )
+):Ket
+
+(
+    (
+        (
+            (a * (| a |^2)) * (|0> * (|0> * |0>))
+        ) + (
+            (a * ((a ^*) * b)) * (|0> * (|0> * |1>))
+        )
+    ) + (
+        (
+            (b * ((b ^*) * a)) * (|0> * (|0> * |0>))
+        ) + (
+        (b * (| b |^2)) * (|0> * (|0> * |1>)))
+    )
+):Ket
+
+(
+    (
+        a * ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)
+    ) + (b * ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))):Ket
+
+<0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (
+    ((|1> x <0|) * I) + (- ((|1> x <1|) * I))
+)))) x |1>)))))))))))):Ket
+(((|0> x <0|) * I) + ((|0> x <1|) * I)) + (
+    ((|1> x <0|) * I) + (- ((|1> x <1|) * I))
+)))) x |1>)))))))))))):Ket
+(
+    (
+        (((((cos((1/4 pi)) * a) * (((|0> x <0|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))) + ((cos((1/4 pi)) * a) * (((|0> x <1|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))) + (((cos((1/4 pi)) * a) * (((|1> x <0|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))) + ((- (cos((1/4 pi)) * a)) * (((|1> x <1|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))) + ((((cos((1/4 pi)) * b) * (((|0> x <0|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))) + ((cos((1/4 pi)) * b) * (((|0> x <1|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))) + (((cos((1/4 pi)) * b) * (((|1> x <0|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))) + ((- (cos((1/4 pi)) * b)) * (((|1> x <1|) * I) x (((|0> x <0|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))))) + (((((cos((1/4 pi)) * a) * (((|0> x <0|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> 
+  x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))) + ((cos((1/4 pi)) * a) * (((|0> x <1|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))) + (((cos((1/4 pi)) * a) * (((|1> x <0|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))) + ((- (cos((1/4 pi)) * a)) * (((|1> x <1|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))))) + ((((cos((1/4 pi)) * b) * (((|0> x <0|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))) + ((cos((1/4 pi)) * b) * (((|0> x <1|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))))) + (((cos((1/4 pi)) * b) * (((|1> x <0|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))) + ((- (cos((1/4 pi)) * b)) * (((|1> x <1|) * I) x (((|0> x <0|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> 
+  x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))))))
+    ) + (
+        (((
+            (
+                (cos((1/4 pi)) * a) * (((|0> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))) + ((cos((1/4 pi)) * a) * (((|0> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))) + (((cos((1/4 pi)) * a) * (((|1> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))) + ((- (cos((1/4 pi)) * a)) * (((|1> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))))) + ((((cos((1/4 pi)) * b) * (((|0> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))) + ((cos((1/4 pi)) * b) * (((|0> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))))) + (((cos((1/4 pi)) * b) * (((|1> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(1) * ((|0> x <0|) * I)) x (
+                    (
+                        I(1) * (
+                            cos((1/4 pi)) * (
+                                (
+                                    ((|0> x <0|) * I) + ((|0> x <1|) * I)
+                                ) + (
+                                    ((|1> x <0|) * I) + ((- (|1> x <1|)) * I)
+                                )
+                            )
+                        )
+                    ) x |1>
+  )))))
+  ) + (
+    (- (cos((1/4 pi)) * b)) * (
+        ((|1> x <1|) * I) x (
+            (I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (
+                ((|1> x <1|) * I) x (
+                    (I(1) * ((|0> x <0|) * I)) x (
+                        (
+                            I(1) * (
+                                cos((1/4 pi)) * (
+                                    (
+                                        ((|0> x <0|) * I) + ((|0> x <1|) * I)
+                                    ) + (
+                                        ((|1> x <0|) * I) + ((- (|1> x <1|)) * I)
+                                    )
+                                )
+                            )
+                        ) x |1>
+                    )
+                )
+            )
+        )
+    )
+    )
+))) + (((((cos((1/4 pi)) * a) * (((|0> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))) + ((cos((1/4 pi)) * a) * (((|0> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>)))))))) + (((cos((1/4 pi)) * a) * (((|1> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))) + ((- (cos((1/4 pi)) * a)) * (((|1> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |0>))))))))) + ((((cos((1/4 pi)) * b) * (((|0> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))))) + ((cos((1/4 pi)) * b) * (((|0> x <1|) 
+  * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>)))))))) + (((cos((1/4 pi)) * b) * (((|1> x <0|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))))) + ((- (cos((1/4 pi)) * b)) * (((|1> x <1|) * I) x ((I(1) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x (((|1> x <1|) * I) x ((I(2) * (((|0> x <1|) * I) + ((|1> x <0|) * I))) x ((I(1) * ((|1> x <1|) * I)) x ((I(1) * (cos((1/4 pi)) * ((((|0> x <0|) * I) + ((|0> x <1|) * I)) + (((|1> x <0|) * I) + ((- (|1> x <1|)) * I))))) x |1>))))))))))
+)):Ket
+open GATE .
+    ops a b : -> Complex .
+    eq (| a |^2) + (| b |^2) = cos(rzero) .
+    
+    op ketpsi : -> Ket .
+    op init : -> Ket .
+    op unentnglment : -> Ket .
+    op msment : -> Ket .
+    op recovery : -> Ket .
+    op checker : -> Gate .
+
+    op k : -> Nat .
+    var k2 : Nat .
+
+    eq k = 0 .
+    
+    eq checker = I(k + 2) * (ketpsi x (ketpsi ^+)) .
+
+    eq ketpsi = a * |0> + b * |1> .
+
+    eq init = ketpsi * |0> * |0> .
+
+    eq unentnglment = (
+        (H ( K ))
+        x (C X ( K , K + 1 ))
+        x (C X ( K + 1 , K + 2 ))
+        x (H(k + 1))
+        x init
+    ) .
+
+    eq msment = (
+        msment-op(P0 ( K ))
+        x msment-op(P0 ( K + 1 ))
+        x unentnglment
+    ) .
+
+    eq recovery = (
+        (C Z ( K , K + 2 ))
+        x (C X ( K + 1 , K + 2 ))
+        x msment
+    ) .
+
+    red recovery .
+    red checker x recovery .
+    red 1 + (((k + 1) + ((k2 + 1) + (k2 + 1))) + ((k + k2) + ((1 + k2) + (k2 + 1)))) .
+    red unentnglment .
+close
+
+eof
+(
+    (
+        a * (|0> * (|0> * (((| a |^2) * |0>) + (((a ^*) * b) * |1>))))
+    ) + (
+        b * (|0> * (|0> * ((((b ^*) * a) * |0>) + ((| b |^2) * |1>))))
+    )
+):Ket
+
+(
+    (
+        (
+            (a * (| a |^2)) * (|0> * (|0> * |0>))
+        ) + (
+            (a * ((a ^*) * b)) * (|0> * (|0> * |1>))
+        )
+    ) + (
+            (
+                (b * ((b ^*) * a)) * (|0> * (|0> * |0>))
+        ) + (
+            (b * (| b |^2)) * (|0> * (|0> * |1>))
+        )
+    )
+):Ket

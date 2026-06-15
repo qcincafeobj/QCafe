@@ -1,0 +1,126 @@
+input ../qc.cafe .
+set trace off
+mod! GROVER-LEMMAS {
+    -- pr(BOOL)
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    ops |psi> : NzPNat -> Ket .                 -- 1st param: n-qubit
+    op |sol _ >(_)     : PNat NzPNat -> Ket .   -- 1st param: solution (decimal), 2nd param: n-qubit
+    op |non-sol _ >(_) : PNat NzPNat -> Ket .   -- 1st param: solution (decimal), 2nd param: n-qubit
+    op | _ > : PNat -> BasisKet .               -- 1st param: a number in decimal
+    
+    op pnat2Real : PNat -> Real .
+    op sqrt : PNat -> Real .
+    op 2^ : PNat -> NzPNat .
+    
+    vars N N1 N2 : Nat .
+    vars PN PN1 PN2 PN3 PN4 : PNat .
+    vars NzPN : NzPNat .
+    var R : Real .
+
+    -- superposition of all basis states
+    eq |psi>(s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq |psi>(s(NzPN)) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
+       (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(NzPN))
+    ) .
+
+    -- inner product properties of the superposition
+    eq (|psi>(NzPN) ^+) x | PN >  = cos(rzero) / sqrt(NzPN) .
+    eq (| PN > ^+) x |psi>(NzPN)  = cos(rzero) / sqrt(NzPN) .
+
+    -- solution vs. non-solution hyperplanes
+    eq |sol PN1 >(NzPN) = | PN1 > .
+    eq |non-sol PN1 >(NzPN) = (cos(rzero) / sqrt(p(2^(NzPN)))) * (
+        sqrt(2^(NzPN)) * |psi>(2^(NzPN)) + (- (|sol PN1 >(2^(NzPN))))
+    ) .
+
+    -- misc
+    eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
+
+    eq sqrt(PN) ^* = sqrt(PN) .
+
+    eq sqrt(2^(s(0))) = cos(rzero) / cos((1/4 pi)) .
+    eq sqrt(s(0)) = cos(rzero) .
+    eq 2^(0) = s(0) .
+    eq p(2^(s(0))) = s(0) .
+    eq (sqrt(2^(PN)) = rzero) = false .
+    eq (pnat2Real(p(2^(NzPN))) = rzero) = false .
+
+    eq 2 * (cos(1/4 pi) * cos(1/4 pi)) = cos(rzero) .
+
+    eq sqrt(PN) * sqrt(PN) = pnat2Real(PN) .
+
+    eq pnat2Real(2^(PN)) / pnat2Real(2^(s(PN))) = 1/2 * cos(rzero) .
+
+    eq - cos(rzero) + pnat2Real(NzPN) = pnat2Real(p(NzPN)) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |non-sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |non-sol PN >(n) = cos(rzero) .
+close
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |sol PN >(n) = rzero .
+close
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat)(∀PN:PNat) (|sol PN >(N) ^+) x |non-sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|sol PN >(n) ^+) x |non-sol PN >(n) = rzero .
+close
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat)(∀PN:PNat) (|sol PN >(N) ^+) x |sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    red (|sol PN >(n) ^+) x |sol PN >(n) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat) (|psi>(N) ^+) x |psi>(N) = cos(rzero)
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- w2s
+    red (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case
+--> fc  : (n):NzPNat
+--> IH  : (|psi>(n) ^+) x |psi>(n) = cos(rzero)
+--> w2s : (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- fc
+    op n : -> NzPNat .
+    
+    -- IH
+    eq (|psi>(n) ^+) x |psi>(n) = cos(rzero) .
+
+    -- w2s
+    red (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero) .
+close
+--> ==========================================================================================

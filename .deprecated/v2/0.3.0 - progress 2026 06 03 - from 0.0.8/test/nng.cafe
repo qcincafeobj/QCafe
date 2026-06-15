@@ -1,0 +1,150 @@
+input ../qc.cafe
+
+set trace off
+
+-- open RAT .
+--     red -1 .
+--     red 2 .
+--     red 2/3 .
+--     red 2/1 .
+--     red 2 * (-1) .
+
+-- close
+-- eof
+
+mod! N-QUBIT-N-ITERATION-GROVER-SEARCH {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op n-iter-n-qubit-grover : PNat NzNat -> Ket .
+
+    ops |psi> |phi0> |phi1> : NzNat -> Ket .
+    ops Imat O D G : NzNat -> Mat .
+    op  theta : -> Real .
+    op toNat : PNat -> Nat .
+
+    vars K K0 K1 K2 : Ket .
+    vars N N1 N2 : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    vars RT RT1 RT2 : Rat .
+    vars R R1 R2 : Real .
+    vars PN : PNat .
+    vars NzPN : PNat .
+
+    eq RT * (- R) + R = (RT - 1) * (- R) .
+    eq R + RT * R = (1 + RT) * R .
+
+    -- n-qubit input constructed by Hadamard transform
+    eq |psi>(N) =  cos(1/2 * theta) * |phi0>(N) + sin((1/2) * theta) * |phi1>(N) .
+    eq (K1 x (K2 ^+)) x K = ((K2 ^+) x K) * K1 .
+    eq (|phi0>(N) ^+) x |phi0>(N) = cos(rzero) .
+    eq (|phi0>(N) ^+) x |phi1>(N) = rzero .
+    eq (|phi1>(N) ^+) x |phi0>(N) = rzero .
+    eq (|phi1>(N) ^+) x |phi1>(N) = cos(rzero) .
+
+    eq Imat(N) = (|phi0>(N)) x ((|phi0>(N)) ^+) + (|phi1>(N)) x ((|phi1>(N)) ^+) .
+    
+    eq G(N) = D(N) x O(N) .
+
+    eq D(N) = - Imat(N) + (2 * cos(rzero)) * (|psi>(N)  x (|psi>(N)^+)) .
+    eq O(N) =   Imat(N) - (2 * cos(rzero)) * (|phi1>(N) x (|phi1>(N)^+)) .
+
+    eq n-iter-n-qubit-grover(s(0), N) = execute(G(N), |psi>(N)) .
+    eq n-iter-n-qubit-grover(s(NzPN), N) = execute(
+        G(N),
+        n-iter-n-qubit-grover(NzPN, N)
+    ) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N1:NzNat)(∀N2:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |phi0>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |phi1>(N2) .
+--> by structural induction on N1
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-iter-n-qubit-grover(1, N2)
+-->      = cos((3/2) * theta) * |phi0>(N2)
+-->      + sin((3/2) * theta) * |phi1>(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- w2s
+    red n-iter-n-qubit-grover(s(0), N2)
+        = cos((3/2) * theta) * |phi0>(N2)
+        + sin((3/2) * theta) * |phi1>(N2) .
+close
+
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-iter-n-qubit-grover(n, N2)
+-->      = cos((2 * n + 1) * (1/2) * theta) * |phi0>(N2)
+-->      + sin((2 * n + 1) * (1/2) * theta) * |phi1>(N2) .
+--> w2s: n-iter-n-qubit-grover(s(n), N2)
+-->      = cos((2 * n + 3) * (1/2) * theta) * |phi0>(N2)
+-->      + sin((2 * n + 3) * (1/2) * theta) * |phi1>(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-iter-n-qubit-grover(n, N2)
+                = cos((toNat(n) + 1/2) * theta) * |phi0>(N2)
+                + sin((toNat(n) + 1/2) * theta) * |phi1>(N2) .
+
+    -- w2s
+    -- red n-iter-n-qubit-grover(n + 1, NzN2)
+    --     = cos((1/2 * (2 * n + 3)) * theta) * |phi0>(NzN2)
+    --     + sin((1/2 * (2 * n + 3)) * theta) * |phi1>(NzN2) .
+    red n-iter-n-qubit-grover(s(n), N2)
+        = cos((3/2 + toNat(n)) * theta) * |phi0>(N2)
+        + sin((3/2 + toNat(n)) * theta) * |phi1>(N2) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N2:NzNat)(∀N1:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |phi0>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |phi1>(N2) .
+--> by reduction on N2
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+    eq [lemma] : n-iter-n-qubit-grover(NzPN, N2)
+                    = cos((toNat(NzPN) + 1/2) * theta) * |phi0>(N2)
+                    + sin((toNat(NzPN) + 1/2) * theta) * |phi1>(N2) .
+    
+    red n-iter-n-qubit-grover(NzPN, n)
+        = cos((toNat(NzPN) + 1/2) * theta) * |phi0>(n)
+        + sin((toNat(NzPN) + 1/2) * theta) * |phi1>(n) .
+close
+--> ==========================================================================================
+eof
+
+
+
+ex1: |sol> = |0000>
+-- ex2: |sol> = a * |0000> + b * |0001>
+ex3: |sol> = |psi>(N)
+
+I(N) = (1/sqrt(N)) * \sum_i |i><i| = (1/sqrt(N)) * (|sol><sol| + |non-sol><non-sol|)
+
+==> |non-sol><non-sol| = I(N) - (1/sqrt(N)) * |sol><sol|
+
+|psi2> = cos(alpha) * |non-sol> + cos(beta) * |sol>
+|0>^(@n) = |0>(N)
+
+ws2: (H^(@n)) x (|0>^(@n)) = |sol> + |non-sol>
+we have
+(H^(@s(N))) x |0>(s(N)) = ((H^(@1)) x |0>(1)) @ ((H^(@N)) x |0>(N))
+                        = (|0>(1) + |1>(1)) @ ((H^(@N)) x |0>(N))
+
+|psi> = (H^(@n)) x (|0>^(@n)) = (1/sqrt(N)) * (\sum_i |i>)
+|sol>
+|non-sol> = |psi> - |sol>
+
+<phi| x (|psi> - |phi>) = 0
+<phi|phi> = 1

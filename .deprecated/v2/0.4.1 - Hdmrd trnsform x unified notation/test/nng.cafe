@@ -1,0 +1,116 @@
+input ../qc.cafe
+
+set trace off
+
+mod! NzN-QUBIT-NzN-ITERATION-GROVER-SEARCH {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op n-iter-n-qubit-grover : PNat NzNat -> Ket .
+
+    ops |psi> |non-sol> |sol> : NzNat -> Ket .  -- 1st param: n-qubit
+    ops Imat O D G : NzNat -> Mat .
+    op  theta : -> Real .
+    op  pnat2Nat : PNat -> Nat .
+
+    vars K K0 K1 K2 : Ket .
+    vars NzN N1 N2 : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    vars RT RT1 RT2 : Rat .
+    vars R R1 R2 : Real .
+    vars PN : PNat .
+    vars NzPN : PNat .
+
+    eq RT * (- R) + R = (RT - 1) * (- R) .
+    eq R + RT * R = (1 + RT) * R .
+
+    -- Hadamard transform result state expressed in the basis {|non-sol>, |sol>}
+    eq |psi>(NzN) =  cos(1/2 * theta) * |non-sol>(NzN) + sin((1/2) * theta) * |sol>(NzN) .
+    eq (K1 x (K2 ^+)) x K = ((K2 ^+) x K) * K1 .
+
+    -- inner product properties of the superposition
+    eq (|non-sol>(NzN) ^+) x |non-sol>(NzN) = cos(rzero) .
+    eq (|non-sol>(NzN) ^+) x |sol>(NzN) = rzero .
+    eq (|sol>(NzN) ^+) x |non-sol>(NzN) = rzero .
+    eq (|sol>(NzN) ^+) x |sol>(NzN) = cos(rzero) .
+
+    eq Imat(NzN) = (|non-sol>(NzN)) x ((|non-sol>(NzN)) ^+) + (|sol>(NzN)) x ((|sol>(NzN)) ^+) .
+    
+    eq G(NzN) = D(NzN) x O(NzN) .
+
+    eq D(NzN) = - Imat(NzN) + (2 * cos(rzero)) * (|psi>(NzN)  x (|psi>(NzN)^+)) .
+    eq O(NzN) =   Imat(NzN) - (2 * cos(rzero)) * (|sol>(NzN) x (|sol>(NzN)^+)) .
+
+    eq n-iter-n-qubit-grover(s(0), NzN) = execute(G(NzN), |psi>(NzN)) .
+    eq n-iter-n-qubit-grover(s(NzPN), NzN) = execute(
+        G(NzN),
+        n-iter-n-qubit-grover(NzPN, NzN)
+    ) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N1:NzNat)(∀N2:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |sol>(N2) .
+--> by structural induction on N1
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-iter-n-qubit-grover(1, N2)
+-->      = cos((3/2) * theta) * |non-sol>(N2)
+-->      + sin((3/2) * theta) * |sol>(N2) .
+open NzN-QUBIT-NzN-ITERATION-GROVER-SEARCH .
+    -- w2s
+    red n-iter-n-qubit-grover(s(0), N2)
+        = cos((3/2) * theta) * |non-sol>(N2)
+        + sin((3/2) * theta) * |sol>(N2) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-iter-n-qubit-grover(n, N2)
+-->      = cos((2 * n + 1) * (1/2) * theta) * |non-sol>(N2)
+-->      + sin((2 * n + 1) * (1/2) * theta) * |sol>(N2) .
+--> w2s: n-iter-n-qubit-grover(s(n), N2)
+-->      = cos((2 * n + 3) * (1/2) * theta) * |non-sol>(N2)
+-->      + sin((2 * n + 3) * (1/2) * theta) * |sol>(N2) .
+open NzN-QUBIT-NzN-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-iter-n-qubit-grover(n, N2)
+                = cos((pnat2Nat(n) + 1/2) * theta) * |non-sol>(N2)
+                + sin((pnat2Nat(n) + 1/2) * theta) * |sol>(N2) .
+
+    -- w2s
+    red n-iter-n-qubit-grover(s(n), N2)
+        = cos((3/2 + pnat2Nat(n)) * theta) * |non-sol>(N2)
+        + sin((3/2 + pnat2Nat(n)) * theta) * |sol>(N2) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N2:NzNat)(∀N1:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |sol>(N2) .
+--> by reduction on N2
+--> lemma: The theorem proved above
+open NzN-QUBIT-NzN-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+
+    -- Is this lemma suitable? Is this proof redundant?
+    eq [lemma] : n-iter-n-qubit-grover(NzPN, N2)
+                    = cos((pnat2Nat(NzPN) + 1/2) * theta) * |non-sol>(N2)
+                    + sin((pnat2Nat(NzPN) + 1/2) * theta) * |sol>(N2) .
+    
+    red n-iter-n-qubit-grover(NzPN, n)
+        = cos((pnat2Nat(NzPN) + 1/2) * theta) * |non-sol>(n)
+        + sin((pnat2Nat(NzPN) + 1/2) * theta) * |sol>(n) .
+close
+--> ==========================================================================================
+eof
