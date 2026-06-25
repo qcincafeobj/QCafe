@@ -1,0 +1,103 @@
+mod! REAL {
+    [RZero NzReal < Real]
+
+    op _*_ : Real Real -> Real {assoc prec: 31 comm} .
+}
+
+mod! COMPLEX {
+    pr(REAL)
+
+    [Real Imaginary < Complex]
+
+    op _*_ : Complex Complex -> Complex {assoc prec: 31 comm} .
+    -- op _*_ : Complex Real -> Complex {prec: 31} .
+    op _^* : Complex -> Complex .
+    
+    vars C C1 C2 : Complex .
+    vars R : Real .
+
+    eq (C1 * C2)^* = (C1 ^*) * (C2 ^*) .
+    eq R ^* = R .
+}
+mod! BRAKET {
+    pr(COMPLEX)
+    
+    [BasisBra BraZero < Bra]
+    [BasisKet KetZero < Ket]
+
+    ops <0| <1| : -> BasisBra .
+    ops |1> |0> : -> BasisKet .
+    op _*_ : Bra Bra -> Bra {assoc prec: 31} . 
+    op _*_ : Ket Ket -> Ket {assoc prec: 31} . -- Unexpected behavior
+    -- op _*_ : Ket Ket -> Ket {l-assoc prec: 31} . -- Work well
+    -- op _*_ : Ket Ket -> Ket {r-assoc prec: 31} . -- Work well
+    op _*_ : Complex Ket -> Ket {prec: 31} .
+    op _*_ : Complex Bra -> Bra {prec: 31} .
+    op _^+ : Ket -> Bra {prec: 15} .
+
+    vars KET KET1 KET2 : Ket .
+    vars C : Complex .
+    
+    eq |0> ^+ = <0| .
+    eq |1> ^+ = <1| .
+
+    eq (KET1 * KET2)^+ = (KET1 ^+) * (KET2 ^+) .
+    eq (C * KET)^+     = (C ^*) * (KET ^+) .
+}
+
+set trace on
+open BRAKET .
+    var R : Real .
+    var a : Complex .
+    red ((a * R) * |0>)^+ .
+    
+    -- CASE 1:
+    -- if we use assoc on 
+    -- op _*_ : Ket Ket -> Ket {assoc prec: 31} .
+
+    -- reduce in %BRAKET : (((R * a) * |0>) ^+):Bra
+    -- (((R * a) ^+) * <0|):Bra
+
+    -- The trace:
+    -- reduce in %BRAKET : (((R * a) * |0>) ^+):Bra
+    -- 1>[1] rule: eq ((KET1 * KET2) ^+) = ((KET1 ^+) * (KET2 ^+))
+    --     { KET1 |-> (R * a), KET2 |-> |0> }
+    -- 1<[1] (((R * a) * |0>) ^+):Bra --> (((R * a) ^+) * (|0> ^+)):Bra
+
+    -- 1>[2] rule: eq (|0> ^+) = <0|
+    --     {}
+    -- 1<[2] (|0> ^+):Bra --> (<0|):BasisBra
+
+    -- (((R * a) ^+) * <0|):Bra
+    -- (0.0000 sec for parse, 0.0001 sec for 2 rewrites + 8 matches)
+    
+    -- -------------------------------------
+    
+    -- CASE 2:
+    -- if we use l- or r-assoc on
+    -- op _*_ : Ket Ket -> Ket {...-assoc prec: 31} .
+    -- reduce in %BRAKET : (((R * a) * |0>) ^+):Bra
+    -- ((R * (a ^*)) * <0|):Bra
+
+    -- The trace:
+    -- reduce in %BRAKET : (((R * a) * |0>) ^+):Bra
+    -- 1>[1] rule: eq ((C * KET) ^+) = ((C ^*) * (KET ^+))
+    --     { C |-> (R * a), KET |-> |0> }
+    -- 1<[1] (((R * a) * |0>) ^+):Bra --> (((R * a) ^*) * (|0> ^+)):Bra
+
+    -- 1>[2] rule: eq ((C1:Complex * C2:Complex) ^*) = ((C1 ^*) * (C2 ^*))
+    --     { C2:Complex |-> R, C1:Complex |-> a }
+    -- 1<[2] ((R * a) ^*):Complex --> ((a ^*) * (R ^*)):Complex
+
+    -- 1>[3] rule: eq (R ^*) = R
+    --     { R |-> R }
+    -- 1<[3] (R ^*):Complex --> R:Real
+
+    -- 1>[4] rule: eq (|0> ^+) = <0|
+    --     {}
+    -- 1<[4] (|0> ^+):Bra --> (<0|):BasisBra
+
+    -- ((R * (a ^*)) * <0|):Bra
+    -- (0.0000 sec for parse, 0.0002 sec for 4 rewrites + 10 matches)
+close
+eof

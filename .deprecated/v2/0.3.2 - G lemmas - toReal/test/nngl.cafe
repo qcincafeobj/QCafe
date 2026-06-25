@@ -1,0 +1,341 @@
+input ../qc.cafe .
+set trace off
+mod! GROVER-LEMMAS {
+    -- pr(BOOL)
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    ops |psi> |phi0> |phi1> : PNat -> Ket .
+    op |sol _ >(_) : PNat PNat -> Ket .
+    op |non-sol _ >(_) : PNat PNat -> Ket .
+    op | _ > : PNat -> BasisKet .
+    op pnat2Real : PNat -> Real .
+    -- op nat2Real : Nat -> Real .
+    op 2^ : PNat -> NzPNat .
+    vars N N1 N2 : Nat .
+    vars PN PN1 PN2 PN3 PN4 : PNat .
+    vars NzPN : NzPNat .
+    var R : Real .
+
+    eq |psi>(2^(s(0))) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq |psi>(2^(s(NzPN))) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
+       (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(2^(NzPN)))
+    ) .
+    eq |sol PN1 >(PN) = | PN1 > .
+    eq |non-sol PN1 >(2^(s(PN))) = (cos(rzero) / sqrt(p(2^(s(PN))))) * (
+        sqrt(2^(s(PN))) * |psi>(2^(s(PN))) + (- (|sol PN1 >(2^(s(PN)))))
+    ) .
+
+    op _*_ : Nat Real -> Real {prec: 31 assoc comm} .
+    op _*_ : Real Nat -> Real {prec: 31 assoc comm} .
+    op sqrt : PNat -> Real .
+    -- op sqrt : Nat -> Real .
+    eq sqrt(PN) ^* = sqrt(PN) .
+    eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
+
+    -- sqrt(2^1)
+    eq sqrt(2^(s(0))) = cos(rzero) / cos((1/4 pi)) .
+    eq sqrt(s(0)) = cos(rzero) .
+    eq 2^(0) = s(0) .
+    eq p(2^(s(0))) = s(0) .
+    eq (sqrt(2^(PN)) = rzero) = false .
+
+    eq 2 * (cos(1/4 pi) * cos(1/4 pi)) = cos(rzero) .
+
+    eq sqrt(PN) * sqrt(PN) = pnat2Real(PN) .
+
+    -- alternative
+    eq |psi>(2^(s(pnzero))) = cos(1/4 pi) * (| pnzero > + | s(pnzero) >) .
+    eq sqrt(2^(s(pnzero))) = cos(rzero) / cos((1/4 pi)) .
+    eq sqrt(s(pnzero)) = cos(rzero) .
+    eq 2^(pnzero) = s(pnzero) .
+    eq p(2^(s(pnzero))) = s(pnzero) .
+
+    eq pnat2Real(2^(PN)) / pnat2Real(2^(s(PN))) = 1/2 * cos(rzero) .
+}
+
+-- open GROVER-LEMMAS .
+--     op n : -> PNat .
+--     red | s(s(0)) > .
+--     red | s(s(n)) > .
+--     red |psi>(2^(s(0))) .
+--     red |psi>(2^(s(n))) .
+-- close
+-- eof
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|non-sol r >(2^(N)) ^+) x |non-sol r >(2^(N)) = cos(rzero)
+--> by structural induction on N
+--> Base case:
+--> w2s:
+--> Case A1.1: r = 0
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = 0) = true . -- error
+    eq r = 0 .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+
+--> Case A1.1 (alternative): r = pnzero (an alternative for --> Case A1.1: r = 0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq (r = pnzero) = true .
+    eq (s(pnzero) = r) = false .
+    red (|non-sol r >(2^(s(pnzero))) ^+) x |non-sol r >(2^(s(pnzero))) = cos(rzero) .
+close
+
+--> Case A1.2: r = s(0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = s(0) .
+    -- var PN : PNat .
+    eq [lemma] : (|psi>(2^(PN)) ^+) x |psi>(2^(PN)) = cos(rzero) .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+-- eof
+-- --> Case A1.2 (alternative, error): r = s(0)
+-- open GROVER-LEMMAS .
+--     op r : -> PNat .
+--     eq (r = s(0)) = true .
+--     -- eq (r = 0) = false . -- error
+--     red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+-- close
+
+--> Induction case
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    -- eq (r = 0) = false .
+    -- eq r = s(0) .
+    -- eq [IH] : (|non-sol r >(2^(n)) ^+) x |non-sol r >(2^(n)) = cos(rzero) .
+    
+    -- var PN : PNat .
+    eq (|psi>(PN) ^+) x | r >  = cos(rzero) / sqrt(PN) .
+    eq (| r > ^+) x |psi>(PN)  = cos(rzero) / sqrt(PN) .
+    eq - cos(rzero) + pnat2Real(PN) = pnat2Real(p(PN)) .
+    eq (pnat2Real(p(2^(s(PN)))) = rzero) = false .
+
+    eq [lemma] : (|psi>(2^(PN)) ^+) x |psi>(2^(PN)) = cos(rzero) .
+
+    red (|non-sol r >(2^(s(n))) ^+) x |non-sol r >(2^(s(n))) = cos(rzero) .
+    
+    -- although the lemma is not used, proof by reduction like this won't succeed
+    -- red (|non-sol r >(2^(n)) ^+) x |non-sol r >(2^(n)) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|non-sol r >(2^(N)) ^+) x |sol r >(2^(N)) = rzero
+--> by structural induction on N
+--> Base case:
+--> w2s:
+--> Case B1.1: r = 0
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = 0) = true . -- error
+    eq r = 0 .
+    red (|non-sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = rzero .
+close
+
+--> Case B1.1 (alternative): r = pnzero (an alternative for --> Case B1.1: r = 0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq (r = pnzero) = true .
+    eq (s(pnzero) = r) = false .
+    red (|non-sol r >(2^(s(pnzero))) ^+) x |sol r >(2^(s(pnzero))) = rzero .
+close
+
+--> Case B1.2: r = s(0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = s(0) .
+    red (|non-sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = rzero .
+close
+
+-- --> Case B1.2 (alternative, error): r = s(0)
+-- open GROVER-LEMMAS .
+--     op r : -> PNat .
+--     eq (r = s(0)) = true .
+--     -- eq (r = 0) = false . -- error
+--     red (|non-sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = rzero .
+-- close
+
+--> Induction case
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    -- eq (r = 0) = false .
+    -- eq r = s(0) .
+    -- eq [IH] : (|non-sol r >(2^(n)) ^+) x |sol r >(2^(n)) = cos(rzero) .
+    
+    -- var PN : PNat .
+    eq (|psi>(PN) ^+) x | r >  = cos(rzero) / sqrt(PN) .
+    eq (| r > ^+) x |psi>(PN)  = cos(rzero) / sqrt(PN) .
+    eq - cos(rzero) + pnat2Real(PN) = pnat2Real(p(PN)) .
+    eq (pnat2Real(p(2^(s(PN)))) = rzero) = false .
+
+    red (|non-sol r >(2^(s(n))) ^+) x |sol r >(2^(s(n))) = rzero .
+    
+    -- although the lemma is not used, proof by reduction like this won't succeed
+    -- red (|non-sol r >(2^(n)) ^+) x |sol r >(2^(n)) = rzero .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|sol r >(2^(N)) ^+) x |non-sol r >(2^(N)) = rzero
+--> by structural induction on N
+--> Base case:
+--> w2s:
+--> Case C1.1: r = 0
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = 0) = true . -- error
+    eq r = 0 .
+    red (|sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = rzero .
+close
+
+--> Case C1.1 (alternative): r = pnzero (an alternative for --> Case C1.1: r = 0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq (r = pnzero) = true .
+    eq (s(pnzero) = r) = false .
+    red (|sol r >(2^(s(pnzero))) ^+) x |non-sol r >(2^(s(pnzero))) = rzero .
+close
+
+--> Case C1.2: r = s(0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = s(0) .
+    red (|sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = rzero .
+close
+
+-- --> Case C1.2 (alternative, error): r = s(0)
+-- open GROVER-LEMMAS .
+--     op r : -> PNat .
+--     eq (r = s(0)) = true .
+--     -- eq (r = 0) = false . -- error
+--     red (|non-sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = rzero .
+-- close
+
+--> Induction case
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    -- eq (r = 0) = false .
+    -- eq r = s(0) .
+    -- eq [IH] : (|sol r >(2^(n)) ^+) x |non-sol r >(2^(n)) = cos(rzero) .
+    
+    -- var PN : PNat .
+    eq (|psi>(PN) ^+) x | r >  = cos(rzero) / sqrt(PN) .
+    eq (| r > ^+) x |psi>(PN)  = cos(rzero) / sqrt(PN) .
+    eq - cos(rzero) + pnat2Real(PN) = pnat2Real(p(PN)) .
+    eq (pnat2Real(p(2^(s(PN)))) = rzero) = false .
+
+    red (|sol r >(2^(s(n))) ^+) x |non-sol r >(2^(s(n))) = rzero .
+
+    -- although the lemma is not used, proof by reduction like this won't succeed
+    -- red (|sol r >(2^(n)) ^+) x |non-sol r >(2^(n)) = rzero .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|sol r >(2^(N)) ^+) x |sol r >(2^(N)) = cos(rzero)
+--> by structural induction on N
+--> Base case:
+--> w2s:
+--> Case D1.1: r = 0
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = 0) = true . -- error
+    eq r = 0 .
+    red (|sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = cos(rzero) .
+close
+
+--> Case D1.1 (alternative): r = pnzero (an alternative for --> Case D1.1: r = 0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq (r = pnzero) = true .
+    eq (s(pnzero) = r) = false .
+    red (|sol r >(2^(s(pnzero))) ^+) x |sol r >(2^(s(pnzero))) = cos(rzero) .
+close
+
+--> Case D1.2: r = s(0)
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = s(0) .
+    red (|sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = cos(rzero) .
+close
+
+-- --> Case D1.2 (alternative, error): r = s(0)
+-- open GROVER-LEMMAS .
+--     op r : -> PNat .
+--     eq (r = s(0)) = true .
+--     -- eq (r = 0) = false . -- error
+--     red (|sol r >(2^(s(0))) ^+) x |sol r >(2^(s(0))) = cos(rzero) .
+-- close
+
+--> Induction case
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    -- eq (r = 0) = false .
+    -- eq r = s(0) .
+    -- eq [IH] : (|sol r >(2^(n)) ^+) x |sol r >(2^(n)) = cos(rzero) .
+    
+    -- var PN : PNat .
+    eq (|psi>(PN) ^+) x | r >  = cos(rzero) / sqrt(PN) .
+    eq (| r > ^+) x |psi>(PN)  = cos(rzero) / sqrt(PN) .
+    eq - cos(rzero) + pnat2Real(PN) = pnat2Real(p(PN)) .
+    eq (pnat2Real(p(2^(s(PN)))) = rzero) = false .
+
+    red (|sol r >(2^(s(n))) ^+) x |sol r >(2^(s(n))) = cos(rzero) .
+
+    -- although the lemma is not used, proof by reduction like this won't succeed
+    -- red (|sol r >(2^(n)) ^+) x |sol r >(2^(n)) = cos(rzero) .
+close
+--> ==========================================================================================
+
+--> Why they work?
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    red |non-sol r >(2^(s(n))) .
+close
+-- eof
+-- (
+--     (
+--         (- (cos(rzero) / sqrt(p(2^(s(n)))))) * (| r >)
+--     ) + (
+--         (sqrt(2^(s(n))) / sqrt(p(2^(s(n))))) * |psi>(2^(s(n)))
+--     )
+-- ):Ket
+-- -- eq (|psi>(2^(PN)) ^+) x |psi>(2^(PN)) = cos(rzero) .
+
+-->
+-->
+-->
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|psi>(2^(N)) ^+) x |psi>(2^(N)) = cos(rzero)
+--> by structural induction on N
+--> Base case:
+--> w2s:
+open GROVER-LEMMAS .
+    red (|psi>(2^(s(0))) ^+) x |psi>(2^(s(0))) = cos(rzero) .
+close
+
+--> Induction case
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+    
+    eq [IH] : (|psi>(2^(n)) ^+) x |psi>(2^(n)) = cos(rzero) .
+
+    red (|psi>(2^(s(n))) ^+) x |psi>(2^(s(n))) = cos(rzero) .
+
+close
+--> ==========================================================================================

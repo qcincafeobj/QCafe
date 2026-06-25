@@ -1,0 +1,58 @@
+input ../qc.cafe
+
+mod! ENTANGLEMENT-SWAPPING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+    
+    op es-pre-processor : -> Statement .
+    op es-post-processor : -> Statement .
+    op es-program : -> Statement .
+
+    op getKthQubit : Nat Ket -> Ket .
+
+    op |input> : -> Ket .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    vars PN : PNat .
+    vars R : Real .
+    
+    eq |input> = |0> @ |0> @ |0> @ |0> .
+
+    eq execute(es-pre-processor, |input>) = |input> .
+    eq execute(es-post-processor, K) = getKthQubit(3, K) .
+
+    eq getKthQubit(N, K1 + K2) = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K)  = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * K)     = C * getKthQubit(N, K) .
+
+    eq es-program = (
+        es-pre-processor;
+        H(0); C X(0, 1);
+        H(3); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+
+    eq cos(1/4 * pi) * sqrt(2) = cos(rzero) .
+}
+
+open ENTANGLEMENT-SWAPPING .
+    red execute(es-program, |input>) .
+close
+
+eof
+(
+    execute(
+        es-post-processor,execute(skip,execute(normalizer,execute((I(2) @ ((|0> x <0|) @ I)),execute(skip,execute(normalizer,execute((I(1) @ ((|0> x <0|) @ I)),execute((I(1) @ ((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + ((- cos((1/4 * pi))) * ((|1> x <1|) @ I)))))),execute(((I(1) @ ((|0> x <0|) @ I)) + ((I(2) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))) @g (I(1) @ ((|1> x <1|) @ I)))),execute((((I(3) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g (I(2) @ ((|1> x <1|) @ I))) + (I(2) @ ((|0> x <0|) @ I))),execute((I(3) @ ((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + ((- cos((1/4 * pi))) * ((|1> x <1|) @ I)))))),execute((((|0> x <0|) @ I) + ((I(1) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))) @g ((|1> x <1|) @ I))),execute((((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|1> x <0|) @ I))))),execute(es-pre-processor,((|0> @ |0>) @ (|0> @ |0>)))))))))))))))) V (execute(es-post-processor,execute((I(3) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))),execute(normalizer,execute((I(2) @ ((|1> x <1|) @ I)),execute(skip,execute(normalizer,execute((I(1) @ ((|0> x <0|) @ I)),execute((I(1) @ ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|0> x <1|) @ I)))))),execute((((I(2) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g (I(1) @ ((|1> x <1|) @ I))) + (I(1) @ ((|0> x <0|) @ I))),execute(((I(2) @ ((|0> x <0|) @ I)) + ((I(3) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))) @g (I(2) @ ((|1> x <1|) @ I)))),execute((I(3) @ ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|0> x <1|) @ I)))))),execute((((I(1) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g ((|1> 
+  x <1|) @ I)) + ((|0> x <0|) @ I)),execute(((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + ((- cos((1/4 * pi))) * ((|1> x <1|) @ I))))),execute(es-pre-processor,((|0> @ |0>) @ (|0> @ |0>)))))))))))))))) V (execute(es-post-processor,execute(skip,execute(normalizer,execute((I(2) @ ((|0> x <0|) @ I)),execute((((|0> x <0|) @ I) + ((- cos(rzero)) * ((|1> x <1|) @ I))),execute(normalizer,execute((I(1) @ ((|1> x <1|) @ I)),execute((I(1) @ ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|0> x <1|) @ I)))))),execute((((I(2) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g (I(1) @ ((|1> x <1|) @ I))) + (I(1) @ ((|0> x <0|) @ I))),execute(((I(2) @ ((|0> x <0|) @ I)) + ((I(3) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))) @g (I(2) @ ((|1> x <1|) @ I)))),execute((I(3) @ ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|0> x <1|) @ I)))))),execute((((I(1) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g ((|1> x <1|) @ I)) + ((|0> x <0|) @ I)),execute(((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + ((- cos((1/4 * pi))) * ((|1> x <1|) @ I))))),execute(es-pre-processor,((|0> @ |0>) @ (|0> @ |0>)))))))))))))))) V execute(es-post-processor,execute((I(3) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))),execute(normalizer,execute((I(2) @ ((|1> x <1|) @ I)),execute((((|0> x <0|) @ I) + ((- cos(rzero)) * ((|1> x <1|) @ I))),execute(normalizer,execute((I(1) @ ((|1> x <1|) @ I)),execute((I(1) @ (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|1> x <0|) @ I)))))),execute((((I(2) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g (I(1) @ ((|1> x <1|) @ I))) + (I(1) @ ((|0>
+  x <0|) @ I))),execute(((I(2) @ ((|0> x <0|) @ I)) + ((I(3) @ (((|0> x <1|) @ I) + ((|1> x <0|) @ I))) @g (I(2) @ ((|1> x <1|) @ I)))),execute((I(3) @ (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|1> x <0|) @ I)))))),execute((((I(1) @ (((|1> x <0|) @ I) + ((|0> x <1|) @ I))) @g ((|1> x <1|) @ I)) + ((|0> x <0|) @ I)),execute(((cos((1/4 * pi)) * ((|1> x <0|) @ I)) + (((- cos((1/4 * pi))) * ((|1> x <1|) @ I)) + ((cos((1/4 * pi)) * ((|0> x <0|) @ I)) + (cos((1/4 * pi)) * ((|0> x <1|) @ I))))),execute(es-pre-processor,((|0> @ |0>) @ (|0> @ |0>))))))))))))))))))):KetSet

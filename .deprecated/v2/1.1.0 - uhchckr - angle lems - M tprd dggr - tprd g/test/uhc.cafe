@@ -1,0 +1,66 @@
+input ../qc.cafe .
+
+mod! UH-CHECKER {
+    pr(QUANTUM-INTERPRETER)
+
+    ops isUnitary isHermitian : Mat -> Bool .
+    op  Imat : -> Mat .
+    
+    vars M M1 M2 M3 M4 : Mat .
+    vars C C1 C2 : Complex .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars BB BB1 BB2 : BasisBra .
+
+    eq Imat = |0><0| + |1><1| .
+    
+    eq isUnitary(M) = (
+        ((M ^+) x M = Imat)
+        and (M x (M ^+) = Imat)
+    ) .
+    
+    eq isHermitian(M) = (M = M ^+) .
+
+    -- This only well behaves in this situation 
+    -- Other cases, such as H_5 x (|0><0| @ I) = H_5 x |0><0| causes bad behaviors
+    eq M @ I = M . 
+
+    eq (M1 + M2) x  M = M1 x  M + M2 x  M .
+    eq M x  (M1 + M2) = M x  M1 + M x  M2 .
+    eq C * (C1 + C2) = C * C1 + C * C2 .
+
+    eq 2 * (cos((1/4 * pi)) * cos((1/4 * pi))) = cos(rzero) .
+}
+
+--> Unitary operators
+open UH-CHECKER .
+    red isUnitary(X(0)) .
+    red isUnitary(Y(0)) .
+    red isUnitary(Z(0)) .
+    red isUnitary(H(0)) .
+    red isUnitary(T(0)) .
+    red isUnitary(TI(0)) .
+    red isUnitary(S(0)) .
+    red isUnitary(SI(0)) .
+    
+    -- P0 and P1 are not unitary
+    -- red isHermitian(P0(0)) .
+    -- red isHermitian(P1(0)) .
+close
+
+--> Hermitian operators
+open UH-CHECKER .
+    red isHermitian(X(0)) .
+    red isHermitian(Y(0)) .
+    red isHermitian(Z(0)) .
+    red isHermitian(H(0)) .
+    red isHermitian(P0(0)) .
+    red isHermitian(P1(0)) .
+    red isHermitian(C X(0, 1)) .
+
+    -- T, TI = (T^+), S, and SI, are not Hermitian
+    -- red isHermitian(T(0)) .
+    -- red isHermitian(TI(0)) .
+    -- red isHermitian(S(0)) .
+    -- red isHermitian(SI(0)) .
+close

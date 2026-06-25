@@ -1,0 +1,25 @@
+input ../qc.cafe
+
+open QUANTUM-INTERPRETER .
+    red (|0> @ |0>) .
+    red X(1) x (|0> @ |0>) .
+    red H(0) x X(1) x (|0> @ |0>) .
+    red P0(0) x H(0) x X(1) x (|0> @ |0>) .
+    red measOp(P0(0)) x H(0) x X(1) x (|0> @ |0>) .
+    red Y(1) x (|0> @ |0>) .
+    red P0(0) x Y(1) x (|0> @ |0>) .
+    red measOp(P0(0)) x Y(1) x (|0> @ |0>) .
+    red ((i cos(rzero))^*) * (i cos(rzero)) .
+    red || ((i cos(rzero)) * (|0> @ |1>)) ||^2 .
+    red Z(1) x (|0> @ |0>) .
+    red (cos((1/4 pi)) / (cos((1/4 pi)) * sqrt(2))) .
+    -->
+    red P0(0) x H(1) x (|0> @ |0>) .
+    red sqrt(2 * (cos((1/4 pi)) * cos((1/4 pi)))) .
+    red cos(rzero) / sqrt(2) .
+    -->
+    red measOp(P0(0)) x H(1) x (|0> @ |0>) .
+    red || P0(0) x H(1) x (|0> @ |0>) ||^2 .
+    red (cos(rzero) / sqrt(2 * (cos((1/4 pi)) * cos((1/4 pi))))) * cos((1/4 pi)) .
+    red (|0> V |1>) @ (|0> V |1>) .
+close

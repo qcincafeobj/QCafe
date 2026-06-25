@@ -1,0 +1,89 @@
+input ../qc.cafe .
+
+-- set print mode tree
+-- set print mode fancy
+set print mode s-expr
+set print mode normal
+
+set trace off
+set trace on
+
+mod! N-HOP-TELEPORT {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op teleport-pre-processor : -> Statement .
+    op teleport-post-processor : -> Statement .
+    op teleport-program : -> Statement .
+
+    op getKthQubit : Nat Ket -> Ket .
+    
+    op n-hop-teleport : PNat -> KetSet .
+
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+
+    vars KET KET1 KET2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars PN : PNat .
+
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    eq execute(teleport-pre-processor , KET) = KET @ |0> @ |0> .
+    eq execute(teleport-post-processor, KET) = getKthQubit(2, KET) .
+
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+
+    eq teleport-program = (
+        teleport-pre-processor;
+        H(1);
+        C X ( 1 , 2 ) ;  
+        C X ( 0 , 1 ) ; 
+        H(0) ; 
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif;
+        teleport-post-processor
+    ) .
+
+    eq n-hop-teleport(0) = execute(teleport-program, |psi>) .
+    eq n-hop-teleport(s(PN)) = execute(
+        teleport-program,
+        n-hop-teleport(PN)
+    ) .
+}
+-- set trace off
+--> ==========================================================================================
+--> Proof of (∀N:PNat) n-hop-teleport(N) = |psi>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-teleport(0) = |psi>
+open N-HOP-TELEPORT .
+    -- w2s
+    red n-hop-teleport(0) = |psi> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):PNat
+--> IH : n-hop-teleport(n) = |psi>
+--> w2s: n-hop-teleport(s(n)) = |psi>
+open N-HOP-TELEPORT .
+    -- fc
+    op n : -> PNat .
+
+    -- IH
+    eq [IH] : n-hop-teleport(n) = |psi> .
+
+    -- w2s
+    red n-hop-teleport(s(n)) = |psi> .
+close
+--> ==========================================================================================

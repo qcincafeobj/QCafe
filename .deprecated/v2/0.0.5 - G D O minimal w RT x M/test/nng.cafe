@@ -1,0 +1,133 @@
+input ../qc.cafe
+
+set trace off
+
+-- open RAT .
+--     red -1 .
+--     red 2 .
+--     red 2/3 .
+--     red 2/1 .
+--     red 2 * (-1) .
+
+-- close
+-- eof
+
+mod! N-QUBIT-N-ITERATION-GROVER-SEARCH {
+    -- pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op n-iter-n-qubit-grover : Nat Nat -> Ket .
+
+    ops kpsi kphi0 kphi1 : Nat -> Ket .
+    ops Imat O D G : Nat -> Mat .
+    op  theta : -> Real .
+
+    vars K K0 K1 K2 : Ket .
+    vars N N1 N2 : Nat .
+    vars NzN NzN1 NzN2 : NzNat .
+    -- vars NzPN : NzPNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    var  R : Real .
+    -- vars PN PN1 : PNat .
+
+    -- n-qubit input constructed by Hadamard transform
+    eq kpsi(N) =  (kphi0(N) *kc cos(1/2 * theta)) +k (kphi1(N) *kc sin((1/2) * theta)) .
+    eq K1 +k K2 = K1 + K2 .
+    eq K *kc C = C * K .
+    eq (K1 x (K2 ^+)) x K = ((K2 ^+) x K) * K1 .
+    eq (kphi0(N) ^+) x kphi0(N) = cos(rzero) .
+    eq (kphi0(N) ^+) x kphi1(N) = rzero .
+    eq (kphi1(N) ^+) x kphi0(N) = rzero .
+    eq (kphi1(N) ^+) x kphi1(N) = cos(rzero) .
+    eq (cos(R) * 2) * sin(R) = sin(2 * R) .
+
+    eq Imat(N) = (kphi0(N)) x ((kphi0(N)) ^+) + (kphi1(N)) x ((kphi1(N)) ^+) .
+    
+    eq G(N) = D(N) x O(N) .
+
+    eq D(N) = - Imat(N) + (2 * cos(rzero)) * (kpsi(N)  x (kpsi(N)^+)) .
+    eq O(N) =   Imat(N) - (2 * cos(rzero)) * (kphi1(N) x (kphi1(N)^+)) .
+
+    eq n-iter-n-qubit-grover(1, N) = execute(G(N), kpsi(N)) .
+    eq n-iter-n-qubit-grover(NzN, N) = execute(
+        G(N),
+        n-iter-n-qubit-grover(p NzN, N)
+    ) .
+}
+
+-- red n-qubit-grover(n) = cos((2*n + 1) * (1/2) * theta) * kphi0(n) + ... .
+
+--> ==========================================================================================
+--> Proof of (∀N1:NzPNat)(∀N2:NzPNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * kphi0(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * kphi1(N2) .
+--> by structural induction on N1
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-iter-n-qubit-grover(s(0), N2)
+-->      = cos((3/2) * theta) * kphi0(N2)
+-->      + sin((3/2) * theta) * kphi1(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- w2s
+    -- red n-iter-n-qubit-grover(1, N2)
+    --     = cos((3/2) * theta) * kphi0(N2)
+    --     + sin((3/2) * theta) * kphi1(N2) .
+    red D(N) .
+    -- red n-iter-n-qubit-grover(1, N2) .
+close
+
+eof
+
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-iter-n-qubit-grover(n, N2)
+-->      = cos((2 * n + 1) * (1/2) * theta) * kphi0(N2)
+-->      + sin((2 * n + 1) * (1/2) * theta) * kphi1(N2) .
+--> w2s: n-iter-n-qubit-grover(s(n), N2)
+-->      = cos((2 * n + 3) * (1/2) * theta) * kphi0(N2)
+-->      + sin((2 * n + 3) * (1/2) * theta) * kphi1(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+
+    -- IH
+    eq [IH] : n-iter-n-qubit-grover(n, NzN2)
+              = cos((2 * n + 1) * (1/2) * theta) * kphi0(NzN2)
+              + sin((2 * n + 1) * (1/2) * theta) * kphi1(NzN2) .
+
+    -- w2s
+    red n-iter-n-qubit-grover(n + 1, NzN2)
+        = cos((2 * n + 3) * (1/2) * theta) * kphi0(NzN2)
+        + sin((2 * n + 3) * (1/2) * theta) * kphi1(NzN2) .
+close
+--> ==========================================================================================
+
+-- 
+(
+    (
+        (2 * cos(rzero)) * (
+            (
+                cos((1/2 * theta)) * (cos((1/2 * theta)) * (kphi0(N) x (kphi0(N) ^+)))
+            ) + (
+                (
+                    cos(((1/2 pi) + (1/2 * (- theta)))) * (
+                        cos((1/2 * theta)) * (kphi0(N) x (kphi1(N) ^+))
+                    )
+                ) + (
+                    (
+                        cos((1/2 * theta)) * (
+                            cos(((1/2 pi) + (1/2 * (- theta)))) * (kphi1(N) x (kphi0(N) ^+))
+                        )
+                    ) + (
+                        cos(((1/2 pi) + (1/2 * (- theta)))) * (
+                            cos(((1/2 pi) + (1/2 * (- theta)))) * (kphi1(N) x (kphi1(N) ^+))
+                        )
+                    )
+                )
+            )
+        )
+    ) + (
+        (- cos(rzero)) * ((kphi1(N) x (kphi1(N) ^+)) + (kphi0(N) x (kphi0(N) ^+))))):Mat

@@ -1,0 +1,164 @@
+input ../qc.cafe .
+
+mod! GROVER-LEMMAS {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    ops |psi> |phi0> |phi1> : PNat -> Ket .
+    op |sol _ >(_) : PNat PNat -> Ket .
+    op |non-sol _ >(_) : PNat PNat -> Ket .
+    op | _ > : PNat -> Ket .
+    op toNat : PNat -> Nat .
+    op 2^ : PNat -> PNat .
+    vars N N1 N2 : Nat .
+    vars PN PN1 PN2 : PNat .
+    vars NzPN : NzPNat .
+    var R : Real .
+
+    eq |psi>(2^(s(0))) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq |psi>(2^(s(NzPN))) = (cos(rzero) / sqrt(toNat(2^(s(NzPN))))) * (
+       (sqrt(toNat(2^(NzPN))) * |psi>(2^(NzPN))) @ (| 0 > + | s(0) >)
+    ) .
+    -- eq |psi>(2^(s(PN))) = (cos(rzero) / sqrt(toNat(2^(s(PN))))) * (
+    --    (sqrt(toNat(2^(PN))) * |psi>(2^(PN))) @ (| 0 > + | s(0) >)
+    -- ) .
+    -- eq |psi>(2^(s(PN))) = (cos(rzero) / sqrt(toNat(2^(s(PN))))) * (
+    --    (sqrt(toNat(2^(PN))) * |psi>(2^(PN))) @ ((cos(rzero) / cos(1/4 pi)) * |psi>(2^(s(0))))
+    -- ) .
+
+    eq |sol PN1 >(2^(s(PN))) = | PN1 > .
+    eq |non-sol PN1 >(2^(s(PN))) = (cos(rzero) / sqrt(toNat(2^(PN)))) * (
+        sqrt(toNat(2^(s(PN)))) * |psi>(2^(s(PN))) + (- (|sol PN1 >(2^(s(PN)))))
+    ) .
+
+    op _*_ : Nat Real -> Real {prec: 31 assoc comm} .
+    op _*_ : Real Nat -> Real {prec: 31 assoc comm} .
+    op sqrt : Nat -> Real .
+    eq sqrt(toNat(PN)) ^* = sqrt(toNat(PN)) .
+    eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
+
+    -- sqrt(2^1)
+    eq sqrt(toNat(2^(s(0)))) = cos(rzero) / cos((1/4 pi)) .
+    eq sqrt(toNat(s(0))) = cos(rzero) .
+    -- eq toNat(s(0)) = 1 .
+    eq 2^(0) = s(0) .
+    -- eq R / (N * R) = N * cos(rzero).
+
+    eq sqrt(N1 * N1) = N1 .
+    eq sqrt(N1 * N2) = sqrt(N1) * sqrt(N2) .
+}
+
+-- open GROVER-LEMMAS .
+--     op n : -> PNat .
+--     red | s(s(0)) > .
+--     red | s(s(n)) > .
+--     red |psi>(2^(s(0))) .
+--     red |psi>(2^(s(n))) .
+-- close
+-- eof
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) (|non-sol r >(2^(N)) ^+) x |non-sol r >(2^(N)) = cos(rzero)
+--> by structural induction on N
+--> Base case:
+--> w2s:
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = 0 .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = 0) = false .
+    eq r = s(0) .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+--> Induction case
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    op n : -> PNat .
+    -- eq (r = 0) = false .
+    -- eq r = s(0) .
+    eq (|non-sol r >(2^(n)) ^+) x |non-sol r >(2^(n)) = cos(rzero) .
+    
+    eq (|psi>(2^(PN)) ^+) x |psi>(2^(PN)) = cos(rzero) .
+    eq (|psi>(2^(PN)) ^+) x | r >  = cos(rzero) / sqrt(toNat(2^(PN))) .
+    eq (| r > ^+) x |psi>(2^(PN))  = cos(rzero) / sqrt(toNat(2^(PN))) .
+    red (|non-sol r >(2^(s(n))) ^+) x |non-sol r >(2^(s(n))) = cos(rzero) .
+close
+eof
+(
+    (
+        (
+            toNat(2^(s(n))) * (cos(rzero) / (toNat(2^(n)) * cos(rzero)))
+        ) + ((cos(rzero) / (toNat(2^(n)) * cos(rzero))) + (2 * (- (sqrt(toNat(2^(s(n)))) / sqrt((toNat(2^(n)) * (toNat(2^(s(n))) * toNat(2^(n)))))))))) = cos(rzero)):Bool
+
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    eq r = s(0) .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+
+open GROVER-LEMMAS .
+    op r : -> PNat .
+    -- eq (r = s(0)) = false .
+    red (|non-sol r >(2^(s(0))) ^+) x |non-sol r >(2^(s(0))) = cos(rzero) .
+close
+--> ==========================================================================================
+eof
+
+(
+    (
+        (cos(rzero) / (toNat(2^(0)) * cos(rzero))) + (
+            2 * (
+                (toNat(2^(s(0))) * ((cos((1/4 pi)) * (((if (0 = s(0)) then cos(rzero) else rzero fi) * cos((1/4 pi))) + cos((1/4 pi)))) / (toNat(2^(0)) * cos(rzero)))) + ((- ((cos((1/4 pi)) * ((if (0 = r) then cos(rzero) else rzero fi) * sqrt(toNat(2^(s(0)))))) / (toNat(2^(0)) * cos(rzero)))) + (- (((if (r = s(0)) then cos(rzero) else rzero fi) * (cos((1/4 pi)) * sqrt(toNat(2^(s(0)))))) / (toNat(2^(0)) * cos(rzero))))))
+        )
+    ) = cos(rzero)):Bool
+
+The target of the outline of the formal specification is the 2-dimensional version.
+
+It is also necessary to prove that Grover is closed on the 2-dimentional space made from |v> and |r>.
+
+At this moment, I am not sure whether we should make the entire proof formal or not.
+
+Mình sẽ tập trung vào formal specification và verification với 2-dimensional version trước.
+
+Nếu cần thiết thì mình sẽ prove Grover is closed trong 2-dimensional space sau.
+
+|s> = (1/\sqrt{N}) (| 0 > + | 1 > + | 2 > + ... + | N-1 >)
+It would be possible to inductively define it.
+
+Let x_0 be one of 0, 1, 2, ..., N-1.
+Let |v> refer to |x_0> .
+Let |r> be (1/\sqrt{N-1}) \Sigma_{x =/= x_0} | x >
+
+It would be necessary to prove that |s> = (1/\sqrt{N}) |v> + \sqrt{N-1/N} |r>.
+We should prove the following:
+< v | r > = 0 (meaning that they are orthogonal)
+< s | s > = 1 (meaning that it is normalized)
+< v | v > = 1
+< r | r > = 1
+
+ex1: |sol> = |0000>
+-- ex2: |sol> = a * |0000> + b * |0001>
+ex3: |sol> = |psi>(N)
+
+I(N) = (1/sqrt(N)) * \sum_i |i><i| = (1/sqrt(N)) * (|sol><sol| + |non-sol><non-sol|)
+
+==> |non-sol><non-sol| = I(N) - (1/sqrt(N)) * |sol><sol|
+
+|psi2> = cos(alpha) * |non-sol> + cos(beta) * |sol>
+|0>^(@n) = |0>(N)
+
+ws2: (H^(@n)) x (|0>^(@n)) = |sol> + |non-sol>
+we have
+(H^(@s(N))) x |0>(s(N)) = ((H^(@1)) x |0>(1)) @ ((H^(@N)) x |0>(N))
+                        = (|0>(1) + |1>(1)) @ ((H^(@N)) x |0>(N))
+
+|psi> = (H^(@n)) x (|0>^(@n)) = (1/sqrt(N)) * (\sum_i |i>)
+|sol>
+|non-sol> = |psi> - |sol>
+
+<phi| x (|psi> - |phi>) = 0
+<phi|phi> = 1

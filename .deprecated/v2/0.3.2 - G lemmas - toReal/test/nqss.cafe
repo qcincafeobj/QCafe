@@ -1,0 +1,95 @@
+input ../qc.cafe
+set trace off
+set trace on
+mod! N-HOP-QUANTUM-SECRET-SHARING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op qss-pre-processor : -> Statement .
+    op qss-post-processor : -> Statement .
+    op qss-program : -> Statement .
+
+    op getKthQubit : Nat Ket -> Ket .
+    op correctGlobalPhase : Ket -> Ket .
+    
+    op n-hop-qss : PNat -> KetSet .
+
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+
+    vars KET KET1 KET2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars PN : PNat .
+
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    eq execute(qss-pre-processor , KET) = KET @ |0> @ |0> @ |0> .
+    eq execute(qss-post-processor, KET) = correctGlobalPhase(getKthQubit(3, KET)) .
+
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+
+    eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
+    eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .
+
+    -- Regarding GHZ state, both methods below are valid:
+    -- H(0); C X (0, 1); C X (0, 2)
+    -- H(0); C X (0, 1); C X (1, 2)
+
+    eq qss-program = (
+        qss-pre-processor;
+        H(1);
+        C X (1, 2);
+        C X (0, 1);
+        H(0);
+        C X (2, 3);
+        H(2);
+        if M(1) then X(3) else skip endif; 
+        if M(0) then Z(3) else skip endif; 
+        if M(2) then Z(3) else skip endif;
+        qss-post-processor
+    ) .
+
+    eq n-hop-qss(0) = execute(qss-program, |psi>) .
+    eq n-hop-qss(s(PN)) = execute(
+        qss-program,
+        n-hop-qss(PN)
+    ) .
+
+    eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) n-hop-qss(N) = |psi>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-qss(0) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- w2s
+    red n-hop-qss(0) = |psi> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):PNat
+--> IH : n-hop-qss(n) = |psi>
+--> w2s: n-hop-qss(s(n)) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- fc
+    op n : -> PNat .
+
+    -- IH
+    eq [IH] : n-hop-qss(n) = |psi> .
+
+    -- w2s
+    red n-hop-qss(s(n)) = |psi> .
+close
+--> ==========================================================================================

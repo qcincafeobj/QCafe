@@ -1,0 +1,48 @@
+input ../qc.cafe
+
+set trace off
+
+mod! GROVER-SEARCH {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op oracle : Ket -> Ket .
+    op diffuse : Ket -> Ket .
+}
+eof
+
+
+
+
+
+
+
+
+
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) n-hop-qss(N) = |psi>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-qss(0) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- w2s
+    red n-hop-qss(0) = |psi> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):PNat
+--> IH : n-hop-qss(n) = |psi>
+--> w2s: n-hop-qss(s(n)) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- fc
+    op n : -> PNat .
+
+    -- IH
+    eq [IH] : n-hop-qss(n) = |psi> .
+
+    -- w2s
+    red n-hop-qss(s(n)) = |psi> .
+close
+--> ==========================================================================================

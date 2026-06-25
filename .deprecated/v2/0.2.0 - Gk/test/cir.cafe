@@ -1,0 +1,97 @@
+input ../qc.cafe .
+
+-- set print mode normal
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+
+set trace on
+set trace off
+
+open QUANTUM-INTERPRETER .
+    ops a b : -> Complex .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) .
+    
+    -- --> 
+    -- --> Case 1.1
+    -- --> Teleport P0(0), P0(1)
+    -- red (
+    --     C Z ( 0 , 2 );
+    --     C X ( 1 , 2 );
+    --     normalizer;
+    --     P0(0);
+    --     normalizer;
+    --     P0(1);
+    --     H(0);
+    --     C X ( 0 , 1 );
+    --     C X ( 1 , 2 );
+    --     H(1);
+    --     state: (a * |0> + b * |1>) @ |0> @ |0>;
+    -- ) .
+    -- -- alternative
+    -- red (
+    --     C Z ( 0 , 2 );
+    --     C X ( 1 , 2 );
+    --     msment-op(P0(0));
+    --     msment-op(P0(1));
+    --     H(0);
+    --     C X ( 0 , 1 );
+    --     C X ( 1 , 2 );
+    --     H(1);
+    --     state: (a * |0> + b * |1>) @ |0> @ |0>;
+    -- ) .
+    -- alternative
+    -- red (
+    --     C Z ( 0 , 2 ) x C X ( 1 , 2 ); 
+    --     msment-op(P0(0)) x msment-op(P0(1));
+    --     H(0) x C X ( 0 , 1 );
+    --     C X ( 1 , 2 ) x H(1);
+    --     state: (a * |0> + b * |1>) @ |0> @ |0>;
+    -- ) .
+       
+    -- alternative 3
+    red (
+        if measure(0) then {Z(2);} else {skip;}
+
+        if measure(1) then {X(2);} else {skip;}
+        
+        H(0) x C X ( 0 , 1 );
+        
+        C X ( 1 , 2 ) x H(1);
+        
+        state: (a * |0> + b * |1>) @ |0> @ |0>;
+    ) .
+    
+    -- alternative 4
+    red (
+        if measure(0) then Z(2) else skip;
+
+        if measure(1) then {X(2);} else {skip;}
+        
+        H(0) x C X ( 0 , 1 );
+        
+        C X ( 1 , 2 ) x H(1);
+        
+        state: (a * |0> + b * |1>) @ |0> @ |0>;
+    ) .
+
+close
+
+eof
+-- alternative 3
+(
+    (
+        state: ((b * (|0> @ (|0> @ |1>))) + (a * (|0> @ (|0> @ |0>)))) ;
+    ) U (
+        (
+            state: ((a * (|0> @ (|1> @ |0>))) + (b * (|0> @ (|1> @ |1>)))) ;
+        ) U (
+            (
+                state: ((b * (|1> @ (|0> @ |1>))) + (a * (|1> @ (|0> @ |0>)))) ;
+            ) U (
+                state: ((a * (|1> @ (|1> @ |0>))) + (b * (|1> @ (|1> @ |1>)))) ;
+            )
+        )
+    )
+):Circuit
+

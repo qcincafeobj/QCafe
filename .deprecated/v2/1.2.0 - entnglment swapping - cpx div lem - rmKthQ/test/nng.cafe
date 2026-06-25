@@ -1,0 +1,176 @@
+input ../qc.cafe
+
+set trace off
+
+mod! N-QUBIT-N-ITERATION-GROVER-SEARCH {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op n-iter-n-qubit-grover : PNat NzNat -> Ket .
+
+    ops |psi> |non-sol> |sol> : NzNat -> Ket .  -- 1st param: n-qubit
+    ops Imat O D G : NzNat -> Mat .
+    op  theta : -> Real .
+    op  pnat2Nat : PNat -> Nat .
+
+    vars K K0 K1 K2 : Ket .
+    vars NzN N1 N2 : NzNat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars KS : KetSet .
+    vars RT RT1 RT2 : Rat .
+    vars R R1 R2 : Real .
+    vars PN : PNat .
+    vars NzPN : PNat .
+    vars M M1 M2 : Mat .
+
+    -- Hadamard transform result state expressed in the basis {|non-sol>, |sol>}
+    eq |psi>(NzN) =  cos(1/2 * theta) * |non-sol>(NzN) + sin((1/2) * theta) * |sol>(NzN) .
+    eq (K1 x (K2 ^+)) x K = ((K2 ^+) x K) * K1 .
+
+    -- inner product properties of the basis {|non-sol>, |sol>}
+    eq (|non-sol>(NzN) ^+) x |non-sol>(NzN) = cos(rzero) .
+    eq (|non-sol>(NzN) ^+) x |sol>(NzN)     = rzero .
+    eq (|sol>(NzN) ^+) x |non-sol>(NzN)     = rzero .
+    eq (|sol>(NzN) ^+) x |sol>(NzN)         = cos(rzero) .
+    
+    eq Imat(NzN) = (|non-sol>(NzN)) x ((|non-sol>(NzN)) ^+) + (|sol>(NzN)) x ((|sol>(NzN)) ^+) .
+    
+    eq G(NzN) = D(NzN) x O(NzN) .
+
+    eq D(NzN) = - Imat(NzN) + (2 * cos(rzero)) * (|psi>(NzN)  x (|psi>(NzN)^+)) .
+    eq O(NzN) =   Imat(NzN) - (2 * cos(rzero)) * (|sol>(NzN) x (|sol>(NzN)^+)) .
+
+    eq n-iter-n-qubit-grover(s(0), NzN) = execute(G(NzN), |psi>(NzN)) .
+    eq n-iter-n-qubit-grover(s(NzPN), NzN) = execute(
+        G(NzN),
+        n-iter-n-qubit-grover(NzPN, NzN)
+    ) .
+
+    eq (M1 + M2) x M = M1 x M + M2 x M .
+    eq M x (M1 + M2) = M x M1 + M x M2 .
+    eq (C1 + C2) * C = C1 * C + C2 * C .
+    eq R1 * C + R2 * C = (R1 + R2) * C .
+}
+
+--> ==========================================================================================
+--> 1. Proof of (∀N1:NzNat)(∀N2:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |sol>(N2) .
+--> by structural induction on N1
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-iter-n-qubit-grover(1, N2)
+-->      = cos((3/2) * theta) * |non-sol>(N2)
+-->      + sin((3/2) * theta) * |sol>(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- w2s
+    red n-iter-n-qubit-grover(s(0), N2)
+        = cos((3/2) * theta) * |non-sol>(N2)
+        + sin((3/2) * theta) * |sol>(N2) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-iter-n-qubit-grover(n, N2)
+-->      = cos((2 * n + 1) * (1/2) * theta) * |non-sol>(N2)
+-->      + sin((2 * n + 1) * (1/2) * theta) * |sol>(N2) .
+--> w2s: n-iter-n-qubit-grover(s(n), N2)
+-->      = cos((2 * n + 3) * (1/2) * theta) * |non-sol>(N2)
+-->      + sin((2 * n + 3) * (1/2) * theta) * |sol>(N2) .
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-iter-n-qubit-grover(n, N2)
+                = cos((pnat2Nat(n) + 1/2) * theta) * |non-sol>(N2)
+                + sin((pnat2Nat(n) + 1/2) * theta) * |sol>(N2) .
+
+    -- w2s
+    red n-iter-n-qubit-grover(s(n), N2)
+        = cos((3/2 + pnat2Nat(n)) * theta) * |non-sol>(N2)
+        + sin((3/2 + pnat2Nat(n)) * theta) * |sol>(N2) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> 2. Proof of (∀N2:NzNat)(∀N1:NzNat) n-iter-n-qubit-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (1/2) * theta) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (1/2) * theta) * |sol>(N2) .
+--> by reduction on N2
+--> lemma: The theorem proved above
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+
+    -- Is this lemma suitable? Is this proof redundant?
+    eq [lemma] : n-iter-n-qubit-grover(NzPN, N2)
+                    = cos((pnat2Nat(NzPN) + 1/2) * theta) * |non-sol>(N2)
+                    + sin((pnat2Nat(NzPN) + 1/2) * theta) * |sol>(N2) .
+    
+    red n-iter-n-qubit-grover(NzPN, n)
+        = cos((pnat2Nat(NzPN) + 1/2) * theta) * |non-sol>(n)
+        + sin((pnat2Nat(NzPN) + 1/2) * theta) * |sol>(n) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> 3. Proofs of (∀N:NzNat) (G(N) ^+) x G(N) = G(N) x (G(N) ^+) = Imat(N)
+--> (i.e. G(N) is an unitary matrix)
+--> ==========================================================================================
+--> 3.1. Proof of (∀N:NzNat) (G(N) ^+) x G(N) = Imat(N)
+--> by reduction on N
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+    
+    red (G(n) ^+) x G(n) = Imat(n) .
+close
+--> ------------------------------------------------------------------------------------------
+--> 3.2. Proof of (∀N:NzNat) G(N) x (G(N) ^+) = Imat(N)
+--> by reduction on N
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+
+    red G(n) x (G(n) ^+) = Imat(n) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> 4. Proof of sqrt(|| G(N) x (C1 * |sol>(N) + C2 * |non-sol>(N)) ||^2) = cos(rzero)
+--> by reduction on N
+--> Given the normalization condition (((C1 ^*) * C1 + (C2 ^*) * C2)) = cos(rzero)
+open N-QUBIT-N-ITERATION-GROVER-SEARCH .
+    -- fc
+    op n : -> NzNat .
+    
+    -- normalization condition
+    eq (((C1 ^*) * C1 + (C2 ^*) * C2)) = cos(rzero) .
+    
+    red sqrt(|| G(n) x (C1 * |sol>(n) + C2 * |non-sol>(n)) ||^2)  = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> An evidence that doxi2+ is not supported by default
+--> Thus, QCafe can follow this practice to avoid
+--> the endless loop of "do*i2+" and "coefficient grouping"
+open NAT .
+    ops a b c : -> Nat .
+    --> comm is supported by default
+    red a * c = c * a .
+    --> assoc is supported by default
+    red (a * b) * c = a * (b * c) .
+    --> do*i2+ is not supported by default
+    red (a + b) * c = a * c + b * c .
+close
+--> ==========================================================================================

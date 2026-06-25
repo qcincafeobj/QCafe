@@ -1,0 +1,107 @@
+open NAT .
+    op C _ [`_, _]` : Nat Nat Nat -> Nat .
+    red C 100 [`2, 1]` .
+    -- reduce in %NAT : (C 100 [ 2 , 1 ]):Nat
+    -- (C 100 [ 2 , 1 ]):Nat
+    --> C X [ 2 , 1 ]
+close
+
+eof
+
+open NAT .
+    [FuncName Type2FuncName]
+    op A B C : -> FuncName .
+    op T2 _ : FuncName -> Type2FuncName .
+    op _ : Type2FuncName Nat Nat -> Nat .
+    red (T2 A)(1, 1) .
+    -- This style won't work
+close
+
+eof
+
+open NAT .
+    op C _ [_, _] : Nat Nat Nat -> Nat .
+    red C 100 [2, 1] .
+    -- reduce in %NAT : (C 100 [ 2 , 1 ]):Nat
+    -- (C 100 [ 2 , 1 ]):Nat
+    --> C X [ 2 , 1 ]
+close
+
+eof
+
+open NAT .
+    op C _ (_, _) : Nat Nat Nat -> Nat .
+    red C 100 (2, 1) .
+    -- reduce in %NAT : (C 100 ( 2 , 1 )):Nat
+    -- (C 100 ( 2 , 1 )):Nat
+    --> C X ( 2 , 1 )
+close
+
+eof
+
+open NAT .
+    op _ `(x`) _ : Nat Nat -> Nat .
+    red 100 (x) 28 .
+    -- Could not parse
+close
+
+eof
+
+open NAT .
+    op _ ~(*)~ _ : Nat Nat -> Nat .
+    red 100 ~(*)~ 28 .
+    -- reduce in %NAT : ((100) ~ ( * ) ~ (28)):Nat
+    -- ((100) ~ ( * ) ~ (28)):Nat
+close
+
+eof
+
+open NAT .
+    op _ l*l _ : Nat Nat -> Nat .
+    red 100 l*l 28 .
+    -- reduce in %NAT : ((100) l*l (28)):Nat
+    -- ((100) l*l (28)):Nat
+close
+
+eof
+
+open NAT .
+    op _ lxl _ : Nat Nat -> Nat .
+    red 100 lxl 28 .
+    -- reduce in %NAT : ((100) lxl (28)):Nat
+    -- ((100) lxl (28)):Nat
+close
+eof
+
+open NAT .
+    op _ \(x\) _ : Nat Nat -> Nat .
+    red 100 \(x\) 28 .
+    -- reduce in %NAT : ((100) \ ( x\ ) (28)):Nat
+    -- ((100) \ ( x\ ) (28)):Nat
+close
+
+eof
+
+open NAT .
+    op _ [x] _ : Nat Nat -> Nat .
+    red 100 [x] 28 .
+    -- reduce in %NAT : ((100) [ x ] (28)):Nat
+    -- ((100) [ x ] (28)):Nat
+close
+
+eof
+
+open NAT .
+    op _ `[x`] _ : Nat Nat -> Nat .
+    red 100 [x] 28 .
+    -- Could not parse
+close
+
+eof
+
+open NAT .
+    op _ `[x`] _ : Nat Nat -> Nat .
+    red 100 `[x`] 28 .
+    -- reduce in %NAT : ((100) ` [ x` ] (28)):Nat
+    -- ((100) ` [ x` ] (28)):Nat
+close
