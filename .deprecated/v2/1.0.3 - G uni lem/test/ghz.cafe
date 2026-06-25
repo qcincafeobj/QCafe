@@ -1,0 +1,31 @@
+input ../qc.cafe .
+
+open QUANTUM-INTERPRETER .
+    op prog  : -> Statement .
+    op |psi> : -> Ket .
+
+    eq prog = (
+        H(0);
+        C X (0, 1);
+        C X (0, 2)
+    ) .
+
+    eq |psi> = |0> @ |0> @ |0> .
+
+    red execute(prog, |psi>) .
+close
+
+open QUANTUM-INTERPRETER .
+    op prog  : -> Statement .
+    op |psi> : -> Ket .
+
+    eq prog = (
+        H(0);
+        C X (0, 1);
+        C X (1, 2)
+    ) .
+
+    eq |psi> = |0> @ |0> @ |0> .
+
+    red execute(prog, |psi>) .
+close

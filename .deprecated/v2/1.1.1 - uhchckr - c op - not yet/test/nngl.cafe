@@ -1,0 +1,163 @@
+input ../qc.cafe .
+set trace off
+mod! GROVER-LEMMAS {
+    -- pr(BOOL)
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op  |non-sol _ >(_) : PNat NzPNat -> Ket .  -- 1st param: solution (decimal), 2nd param: n-qubit
+    op  |sol _ >(_)     : PNat NzPNat -> Ket .  -- 1st param: solution (decimal), 2nd param: n-qubit
+    
+    op  H^(@_)   : NzPNat -> Mat .          -- 1st param: n-qubit
+    op  |0>^(@_) : NzPNat -> Ket .          -- 1st param: n-qubit
+    op  | _ >    : PNat -> BasisKet .       -- 1st param: a number in decimal
+    ops |psi>    : NzPNat -> Ket .          -- 1st param: n-qubit
+    
+    op pnat2Real : PNat -> Real .
+    op sqrt : PNat -> Real .
+    op 2^ : PNat -> NzPNat .
+    
+    vars PN PN1 PN2 : PNat .
+    vars NzPN : NzPNat .
+
+    -- superposition of all basis states (computational basis)
+    eq |psi>(s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq |psi>(s(NzPN)) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
+       (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(NzPN))
+    ) .
+
+    -- inner product properties of the superposition
+    eq (|psi>(NzPN) ^+) x | PN >  = cos(rzero) / sqrt(2^(NzPN)) .
+    eq (| PN > ^+) x |psi>(NzPN)  = cos(rzero) / sqrt(2^(NzPN)) .
+
+    -- alternative basis: solution vs. non-solution hyperplanes
+    eq |sol PN1 >(NzPN) = | PN1 > .
+    eq |non-sol PN1 >(NzPN) = (cos(rzero) / sqrt(p(2^(NzPN)))) * (
+        sqrt(2^(NzPN)) * |psi>(NzPN) + (- (|sol PN1 >(NzPN)))
+    ) .
+
+    -- Hadamard transform
+    eq H^(@ s(0)) x |0>^(@ s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq H^(@ s(NzPN)) x |0>^(@ s(NzPN)) = (cos(1/4 pi) * (| 0 > + | s(0) >)) @ (H^(@ NzPN) x |0>^(@ NzPN)) .
+
+    -- misc
+    eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
+
+    eq sqrt(PN) * sqrt(PN) = pnat2Real(PN) .
+    eq sqrt(PN) ^* = sqrt(PN) .
+    
+    eq (sqrt(2^(PN)) = rzero) = false .
+    eq (pnat2Real(p(2^(NzPN))) = rzero) = false .
+    eq - cos(rzero) + pnat2Real(NzPN) = pnat2Real(p(NzPN)) .
+    
+    eq 2 * (cos(1/4 * pi) * cos(1/4 * pi)) = cos(rzero) .
+    
+    eq pnat2Real(2^(PN)) / pnat2Real(2^(s(PN))) = 1/2 * cos(rzero) .
+    
+    eq sqrt(2^(PN)) / sqrt(2^(s(PN))) = cos(1/4 pi) .
+}
+
+-->
+-->
+-->
+--> 1. Proofs of inner product properties
+--> ==========================================================================================
+--> 1.1. Proof of (∀N:NzPNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |non-sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |non-sol PN >(n) = cos(rzero) .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.2. Proof of (∀N:NzPNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |sol PN >(n) = rzero .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.3. Proof of (∀N:NzPNat)(∀PN:PNat) (|sol PN >(N) ^+) x |non-sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    eq [lemma] : (|psi>(NzPN) ^+) x |psi>(NzPN) = cos(rzero) .
+    
+    red (|sol PN >(n) ^+) x |non-sol PN >(n) = rzero .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.4. Proof of (∀N:NzPNat)(∀PN:PNat) (|sol PN >(N) ^+) x |sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzPNat .
+
+    red (|sol PN >(n) ^+) x |sol PN >(n) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> 2. Proof of "the superposition vector is a unit vector"
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat) (|psi>(N) ^+) x |psi>(N) = cos(rzero)
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- w2s
+    red (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case
+--> fc  : (n):NzPNat
+--> IH  : (|psi>(n) ^+) x |psi>(n) = cos(rzero)
+--> w2s : (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- fc
+    op n : -> NzPNat .
+    
+    -- IH
+    eq (|psi>(n) ^+) x |psi>(n) = cos(rzero) .
+
+    -- w2s
+    red (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> 3. Proof of equivalence between the superposition state
+--> and the Hadamard transform result state
+--> ==========================================================================================
+--> Proof of (∀N:NzPNat) H^(@ N) x |0>^(@ N) = |psi>(N)
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: H^(@ s(0)) x |0>^(@ s(0)) = |psi>(s(0))
+open GROVER-LEMMAS .
+    -- w2s
+    red H^(@ s(0)) x |0>^(@ s(0)) = |psi>(s(0)) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case
+--> fc  : (n):NzPNat
+--> IH  : H^(@ n) x |0>^(@ n) = |psi>(n)
+--> w2s : H^(@ s(n)) x |0>^(@ s(n)) = |psi>(s(n))
+open GROVER-LEMMAS .
+    -- fc
+    op n : -> NzPNat .
+    
+    -- IH
+    eq H^(@ n) x |0>^(@ n) = |psi>(n) .
+
+    -- w2s
+    red H^(@ s(n)) x |0>^(@ s(n)) = |psi>(s(n)) .
+close
+--> ==========================================================================================

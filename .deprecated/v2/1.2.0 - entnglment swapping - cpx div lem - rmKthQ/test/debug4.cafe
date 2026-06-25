@@ -1,0 +1,11 @@
+input ../qc.cafe
+
+-- set trace on
+open QUANTUM-INTERPRETER .
+    red H(0) x (|0> @ |0>) .
+    red C X (0, 1) x H(0) x (|0> @ |0>) .
+    red P0(0) x C X (0, 1) x H(0) x (|0> @ |0>) .
+    red || P0(0) x C X (0, 1) x H(0) x (|0> @ |0>) ||^2 .
+    red measOp(P0(0)) x C X (0, 1) x H(0) x (|0> @ |0>) .
+close
+-- set trace off

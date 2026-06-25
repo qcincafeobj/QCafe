@@ -10,35 +10,36 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     op qss-program : -> Statement .
 
     op getKthQubit : Nat Ket -> Ket .
-    op correctGlobalPhase : Ket -> Ket .
+    -- op correctGlobalPhase : Ket -> Ket .
     
     op n-hop-qss : PNat -> KetSet .
 
     op |psi> : -> Ket .
     ops a b : -> Complex .
 
-    vars KET KET1 KET2 : Ket .
+    vars K K1 K2 : Ket .
     vars N : Nat .
     vars NzN : NzNat .
     vars BK : BasisKet .
-    vars C : Complex .
+    vars C C1 C2 : Complex .
     vars KSET : KetSet .
     vars PN : PNat .
 
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    eq execute(qss-pre-processor , KET) = KET @ |0> @ |0> @ |0> .
-    eq execute(qss-post-processor, KET) = correctGlobalPhase(getKthQubit(3, KET)) .
+    eq execute(qss-pre-processor , K) = K @ |0> @ |0> @ |0> .
+    eq execute(qss-post-processor, K) = getKthQubit(3, K) .
+    -- eq execute(qss-post-processor, K) = correctGlobalPhase(getKthQubit(3, K)) .
 
-    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
-    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
-    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(N, K1 + K2) = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K)  = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)    = BK .
     eq getKthQubit(0, BK)          = BK .
-    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+    eq getKthQubit(N, C * K)     = C * getKthQubit(N, K) .
 
-    eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
-    eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .
+    -- eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
+    -- eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .
 
     -- Regarding GHZ state, both methods below are valid:
     -- H(0); C X (0, 1); C X (0, 2)
@@ -64,7 +65,19 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
         n-hop-qss(PN)
     ) .
 
-    eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+    -- eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+    eq C / sqrt(1/4) = C * sqrt(4) .
+    
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+
+    -- implicitly correcting global phase
+    eq ((K1 V K2) = K) = (
+        (
+            (K1 = K) or (K1 = - K)
+        ) and (
+            (K2 = K) or (K2 = - K)
+        )
+    ) .
 }
 
 --> ==========================================================================================
@@ -79,9 +92,9 @@ open N-HOP-QUANTUM-SECRET-SHARING .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
---> fc : (n):PNat
---> IH : n-hop-qss(n) = |psi>
---> w2s: n-hop-qss(s(n)) = |psi>
+--> fc  : (n):PNat
+--> IH  : n-hop-qss(n) = |psi>
+--> w2s : n-hop-qss(s(n)) = |psi>
 open N-HOP-QUANTUM-SECRET-SHARING .
     -- fc
     op n : -> PNat .

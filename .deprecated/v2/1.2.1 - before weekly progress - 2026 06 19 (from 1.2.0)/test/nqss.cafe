@@ -21,7 +21,7 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     vars N : Nat .
     vars NzN : NzNat .
     vars BK : BasisKet .
-    vars C : Complex .
+    vars C C1 C2 : Complex .
     vars KSET : KetSet .
     vars PN : PNat .
 
@@ -65,6 +65,8 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     ) .
 
     eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+    
+    eq C * C1 + C * C2 = C * (C1 + C2) .
 }
 
 --> ==========================================================================================
@@ -79,9 +81,9 @@ open N-HOP-QUANTUM-SECRET-SHARING .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
---> fc : (n):PNat
---> IH : n-hop-qss(n) = |psi>
---> w2s: n-hop-qss(s(n)) = |psi>
+--> fc  : (n):PNat
+--> IH  : n-hop-qss(n) = |psi>
+--> w2s : n-hop-qss(s(n)) = |psi>
 open N-HOP-QUANTUM-SECRET-SHARING .
     -- fc
     op n : -> PNat .

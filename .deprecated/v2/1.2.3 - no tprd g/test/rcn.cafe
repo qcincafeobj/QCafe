@@ -1,18 +1,18 @@
 input ../qc.cafe
 set trace on
 set trace off
-mod! N-HOP-QUANTUM-SECRET-SHARING {
+mod! N-HOP-REMOTE-CNOT {
     pr(PNAT)
     pr(QUANTUM-INTERPRETER)
 
-    op qss-pre-processor : -> Statement .
-    op qss-post-processor : -> Statement .
-    op qss-program : -> Statement .
+    op rcn-pre-processor : -> Statement .
+    op rcn-post-processor : -> Statement .
+    op rcn-program : -> Statement .
 
     op getKthQubit : Nat Ket -> Ket .
     op correctGlobalPhase : Ket -> Ket .
     
-    op n-hop-qss : PNat -> KetSet .
+    op n-hop-rcn : PNat -> KetSet .
 
     op |psi> : -> Ket .
     ops a b : -> Complex .
@@ -28,8 +28,8 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    eq execute(qss-pre-processor , KET) = KET @ |0> @ |0> @ |0> .
-    eq execute(qss-post-processor, KET) = correctGlobalPhase(getKthQubit(3, KET)) .
+    eq execute(rcn-pre-processor , KET) = KET @ |0> @ |0> @ |0> .
+    eq execute(rcn-post-processor, KET) = correctGlobalPhase(getKthQubit(3, KET)) .
 
     eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
     eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
@@ -44,8 +44,8 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     -- H(0); C X (0, 1); C X (0, 2)
     -- H(0); C X (0, 1); C X (1, 2)
 
-    eq qss-program = (
-        qss-pre-processor;
+    eq rcn-program = (
+        rcn-pre-processor;
         H(1);
         C X (1, 2);
         C X (0, 1);
@@ -55,41 +55,41 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
         if M(1) then X(3) else skip endif; 
         if M(0) then Z(3) else skip endif; 
         if M(2) then Z(3) else skip endif;
-        qss-post-processor
+        rcn-post-processor
     ) .
 
-    eq n-hop-qss(0) = execute(qss-program, |psi>) .
-    eq n-hop-qss(s(PN)) = execute(
-        qss-program,
-        n-hop-qss(PN)
+    eq n-hop-rcn(0) = execute(rcn-program, |psi>) .
+    eq n-hop-rcn(s(PN)) = execute(
+        rcn-program,
+        n-hop-rcn(PN)
     ) .
 
     eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
 }
 
 --> ==========================================================================================
---> Proof of (∀N:PNat) n-hop-qss(N) = |psi>
+--> Proof of (∀N:PNat) n-hop-rcn(N) = |psi>
 --> by structural induction on N
 --> ------------------------------------------------------------------------------------------
 --> Base case:
---> w2s: n-hop-qss(0) = |psi>
-open N-HOP-QUANTUM-SECRET-SHARING .
+--> w2s: n-hop-rcn(0) = |psi>
+open N-HOP-REMOTE-CNOT .
     -- w2s
-    red n-hop-qss(0) = |psi> .
+    red n-hop-rcn(0) = |psi> .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
---> fc : (n):PNat
---> IH : n-hop-qss(n) = |psi>
---> w2s: n-hop-qss(s(n)) = |psi>
-open N-HOP-QUANTUM-SECRET-SHARING .
+--> fc  : (n):PNat
+--> IH  : n-hop-rcn(n) = |psi>
+--> w2s : n-hop-rcn(s(n)) = |psi>
+open N-HOP-REMOTE-CNOT .
     -- fc
     op n : -> PNat .
 
     -- IH
-    eq [IH] : n-hop-qss(n) = |psi> .
+    eq [IH] : n-hop-rcn(n) = |psi> .
 
     -- w2s
-    red n-hop-qss(s(n)) = |psi> .
+    red n-hop-rcn(s(n)) = |psi> .
 close
 --> ==========================================================================================
