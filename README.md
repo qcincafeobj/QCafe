@@ -1,6 +1,6 @@
 # QCafe
 
-Publications (**Refer to each release for BibTeX**):
+## Publications (Refer to each release for BibTeX)
 
 | Release | Paper/Title | Authors | Notes |
 | :-: | :-: | :-: | :-: |
