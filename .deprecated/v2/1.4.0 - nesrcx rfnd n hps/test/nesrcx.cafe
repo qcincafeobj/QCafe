@@ -1,0 +1,151 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+set print mode normal
+set trace on
+set trace off
+mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
+    pr(NAT)
+    pr(COMPLEX)
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op es-pre-processor  : -> Statement .
+    op es-post-processor : -> Statement .
+    op es-program : -> Statement .
+    op n-hop-es : PNat -> KetSet .
+
+    op rcx-post-processor : -> Statement .
+    op rcx-program : -> Statement .
+    op rcx-on-n-hop-es : PNat Ket Ket -> KetSet .
+
+    op removeKthQubit : Nat Ket -> Ket .
+    
+    ops c1 c2 c3 c4 : -> Complex .
+    ops |psi1> |psi2> |epr> : -> Ket .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars RT : Rat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C C1 C2 : Complex .
+    vars PN : PNat .
+    vars NzPN : NzPNat .
+    vars R : Real .
+
+    eq |psi1> = c1 * |0> + c2 * |1> .
+    eq |psi2> = c3 * |0> + c4 * |1> .
+    
+    eq (c1 ^*) * c1 + (c2 ^*) * c2 = cos(rzero) .
+    eq (c3 ^*) * c3 + (c4 ^*) * c4 = cos(rzero) .
+
+    eq execute(es-pre-processor,  K)  = K @ |0> @ |0> .
+    eq execute(es-post-processor, K)  = removeKthQubit(1, removeKthQubit(2, K)) .
+    eq execute(rcx-post-processor, K) = removeKthQubit(1, removeKthQubit(2, K)) .
+
+    eq removeKthQubit(N, K1 + K2)  = removeKthQubit(N, K1) + removeKthQubit(N, K2) .
+    eq removeKthQubit(NzN, BK @ K) = BK @ removeKthQubit(p NzN, K) .
+    eq removeKthQubit(0, BK @ K)   = K .
+    eq removeKthQubit(N, C * K)    = C * removeKthQubit(N, K) .
+
+    eq es-program = (
+        es-pre-processor;
+        H(2); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+    eq rcx-program = (
+        C X(0, 1);
+        C X(2, 3); H(2);
+        if M(1) then X(3) else skip endif;
+        if M(2) then Z(0) else skip endif;
+        rcx-post-processor
+    ) .
+
+    eq |epr> = C X(0, 1) x H(0) x (|0> @ |0>) .
+
+    -- "0 hop" means standard entanglement
+    -- "n hop(s) >= 1" means entanglement swapping
+    eq n-hop-es(0)       = |epr> .
+    eq n-hop-es(s(0))    = execute(es-program, n-hop-es(0)) .
+    eq n-hop-es(s(NzPN)) = execute(es-program, n-hop-es(NzPN)) .
+
+    eq rcx-on-n-hop-es(PN, K1, K2) = execute(
+        rcx-program,
+        K1 @ n-hop-es(PN) @ K2
+    ) .
+
+    -- implicitly correcting global phase
+    eq ((K1 V K2) = K) = (
+        (
+            (K1 = K) or (K1 = - K)
+        ) and (
+            (K2 = K) or (K2 = - K)
+        )
+    ) .
+
+    eq cos(rzero) / sqrt(2) = cos(1/4 * pi) .
+    eq cos(1/4 * pi) * sqrt(2) = cos(rzero) .
+
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+}
+
+--> ==========================================================================================
+--> 1. Proof of (∀N:PNat) n-hop-es(N) = |epr>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Trivial case (0 hop):
+--> w2s: n-hop-es(0) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- w2s
+    red n-hop-es(0) = |epr> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-es(s(0)) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- w2s
+    red n-hop-es(s(0)) = |epr> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-hop-es(n) = |epr>
+--> w2s: n-hop-es(s(n)) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-hop-es(n) = |epr> .
+
+    -- w2s
+    red n-hop-es(s(n)) = |epr> .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> 2. Proof of (∀PN:PNat)(∀K1,K2:Ket) rcx-on-n-hop-es(PN, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>)
+--> by reduction on PN
+--> lemma: n-hop-es(PN) = |epr>
+--> fc : (n):PN
+--> w2s: rcx-on-n-hop-es(n, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>)
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    op n : -> PNat .
+
+    -- lemma
+    eq n-hop-es(PN) = |epr> .
+
+    -- w2s
+    red rcx-on-n-hop-es(n, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>) .
+close
+--> ==========================================================================================
