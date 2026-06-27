@@ -100,6 +100,18 @@ mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
         ees-program, 
         |bell>(BK1, |0>) @ |bell>(|0>, BK2)
     ) .
+    
+    --                   0 hops/repeaters -                    2 qubits
+    --                   1 hops/repeaters -                    4 qubits
+    --                   2 hops/repeaters -                    6 qubits
+    --                   3 hops/repeaters -                    8 qubits
+    --                   n hops/repeaters -             2(n + 1) qubits
+
+    --                s(n) hops/repeaters - 2(s(n) + 1) = 2n + 4 qubits
+    --                p(n) hops/repeaters - 2(p(n) + 1) = 2n     qubits
+    
+    -- 1 + p(n) + 1 = s(n)   hops/repeaters
+    -- 2 + 2n + 2   = 2n + 4 qubits
     eq n-hop-ees(s(NzPN), BK1, BK2) = execute(
         ees-program,
         execute(
