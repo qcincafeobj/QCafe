@@ -32,11 +32,11 @@ mod! N-HOP-QUANTUM-SECRET-SHARING {
     eq execute(qss-post-processor, K) = getKthQubit(3, K) .
     -- eq execute(qss-post-processor, K) = correctGlobalPhase(getKthQubit(3, K)) .
 
-    eq getKthQubit(N, K1 + K2) = getKthQubit(N, K1) + getKthQubit(N, K2) .
-    eq getKthQubit(NzN, BK @ K)  = getKthQubit(p NzN, K) .
-    eq getKthQubit(0, BK @ K)    = BK .
-    eq getKthQubit(0, BK)          = BK .
-    eq getKthQubit(N, C * K)     = C * getKthQubit(N, K) .
+    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)   = BK .
+    eq getKthQubit(0, BK)       = BK .
+    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
 
     -- eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
     -- eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .

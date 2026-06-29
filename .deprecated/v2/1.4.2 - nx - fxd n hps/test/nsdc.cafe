@@ -19,7 +19,7 @@ mod! N-HOP-SUPER-DENSE-CODING {
     op n-hop-sdc : PNat -> KetSet .
 
     op classical-ketset : -> KetSet .
-    vars KET KET1 KET2 : Ket .
+    vars K K1 K2 : Ket .
     vars N : Nat .
     vars NzN : NzNat .
     vars BK BK1 BK2 : BasisKet .
@@ -31,13 +31,13 @@ mod! N-HOP-SUPER-DENSE-CODING {
     eq classical-ketset = (|0> V |1>) @ (|0> V |1>) .
 
     eq execute(sdc-pre-processor , BK1 @ BK2) = BK1 @ BK2 @ |0> @ |0> .
-    eq execute(sdc-post-processor, KET) = getKthQubit(2, KET) @ getKthQubit(3, KET) .
+    eq execute(sdc-post-processor, K) = getKthQubit(2, K) @ getKthQubit(3, K) .
 
-    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
-    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
-    eq getKthQubit(0, BK @ KET)    = BK .
-    eq getKthQubit(0, BK)          = BK .
-    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
+    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)   = BK .
+    eq getKthQubit(0, BK)       = BK .
+    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
 
     eq sdc-program = (
         sdc-pre-processor;

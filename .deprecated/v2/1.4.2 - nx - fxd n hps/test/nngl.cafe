@@ -22,9 +22,10 @@ mod! GROVER-LEMMAS {
 
     -- superposition of all basis states (computational basis)
     eq |psi>(s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
-    eq |psi>(s(NzPN)) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
-       (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(NzPN))
-    ) .
+    eq |psi>(s(NzPN)) = (cos(1/4 * pi) * (| 0 > + | s(0) >)) @ |psi>(NzPN) .
+    -- eq |psi>(s(NzPN)) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
+    --    (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(NzPN))
+    -- ) .
 
     -- inner product properties of the superposition
     eq (|psi>(NzPN) ^+) x | PN >  = cos(rzero) / sqrt(2^(NzPN)) .

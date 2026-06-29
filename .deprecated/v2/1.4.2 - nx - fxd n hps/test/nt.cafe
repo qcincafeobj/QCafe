@@ -36,11 +36,11 @@ mod! N-HOP-TELEPORT {
     eq execute(teleport-pre-processor , K) = K @ |0> @ |0> .
     eq execute(teleport-post-processor, K) = getKthQubit(2, K) .
 
-    eq getKthQubit(N, K1 + K2) = getKthQubit(N, K1) + getKthQubit(N, K2) .
-    eq getKthQubit(NzN, BK @ K)  = getKthQubit(p NzN, K) .
-    eq getKthQubit(0, BK @ K)    = BK .
-    eq getKthQubit(0, BK)          = BK .
-    eq getKthQubit(N, C * K)     = C * getKthQubit(N, K) .
+    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)   = BK .
+    eq getKthQubit(0, BK)       = BK .
+    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
 
     eq teleport-program = (
         teleport-pre-processor;
