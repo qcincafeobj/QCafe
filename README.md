@@ -67,7 +67,7 @@ Steps to verify the $n$-hop Quantum Teleportation protocol:
 
 | File/Folder | Description |
 | :-: | --- |
-| [qc.cafe](./qc.cafe) | Reasoning about complex number and quantum computation |
+| [qc.cafe](./qc.cafe) | Main specification (complex number, quantum computation, interpreter, etc.) |
 | [case-study](./case-study/) | Specification and CafeOBJ proof scores for case studies |
 | [releases](./releases/) | All released versions |
 | [.deprecated](./.deprecated/) | Development histories |
