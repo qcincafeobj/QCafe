@@ -37,7 +37,7 @@ Installation options:
 
 ## Example Usage
 
-To verify the $n$-hop Quantum Teleportation protocol, we can use the following commands:
+Steps to verify the $n$-hop Quantum Teleportation protocol:
 
 1. Navigate to its parent directory:
 
