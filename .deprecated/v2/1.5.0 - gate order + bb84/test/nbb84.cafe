@@ -1,0 +1,101 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+set print mode normal
+set trace on
+set trace off
+mod! N-HOP-BB84 {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op bb84-pre-processor : -> Statement .
+    op bb84-post-processor : -> Statement .
+    op bb84-program : -> Statement .
+
+    op getKthQubit : Nat Ket -> Ket .
+    
+    op n-hop-bb84 : PNat -> KetSet .
+
+    op classical-ketset : -> KetSet .
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 BK3 BK4 : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars NzPN : NzPNat .
+    vars R : Real .
+
+    -- eq classical-ketset = ((|0> @ |1>) V (|1> @ |0>)) @ (|0> V |1>) @ (|0> V |1>) .
+    eq classical-ketset = (|0> @ |1>) @ (|0> @ |0>) .
+    -- eq classical-ketset = (|0> @ |1>) @ (|0> @ |1>) .
+    -- eq classical-ketset = (|1> @ |0>) @ (|0> @ |0>) .
+
+    eq execute(bb84-pre-processor , BK1 @ BK2 @ BK3 @ BK4) = BK1 @ |0> @ |0> @ BK2 @ BK3 @ BK4 .
+    -- eq execute(bb84-post-processor, K) = getKthQubit(1, K) @ getKthQubit(2, K) .
+    eq execute(bb84-post-processor, K) = K .
+
+    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)   = BK .
+    eq getKthQubit(0, BK)       = BK .
+    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
+
+    eq bb84-program = (
+        bb84-pre-processor;
+        if M(0) then X(1) else skip endif;
+        if M(3) then X(2) else skip endif;
+        C X(2, 1);
+        if M(4) then H(2) else skip endif;
+        C X(2, 1);
+        C X(1, 2); C X(2, 1); C X(1, 2);
+        C X(1, 2); C X(2, 1); C X(1, 2);
+        C X(2, 1);
+        if M(5) then H(2) else skip endif;
+        C X(2, 1);
+        bb84-post-processor
+    ) .
+
+    eq n-hop-bb84(s(0)) = execute(bb84-program, classical-ketset) .
+    eq n-hop-bb84(s(NzPN)) = execute(
+        bb84-program,
+        n-hop-bb84(NzPN)
+    ) .
+
+    eq [additional-rule-1] : 2 * (cos(1/4 * pi) * cos(1/4 * pi)) = cos(rzero) .
+    eq [additional-rule-2] : 2 * (cos(1/4 * pi) * (cos(1/4 * pi) * C)) = C .
+}
+
+--> ==========================================================================================
+--> Proof of (∀PN:PNat) n-hop-bb84(PN) = classical-ketset
+--> by structural induction on PN
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-bb84(s(0)) = classical-ketset
+open N-HOP-BB84 .
+    -- w2s
+    -- red n-hop-bb84(s(0)) = classical-ketset .
+    red n-hop-bb84(s(0)) .
+close
+eof
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-hop-bb84(n) = classical-ketset
+--> w2s: n-hop-bb84(s(n)) = classical-ketset
+open N-HOP-BB84 .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-hop-bb84(n) = classical-ketset .
+
+    -- w2s
+    red n-hop-bb84(s(n)) = classical-ketset .
+    -- need case splitting for (<0| x bk) = ... U ..., (<1| x bk) = ... U ...
+    -- eq n-hop-bb84(n, {bk1 @ bk2}) = {bk1 @ bk2} .
+    -- red n-hop-bb84(s(n), {bk1 @ bk2}) = {bk1 @ bk2} .
+close
+--> ==========================================================================================

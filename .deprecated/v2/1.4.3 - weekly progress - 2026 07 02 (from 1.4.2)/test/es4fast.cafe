@@ -1,0 +1,98 @@
+input ../qc.cafe
+
+mod! ENTANGLEMENT-SWAPPING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+    
+    op es-pre-processor : -> Statement .
+    op es-post-processor : -> Statement .
+    op es-program : -> Statement .
+
+    op getKthQubit : Nat Ket -> Ket .
+    op removeKthQubit : Nat Ket -> Ket .
+
+    op |input> : -> Ket .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    vars PN : PNat .
+    vars R : Real .
+    
+    eq |input> = |0> @ |0> @ |0> @ |0> .
+
+    -- eq execute(es-pre-processor, |input>) = |input> .
+    -- eq execute(es-post-processor, K) = getKthQubit(0, K) @ getKthQubit(3, K) . -- Entangled state can't be a product state
+    -- eq execute(es-post-processor, K) = K .
+    -- Best practice: Remove qubits with higher indices first
+    eq execute(es-post-processor, K) = removeKthQubit(1, removeKthQubit(2, K)) .
+
+    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
+    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
+    eq getKthQubit(0, BK @ K)   = BK .
+    eq getKthQubit(0, BK)       = BK .
+    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
+    
+    eq removeKthQubit(N, K1 + K2)  = removeKthQubit(N, K1) + removeKthQubit(N, K2) .
+    eq removeKthQubit(NzN, BK @ K) = BK @ removeKthQubit(p NzN, K) .
+    eq removeKthQubit(0, BK @ K)   = K .
+    eq removeKthQubit(N, C * K)    = C * removeKthQubit(N, K) .
+
+    eq es-program = (
+        H(0); C X(0, 1);
+        H(2); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+    eq cos(1/4 * pi) * sqrt(2) = cos(rzero) .
+    eq sqrt(2 * 1/4) * sqrt(4) = cos(rzero) / cos(1/4 pi) .
+
+    -- implicitly correcting global phase
+    eq ((K1 V K2) = K) = (
+        (
+            (K1 = K) or (K1 = - K)
+        ) and (
+            (K2 = K) or (K2 = - K)
+        )
+    ) .
+}
+set trace off
+set trace on
+--> ES with 04 Bell sources
+open ENTANGLEMENT-SWAPPING .
+    op es4-program : -> Statement .
+    op es4-rm56 : -> Statement .
+    op es4-rm12 : -> Statement .
+
+    eq execute(es4-rm56, K) = removeKthQubit(5, removeKthQubit(6, K)) .
+    eq execute(es4-rm12, K) = removeKthQubit(1, removeKthQubit(2, K)) .
+    
+    eq es4-program = (
+        H(4); C X(4, 5);
+        H(6); C X(6, 7);
+        C X(5, 6); H(5);
+        if M(5) then Z(4) else skip endif;
+        if M(6) then X(7) else skip endif;
+        es4-rm56;
+        
+        H(0); C X(0, 1);
+        H(2); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es4-rm12;
+        
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es4-rm12
+    ) .
+
+    red execute(es4-program, |0> @ |0> @ |0> @ |0> @ |0> @ |0>) .
+close
