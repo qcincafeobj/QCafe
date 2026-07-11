@@ -23,8 +23,8 @@ mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
     op ees-program : -> Statement .
     op n-hop-ees : PNat BasisKet BasisKet -> KetSet .
 
-    op rcx-post-processor : -> Statement .
-    op rcx-program : -> Statement .
+    op telegate-post-processor : -> Statement .
+    op telegate-program : -> Statement .
     op rcx-on-n-hop-es : PNat Ket Ket -> KetSet .
 
     op removeKthQubit : Nat Ket -> Ket .
@@ -49,9 +49,9 @@ mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
     eq (a1 ^*) * a1 + (b1 ^*) * b1 = cos(rzero) .
     eq (a2 ^*) * a2 + (b2 ^*) * b2 = cos(rzero) .
 
-    eq execute(es-pre-processor,  K)  = K @ |0> @ |0> .
-    eq execute(es-post-processor, K)  = removeKthQubit(1, removeKthQubit(2, K)) .
-    eq execute(rcx-post-processor, K) = removeKthQubit(1, removeKthQubit(2, K)) .
+    eq execute(es-pre-processor,        K) = K @ |0> @ |0> .
+    eq execute(es-post-processor,       K) = removeKthQubit(1, removeKthQubit(2, K)) .
+    eq execute(telegate-post-processor, K) = removeKthQubit(1, removeKthQubit(2, K)) .
 
     eq removeKthQubit(N, K1 + K2)  = removeKthQubit(N, K1) + removeKthQubit(N, K2) .
     eq removeKthQubit(NzN, BK @ K) = BK @ removeKthQubit(p NzN, K) .
@@ -68,13 +68,13 @@ mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
         es-post-processor
     ) .
 
-    -- Remote CNOT on n-hop ES
-    eq rcx-program = (
+    -- Gate Teleportation
+    eq telegate-program = (
         C X(0, 1);
         C X(2, 3); H(2);
         if M(1) then X(3) else skip endif;
         if M(2) then Z(0) else skip endif;
-        rcx-post-processor
+        telegate-post-processor
     ) .
 
     -- n-hop Extended ES for the 04 Bell states
@@ -125,8 +125,9 @@ mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
         ) @ |bell>(|0>, BK2)
     ) .
 
+    -- Remote CNOT on n-hop ES
     eq rcx-on-n-hop-es(PN, K1, K2) = execute(
-        rcx-program,
+        telegate-program,
         K1 @ n-hop-es(PN) @ K2
     ) .
 
