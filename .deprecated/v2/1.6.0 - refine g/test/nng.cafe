@@ -12,13 +12,16 @@ mod! N-ITERATION-N-QUBIT-GROVER-SEARCH {
     ops Imat O D G : NzNat -> Mat .
     op  theta : -> Real .
     op  pnat2Nat : PNat -> Nat .
+    op  pnat2Nat : NzPNat -> NzNat .
 
     vars K K0 K1 K2 : Ket .
     vars NzN N1 N2 : NzNat .
+    vars N3 N4 : Nat .
     vars BK : BasisKet .
     vars C C1 C2 : Complex .
     vars KS : KetSet .
     vars RT RT1 RT2 : Rat .
+    vars NzRT : NzRat .
     vars R R1 R2 : Real .
     vars PN : PNat .
     vars NzPN : NzPNat .
@@ -55,8 +58,8 @@ mod! N-ITERATION-N-QUBIT-GROVER-SEARCH {
 
 --> ==========================================================================================
 --> 1. Proof of (∀N1:NzNat)(∀N2:NzNat) n-iter-n-qubit-grover(N1, N2)
--->                               = cos((2 * N1 + 1) * (1/2) * theta) * |non-sol>(N2)
--->                               + sin((2 * N1 + 1) * (1/2) * theta) * |sol>(N2) .
+-->                               = cos((2 * N1 + 1) * (theta / 2)) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (theta / 2)) * |sol>(N2) .
 --> by structural induction on N1
 --> ------------------------------------------------------------------------------------------
 --> Base case:
@@ -75,13 +78,13 @@ open N-ITERATION-N-QUBIT-GROVER-SEARCH .
 close
 --> ------------------------------------------------------------------------------------------
 --> Induction case: 
---> fc : (n):NzPNat
---> IH : n-iter-n-qubit-grover(n, N2)
--->      = cos((2 * n + 1) * (1/2) * theta) * |non-sol>(N2)
--->      + sin((2 * n + 1) * (1/2) * theta) * |sol>(N2) .
---> w2s: n-iter-n-qubit-grover(s(n), N2)
--->      = cos((2 * n + 3) * (1/2) * theta) * |non-sol>(N2)
--->      + sin((2 * n + 3) * (1/2) * theta) * |sol>(N2) .
+--> fc : (n1):NzPNat, (n2):NzNat
+--> IH : n-iter-n-qubit-grover(n1, N2)
+-->      = cos((2 * n1 + 1) * (theta / 2)) * |non-sol>(N2)
+-->      + sin((2 * n1 + 1) * (theta / 2)) * |sol>(N2) .
+--> w2s: n-iter-n-qubit-grover(s(n1), n2)
+-->      = cos((2 * n1 + 3) * (theta / 2)) * |non-sol>(n2)
+-->      + sin((2 * n1 + 3) * (theta / 2)) * |sol>(n2) .
 open N-ITERATION-N-QUBIT-GROVER-SEARCH .
     -- fc
     op n1 : -> NzPNat .
@@ -89,13 +92,13 @@ open N-ITERATION-N-QUBIT-GROVER-SEARCH .
 
     -- IH
     eq [IH] : n-iter-n-qubit-grover(n1, N2)
-                = cos((pnat2Nat(n1) + 1/2) * theta) * |non-sol>(N2)
-                + sin((pnat2Nat(n1) + 1/2) * theta) * |sol>(N2) .
+                = cos((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |non-sol>(N2)
+                + sin((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |sol>(N2) .
 
     -- w2s
     red n-iter-n-qubit-grover(s(n1), n2)
-        = cos((3/2 + pnat2Nat(n1)) * theta) * |non-sol>(n2)
-        + sin((3/2 + pnat2Nat(n1)) * theta) * |sol>(n2) .
+        = cos((2 * pnat2Nat(n1) + 3) * (theta / 2)) * |non-sol>(n2)
+        + sin((2 * pnat2Nat(n1) + 3) * (theta / 2)) * |sol>(n2) .
 close
 --> ==========================================================================================
 -->
@@ -145,7 +148,7 @@ close
 --> ==========================================================================================
 --> An evidence that doxi2+ is not supported by default
 --> Thus, QCafe can follow this practice to avoid
---> the endless loop of "do*i2+" and "coefficient grouping"
+--> the endless loop of "doxi2+" and "coefficient grouping"
 open NAT .
     ops a b c : -> Nat .
     --> comm is supported by default

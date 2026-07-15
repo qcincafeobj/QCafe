@@ -181,6 +181,7 @@ mod! REAL {
     eq (RT1 * pi <= RT2 pi) = (RT1 pi <= RT2 pi) .  eq (rzero <= RT * pi) = (rzero <= RT pi) .
 
     -- op _*_ : NzNat NzRat -> NzRat {prec: 31} .
+    op _/_ : Real Rat -> Real {prec: 31 l-assoc} .
 }
 
 mod! COMPLEX {
@@ -227,6 +228,7 @@ mod! COMPLEX {
     vars C C1 C2 C3 : Complex .
     vars R R1 R2 : Real .
     vars RT RT1 RT2 : Rat .
+    vars N N1 N2 : Nat .
     vars NzRT NzRT1 NzRT2 : NzRat .
 
     -- identity element
@@ -294,6 +296,8 @@ mod! COMPLEX {
     eq (RT * C1) / C2 = RT * (C1 / C2) .
     eq RT1 * (RT2 * C) = (RT1 * RT2) * C .
     eq (C1 * RT) / C2 = RT * (C1 / C2) .
+    eq RT * (R / NzRT) = (RT / NzRT) * R .
+    eq (N1 + N2) / NzRT = (N1 / NzRT) + (N2 / NzRT) .
     eq 1 * C = C .
     eq - (RT * C) = RT * (- C) .
     -- eq - (C * RT) = (- C) * RT .
