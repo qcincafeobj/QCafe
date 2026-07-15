@@ -21,7 +21,7 @@ mod! GROVER-LEMMAS {
     vars NzPN : NzPNat .
 
     -- superposition of all basis states (computational basis)
-    eq |psi>(s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
+    eq |psi>(s(0))    =  cos(1/4 * pi) * (| 0 > + | s(0) >) .
     eq |psi>(s(NzPN)) = (cos(1/4 * pi) * (| 0 > + | s(0) >)) @ |psi>(NzPN) .
     -- eq |psi>(s(NzPN)) = (cos(rzero) / sqrt(2^(s(NzPN)))) * (
     --    (| 0 > + | s(0) >) @ (sqrt(2^(NzPN)) * |psi>(NzPN))
@@ -34,12 +34,12 @@ mod! GROVER-LEMMAS {
     -- alternative basis: solution vs. non-solution hyperplanes
     eq |sol PN1 >(NzPN) = | PN1 > .
     eq |non-sol PN1 >(NzPN) = (cos(rzero) / sqrt(p(2^(NzPN)))) * (
-        sqrt(2^(NzPN)) * |psi>(NzPN) + (- (|sol PN1 >(NzPN)))
+        sqrt(2^(NzPN)) * |psi>(NzPN) - |sol PN1 >(NzPN)
     ) .
 
     -- Hadamard transform
-    eq H^(@ s(0)) x |0>^(@ s(0)) = cos(1/4 pi) * (| 0 > + | s(0) >) .
-    eq H^(@ s(NzPN)) x |0>^(@ s(NzPN)) = (cos(1/4 pi) * (| 0 > + | s(0) >)) @ (H^(@ NzPN) x |0>^(@ NzPN)) .
+    eq H^(@ s(0))    x |0>^(@ s(0))    =  cos(1/4 * pi) * (| 0 > + | s(0) >) .
+    eq H^(@ s(NzPN)) x |0>^(@ s(NzPN)) = (cos(1/4 * pi) * (| 0 > + | s(0) >)) @ (H^(@ NzPN) x |0>^(@ NzPN)) .
 
     -- misc
     eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
