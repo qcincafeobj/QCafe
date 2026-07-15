@@ -92,8 +92,8 @@ open N-ITERATION-N-QUBIT-GROVER-SEARCH .
 
     -- IH
     eq [IH] : n-iter-n-qubit-grover(n1, N2)
-                = cos((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |non-sol>(N2)
-                + sin((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |sol>(N2) .
+              = cos((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |non-sol>(N2)
+              + sin((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |sol>(N2) .
 
     -- w2s
     red n-iter-n-qubit-grover(s(n1), n2)
