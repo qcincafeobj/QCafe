@@ -15,24 +15,25 @@ mod! N-HOP-TELEPORT {
     op |psi> : -> Ket .
     ops a b : -> Complex .
 
-    vars K K1 K2 : Ket .
+    vars KET KET1 KET2 : Ket .
     vars N : Nat .
     vars NzN : NzNat .
     vars BK : BasisKet .
     vars C : Complex .
+    vars KSET : KetSet .
     vars PN : PNat .
 
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    eq execute(teleport-pre-processor , K) = K @ |0> @ |0> .
-    eq execute(teleport-post-processor, K) = getKthQubit(2, K) .
+    eq execute(teleport-pre-processor , KET) = KET @ |0> @ |0> .
+    eq execute(teleport-post-processor, KET) = getKthQubit(2, KET) .
 
-    eq getKthQubit(N, K1 + K2)  = getKthQubit(N, K1) + getKthQubit(N, K2) .
-    eq getKthQubit(NzN, BK @ K) = getKthQubit(p NzN, K) .
-    eq getKthQubit(0, BK @ K)   = BK .
-    eq getKthQubit(0, BK)       = BK .
-    eq getKthQubit(N, C * K)    = C * getKthQubit(N, K) .
+    eq getKthQubit(N, KET1 + KET2) = getKthQubit(N, KET1) + getKthQubit(N, KET2) .
+    eq getKthQubit(NzN, BK @ KET)  = getKthQubit(p NzN, KET) .
+    eq getKthQubit(0, BK @ KET)    = BK .
+    eq getKthQubit(0, BK)          = BK .
+    eq getKthQubit(N, C * KET)     = C * getKthQubit(N, KET) .
 
     eq teleport-program = (
         teleport-pre-processor;
