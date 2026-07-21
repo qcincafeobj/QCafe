@@ -716,6 +716,13 @@ mod! POST-PROCESSING {
         else getQubitByIndex(N, K1) + getQubitByIndex(N, K2)
         fi .
     
+    -- alternative
+    -- eq getQubitByIndex(N, K1 + K2)  = 
+    --     if   getQubitByIndex(N, K1) = getQubitByIndex(N, K2) 
+    --     then 1/2 * (getQubitByIndex(N, K1) + getQubitByIndex(N, K2))
+    --     else getQubitByIndex(N, K1) + getQubitByIndex(N, K2)
+    --     fi .
+
     op removeQubitByIndex : Nat Ket -> Ket .
     eq removeQubitByIndex(NzN, BK @ K) = BK @ removeQubitByIndex(p NzN, K) .
     eq removeQubitByIndex(0, BK @ K)   = K .
@@ -727,6 +734,13 @@ mod! POST-PROCESSING {
         then removeQubitByIndex(N, K1)
         else removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2)
         fi .
+
+    -- alternative
+    -- eq removeQubitByIndex(N, K1 + K2)  = 
+    --     if   removeQubitByIndex(N, K1) = removeQubitByIndex(N, K2) 
+    --     then 1/2 * (removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2))
+    --     else removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2)
+    --     fi .
 }
 
 mod! QUANTUM-INTERPRETER {
