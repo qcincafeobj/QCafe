@@ -461,12 +461,16 @@ mod! BRAKET {
     
     -- eq (K1 + K2) @ K = K1 @ K + K2 @ K .
     -- eq K @ (K1 + K2) = K @ K1 + K @ K2 .
+    
+    eq K1 @ K + K2 @ K = (K1 + K2) @ K .
+    eq K @ K1 + K @ K2 = K @ (K1 + K2) .
 
     eq (K1 + K2) x B = K1 x B + K2 x B . -- nqss: can ignore
     eq K x (B1 + B2) = K x B1 + K x B2 . -- nqss: can ignore
 
     eq (B1 + B2) @ B = B1 @ B + B2 @ B .
-    eq B x ((K1 + K2) @ K) = B x (K1 @ K + K2 @ K) .
+    -- eq B x ((K1 + K2) @ K) = B x (K1 @ K + K2 @ K) .
+    eq B x ((K1 + K2) @ K) = B x (K1 @ K) + B x (K2 @ K) .
 
     eq (B1 + B2) x K = B1 x K + B2 x K .
     eq B x (K1 + K2) = B x K1 + B x K2 .
@@ -496,9 +500,6 @@ mod! BRAKET {
     eq B1 @ (C * B2)   = C * (B1 @ B2) .
     eq (C * B1) @ B2   = C * (B1 @ B2) .
 
-    -- innprod
-    eq (BB @ B) x (BK @ K) = (BB x BK) * (B x K) .
-
     -- negative elements
     eq - M = (- cos(rzero)) * M .
     eq - K = (- cos(rzero)) * K .
@@ -523,6 +524,8 @@ mod! BRAKET {
     eq (B ^+) ^+   = B .
     eq (K ^+) ^+   = K .
 
+    -- innprod
+    eq (BB @ B) x (BK @ K) = (BB x BK) * (B x K) .
     eq (K1 x B1) x (K2 x B2) = (B1 x K2) * (K1 x B2) .
 }
 
@@ -641,106 +644,45 @@ mod! GATE {
     eq (I ^+) = I .
 }
 
--- mod! POST-PROCESSING {
---     pr(BRAKET)
---     pr(GATE)
-
---     vars N : Nat .
---     vars NzN : NzNat .
---     vars BK : BasisKet .
---     vars K K1 K2 : Ket .
---     vars C : Complex .
-
---     op getQubitByIndex : Nat Ket -> Ket .
---     op qubitGetter : -> GateName .
---     op bkGetter : -> Mat .
-
---     eq bmat(qubitGetter) = bkGetter .
---     -- eq bkGetter x BK = BK .
---     eq bkGetter x (BK @ K) = BK .
---     eq (bkGetter @ I) x (BK @ K) = BK .
---     eq getQubitByIndex(N, K) = qubitGetter(N) x K .
-
---     -- eq getQubitByIndex(NzN, BK @ K) = getQubitByIndex(p NzN, K) .
---     -- eq getQubitByIndex(0, BK @ K)   = BK .
---     -- eq getQubitByIndex(0, BK)       = BK .
---     -- eq getQubitByIndex(N, K1 + K2)  = getQubitByIndex(N, K1) + getQubitByIndex(N, K2) .
---     -- eq getQubitByIndex(N, C * K)    = C * getQubitByIndex(N, K) .
-    
---     -- -- eq getQubitByIndex(N, (K1 + K2) @ K) = getQubitByIndex(N, K1 @ K + K2 @ K) .
-
---     op removeQubitByIndex : Nat Ket -> Ket .
---     op qubitRemover : -> GateName .
---     op bkRemover : -> Mat .
-
---     eq bmat(qubitRemover) = bkRemover .
-
---     op removedBK : -> BasisKet .
---     eq bkRemover x BK             = removedBK .
---     eq (bkRemover @ I) x (BK @ K) = removedBK @ K .
---     eq removedBK @ K              = K .
---     eq K @ removedBK              = K .
---     eq removeQubitByIndex(N, K)   = qubitRemover(N) x K .
-
---     -- eq removeQubitByIndex(NzN, BK @ K) = BK @ removeQubitByIndex(p NzN, K) .
---     -- eq removeQubitByIndex(0, BK @ K)   = K .
---     -- eq K @ removeQubitByIndex(0, BK)   = K .
---     -- eq removeQubitByIndex(N, K1 + K2)  = removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2) .
---     -- eq removeQubitByIndex(N, C * K)    = C * removeQubitByIndex(N, K) .
-
---     eq removeQubitByIndex(N, (K1 + K2) @ K) =
---         if nqubit(K1) > N
---         then (removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2)) @ K
---         else (K1 + K2) @ removeQubitByIndex(sd(N, nqubit(K1)), K)
---         fi .
--- }
-
 mod! POST-PROCESSING {
     pr(BRAKET)
+    pr(GATE)
 
     vars N : Nat .
     vars NzN : NzNat .
     vars BK : BasisKet .
     vars K K1 K2 : Ket .
     vars C : Complex .
+    
+    op removeQubitByIndex : Nat Ket -> Ket .
+    op removedBK : -> BasisKet .
+
+    eq removeQubitByIndex(0, BK)      = removedBK .
+    eq removeQubitByIndex(N, K1 @ K2) = 
+        if   nqubit(K1) > N
+        then removeQubitByIndex(N, K1) @ K2
+        else K1 @ removeQubitByIndex(sd(N, nqubit(K1)), K2)
+        fi .
+
+    eq removedBK + removedBK = removedBK .
+    eq K @ removedBK         = K .
+
+    eq removeQubitByIndex(N, K1 + K2) = removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2) .
+    eq removeQubitByIndex(N, C * K)   = C * removeQubitByIndex(N, K) .
 
     op getQubitByIndex : Nat Ket -> Ket .
-    eq getQubitByIndex(NzN, BK @ K) = getQubitByIndex(p NzN, K) .
-    eq getQubitByIndex(0, BK @ K)   = BK .
-    eq getQubitByIndex(0, BK)       = BK .
-    eq getQubitByIndex(N, C * K)    = C * getQubitByIndex(N, K) .
     
-    eq getQubitByIndex(N, K1 + K2)  = 
-        if   getQubitByIndex(N, K1) = getQubitByIndex(N, K2) 
+    eq getQubitByIndex(0, BK)      = BK .
+    eq getQubitByIndex(N, K1 @ K2) = 
+        if   nqubit(K1) > N
         then getQubitByIndex(N, K1)
-        else getQubitByIndex(N, K1) + getQubitByIndex(N, K2)
+        else getQubitByIndex(sd(N, nqubit(K1)), K2)
         fi .
     
-    -- alternative
-    -- eq getQubitByIndex(N, K1 + K2)  = 
-    --     if   getQubitByIndex(N, K1) = getQubitByIndex(N, K2) 
-    --     then 1/2 * (getQubitByIndex(N, K1) + getQubitByIndex(N, K2))
-    --     else getQubitByIndex(N, K1) + getQubitByIndex(N, K2)
-    --     fi .
-
-    op removeQubitByIndex : Nat Ket -> Ket .
-    eq removeQubitByIndex(NzN, BK @ K) = BK @ removeQubitByIndex(p NzN, K) .
-    eq removeQubitByIndex(0, BK @ K)   = K .
-    eq K @ removeQubitByIndex(0, BK)   = K .
-    eq removeQubitByIndex(N, C * K)    = C * removeQubitByIndex(N, K) .
-
-    eq removeQubitByIndex(N, K1 + K2)  = 
-        if   removeQubitByIndex(N, K1) = removeQubitByIndex(N, K2) 
-        then removeQubitByIndex(N, K1)
-        else removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2)
-        fi .
-
-    -- alternative
-    -- eq removeQubitByIndex(N, K1 + K2)  = 
-    --     if   removeQubitByIndex(N, K1) = removeQubitByIndex(N, K2) 
-    --     then 1/2 * (removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2))
-    --     else removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2)
-    --     fi .
+    eq getQubitByIndex(N, K1 + K2) = getQubitByIndex(N, K1) + getQubitByIndex(N, K2) .
+    eq getQubitByIndex(N, C * K)   = C * getQubitByIndex(N, K) .
+        
+    -- see the notes in "Remote CNOT.ipynb"
 }
 
 mod! QUANTUM-INTERPRETER {
