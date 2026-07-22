@@ -10,6 +10,7 @@ open POST-PROCESSING .
     red (|0> @ |0>) @ removeQubitByIndex(0,|1>) .
     red removeQubitByIndex(1, |0> @ |epr> @ |1>) .
     red removeQubitByIndex(2, |0> @ |0> @ |1> + |0> @ |0> @ |0>) .
+    red removeQubitByIndex(0, |0> @ |0> @ |1> + |0> @ |0> @ |0>) .
 close
 eof
 (cos((1/4 * pi)) * (|0> @ (

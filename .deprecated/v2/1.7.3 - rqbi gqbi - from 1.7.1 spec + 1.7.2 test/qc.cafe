@@ -666,6 +666,7 @@ mod! POST-PROCESSING {
 
     eq removedBK + removedBK = removedBK .
     eq K @ removedBK         = K .
+    eq removedBK @ K         = K .
 
     eq removeQubitByIndex(N, K1 + K2) = removeQubitByIndex(N, K1) + removeQubitByIndex(N, K2) .
     eq removeQubitByIndex(N, C * K)   = C * removeQubitByIndex(N, K) .
