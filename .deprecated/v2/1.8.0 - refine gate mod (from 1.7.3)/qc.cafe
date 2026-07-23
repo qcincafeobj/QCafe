@@ -622,7 +622,7 @@ mod! GATE {
 
     eq  I(0) @ M              =  M .
     eq (I(N) @ M) x (K1 @ K2) =
-        if nqubit(K1) > N
+        if   nqubit(K1) > N
         then ((I(N) @ M) x K1) @ K2
         else K1 @ ((I(sd(N, nqubit(K1))) @ M) x K2)
         fi .
