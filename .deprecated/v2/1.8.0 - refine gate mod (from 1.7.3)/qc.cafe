@@ -442,22 +442,22 @@ mod! BRAKET {
     eq M x kO    = kO .             eq M x mO    = mO .
     eq B x kO    = rzero .          eq mO x M    = mO .
 
-    -- substraction
+    -- subtraction
     eq M1 - M2 = M1 + (- M2) .
     eq K1 - K2 = K1 + (- K2) .
 
     -- matmul
-    eq (BK x BB) x BK1   = (BB x BK1) * BK .
-    eq (M1 x M2) x K     = M1 x (M2 x K) .
+    eq (BK x BB) x BK1 = (BB x BK1) * BK .
+    eq (M1 x M2) x K   = M1 x (M2 x K) .
 
-    -- distribition of operators into addition
+    -- distribution of operators into addition
     eq C * (K1 + K2) = C * K1 + C * K2 .
     -- eq C * K1 + C * K2 = C * (K1 + K2) .
     eq C1 * K + (- C1) * K = kO .
 
-    eq M x (K1 + K2)   = M x K1 + M x K2 .
-    eq (M1 + M2) x K    = M1 x K + M2 x K .
-    eq (M1 + M2) @ M3   = M1 @ M3 + M2 @ M3 .
+    eq M x (K1 + K2)  = M x K1 + M x K2 .
+    eq (M1 + M2) x K  = M1 x K + M2 x K .
+    eq (M1 + M2) @ M3 = M1 @ M3 + M2 @ M3 .
     
     -- eq (K1 + K2) @ K = K1 @ K + K2 @ K .
     -- eq K @ (K1 + K2) = K @ K1 + K @ K2 .
@@ -497,8 +497,8 @@ mod! BRAKET {
 
     eq C1 * K + C2 * K = (C1 + C2) * K .
     
-    eq B1 @ (C * B2)   = C * (B1 @ B2) .
-    eq (C * B1) @ B2   = C * (B1 @ B2) .
+    eq B1 @ (C * B2) = C * (B1 @ B2) .
+    eq (C * B1) @ B2 = C * (B1 @ B2) .
 
     -- negative elements
     eq - M = (- cos(rzero)) * M .
