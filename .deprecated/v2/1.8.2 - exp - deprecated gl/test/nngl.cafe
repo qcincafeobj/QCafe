@@ -1,0 +1,169 @@
+input ../qc.cafe .
+set trace on
+set trace off
+mod! GROVER-LEMMAS {
+    -- pr(BOOL)
+    pr(PNAT)
+    pr(REAL)
+    pr(QUANTUM-INTERPRETER)
+
+    op  |non-sol _ >(_) : PNat NzNat -> Ket .  -- 1st param: solution (decimal), 2nd param: n-qubit
+    op  |sol _ >(_)     : PNat NzNat -> Ket .  -- 1st param: solution (decimal), 2nd param: n-qubit
+    
+    op  H^(@_)   : NzNat -> Mat .          -- 1st param: n-qubit
+    op  |0>^(@_) : NzNat -> Ket .          -- 1st param: n-qubit
+    op  | _ >    : PNat -> BasisKet .      -- 1st param: a number in 10-base
+    ops |psi>    : NzNat -> Ket .          -- 1st param: n-qubit
+    
+    op pnat2Real : PNat -> Real .
+    op  nat2Real :  Nat -> Real .
+    -- op 2^ : PNat -> NzPNat .
+    -- op 2^ : Nat -> NzNat .
+    
+    vars PN PN1 PN2 : PNat .
+    vars NzPN : NzPNat .
+    vars NzN : NzNat .
+    vars N : Nat .
+
+    -- superposition of all basis states (computational basis)
+    eq |psi>(1)      =  cos(1/4 * pi) * (| 0 > + | s(0) >) .
+    eq |psi>(s(NzN)) = (cos(1/4 * pi) * (| 0 > + | s(0) >)) @ |psi>(NzN) .
+    -- eq |psi>(s(NzN)) = (cos(rzero) / sqrt(2 ^ (s(NzN)))) * (
+    --    (| 0 > + | s(0) >) @ (sqrt(2 ^ NzN) * |psi>(NzN))
+    -- ) .
+
+    -- inner product properties of the superposition
+    eq (|psi>(NzN) ^+) x | PN >  = cos(rzero) / sqrt(2 ^ NzN) .
+    eq (| PN > ^+) x |psi>(NzN)  = cos(rzero) / sqrt(2 ^ NzN) .
+
+    -- alternative basis: solution vs. non-solution hyperplanes
+    eq |sol PN1 >(NzN) = | PN1 > .
+    eq |non-sol PN1 >(NzN) = (cos(rzero) / sqrt(p(2 ^ NzN))) * (
+        sqrt(2 ^ NzN ) * |psi>(NzN) - |sol PN1 >(NzN)
+    ) .
+
+    -- Hadamard transform
+    eq H^(@ 1)      x |0>^(@ 1)      =  cos(1/4 * pi) * (| 0 > + | s(0) >) .
+    eq H^(@ s(NzN)) x |0>^(@ s(NzN)) = (cos(1/4 * pi) * (| 0 > + | s(0) >)) @ (H^(@ NzN) x |0>^(@ NzN)) .
+
+    -- misc
+    eq (| PN1 > ^+) x | PN2 > = if (PN1 = PN2) then cos(rzero) else rzero fi .
+
+    eq sqrt(N) * sqrt(N) = nat2Real(N) .
+    eq sqrt(N) ^* = sqrt(N) .
+    
+    -- eq (sqrt(2^(N)) = rzero) = false .
+    eq (nat2Real(p(2 ^ (NzN))) = rzero) = false .
+    eq - cos(rzero) + nat2Real(NzN) = nat2Real(p(NzN)) .
+    
+    eq 2 * (cos(1/4 * pi) * cos(1/4 * pi)) = cos(rzero) .
+    
+    eq nat2Real(2 ^ (N)) / nat2Real(2 ^ (s(N))) = 1/2 * cos(rzero) .
+    
+    eq sqrt(2 ^ (N)) / sqrt(2 ^ (s(N))) = cos(1/4 pi) .
+}
+
+-->
+-->
+-->
+--> 1. Proofs of inner product properties
+--> ==========================================================================================
+--> 1.1. Proof of (∀N:NzNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |non-sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzNat .
+
+    eq [lemma] : (|psi>(NzN) ^+) x |psi>(NzN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |non-sol PN >(n) = cos(rzero) .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.2. Proof of (∀N:NzNat)(∀PN:PNat) (|non-sol PN >(N) ^+) x |sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzNat .
+
+    eq [lemma] : (|psi>(NzN) ^+) x |psi>(NzN) = cos(rzero) .
+    
+    red (|non-sol PN >(n) ^+) x |sol PN >(n) = rzero .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.3. Proof of (∀N:NzNat)(∀PN:PNat) (|sol PN >(N) ^+) x |non-sol PN >(N) = rzero
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzNat .
+
+    eq [lemma] : (|psi>(NzN) ^+) x |psi>(NzN) = cos(rzero) .
+    
+    red (|sol PN >(n) ^+) x |non-sol PN >(n) = rzero .
+close
+--> ------------------------------------------------------------------------------------------
+--> 1.4. Proof of (∀N:NzNat)(∀PN:PNat) (|sol PN >(N) ^+) x |sol PN >(N) = cos(rzero)
+--> by reduction on N
+open GROVER-LEMMAS .
+    op n : -> NzNat .
+
+    red (|sol PN >(n) ^+) x |sol PN >(n) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> 2. Proof of "the superposition vector is a unit vector"
+--> ==========================================================================================
+--> Proof of (∀N:NzNat) (|psi>(N) ^+) x |psi>(N) = cos(rzero)
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- w2s
+    red (|psi>(s(0)) ^+) x |psi>(s(0)) = cos(rzero) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case
+--> fc  : (n):NzNat
+--> IH  : (|psi>(n) ^+) x |psi>(n) = cos(rzero)
+--> w2s : (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero)
+open GROVER-LEMMAS .
+    -- fc
+    op n : -> NzNat .
+    
+    -- IH
+    eq (|psi>(n) ^+) x |psi>(n) = cos(rzero) .
+
+    -- w2s
+    red (|psi>(s(n)) ^+) x |psi>(s(n)) = cos(rzero) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> 3. Proof of equivalence between the superposition state
+--> and the Hadamard transform result state
+--> ==========================================================================================
+--> Proof of (∀N:NzNat) H^(@ N) x |0>^(@ N) = |psi>(N)
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: H^(@ s(0)) x |0>^(@ s(0)) = |psi>(s(0))
+open GROVER-LEMMAS .
+    -- w2s
+    red H^(@ s(0)) x |0>^(@ s(0)) = |psi>(s(0)) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case
+--> fc  : (n):NzNat
+--> IH  : H^(@ n) x |0>^(@ n) = |psi>(n)
+--> w2s : H^(@ s(n)) x |0>^(@ s(n)) = |psi>(s(n))
+open GROVER-LEMMAS .
+    -- fc
+    op n : -> NzNat .
+    
+    -- IH
+    eq H^(@ n) x |0>^(@ n) = |psi>(n) .
+
+    -- w2s
+    red H^(@ s(n)) x |0>^(@ s(n)) = |psi>(s(n)) .
+close
+--> ==========================================================================================
