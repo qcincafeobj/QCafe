@@ -2,7 +2,7 @@ mod! PNAT {
     pr(BOOL)
     
     [PZero NzPNat < PNat]
-    op 0 : -> PZero .
+    op 0 : -> PZero {constr} .
     -- op pnzero : -> PZero .
     op s : PNat -> NzPNat .
     op p : NzPNat -> PNat .
@@ -46,11 +46,11 @@ mod! REAL {
     op _>=_ : Real Real -> Bool {prec: 51} .
     op _<=_ : Real Real -> Bool {prec: 51} .
 
-    op rzero : -> RZero .
+    op rzero : -> RZero {constr} .
 
-    op _ pi : Rat -> Real .
-    op cos : Real -> Real .
-    op sin : Real -> Real {prec: 15} .
+    op _ pi : Rat -> Real {constr} .
+    op cos : Real -> Real {constr} .
+    op sin : Real -> Real {prec: 15 constr} .
 
     vars R R1 R2 R3 R4 : Real .
     vars RT RT1 RT2 : Rat .
@@ -169,7 +169,7 @@ mod! REAL {
     eq sin(R1) * cos(R2) + cos(R1) * sin(R2) = sin(R1 + R2) .           -- addition formula
 
     -- optimization
-    op pi : -> Real .
+    op pi : -> Real {constr} .
 
     ceq cos(RT pi) = cos(RT * pi) if ((0 < RT) and (RT < 1/2)) .
 
@@ -231,7 +231,7 @@ mod! COMPLEX {
     op _>=_ : Complex Complex -> Bool {prec: 51} .
     op _<=_ : Complex Complex -> Bool {prec: 51} .
 
-    op i_ : Real -> Imaginary .
+    op i_ : Real -> Imaginary {constr} .
     op e^_ : Complex -> Complex .
 
     op sqrt : Complex -> Complex .
@@ -367,12 +367,12 @@ mod! BRAKET {
 
     [MatZero BasisKetBra < Mat]
     
-    ops <0| <1| : -> BasisBra .
-    ops |1> |0> : -> BasisKet .
-    ops |0><0| |0><1| |1><0| |1><1| : -> BasisKetBra .
-    op bO : -> BraZero . -- [ 0 ... 0 ]
-    op kO : -> KetZero . -- [ 0 ... 0 ]^T
-    op mO : -> MatZero . -- [ 0 ... 0 ]^T x [ 0 ... 0 ]
+    ops <0| <1| : -> BasisBra {constr} .
+    ops |1> |0> : -> BasisKet {constr} .
+    ops |0><0| |0><1| |1><0| |1><1| : -> BasisKetBra {constr} .
+    op bO : -> BraZero {constr} . -- [ 0 ... 0 ]
+    op kO : -> KetZero {constr} . -- [ 0 ... 0 ]^T
+    op mO : -> MatZero {constr} . -- [ 0 ... 0 ]^T x [ 0 ... 0 ]
 
     op ||_||^2 : Ket -> Real .
     op _=_ : Bra Bra -> Bool {prec: 51 comm} .
@@ -565,16 +565,16 @@ mod! GATE {
     [ParallelMat < Mat]
 
     -- gates supported
-    ops X Y Z H P0 P1 : -> GateName .
-    ops S SI T TI : -> GateName .
-    op _ _ : GateName Nat -> Gate {prec: 15} .
+    ops X Y Z H P0 P1 : -> GateName {constr} .
+    ops S SI T TI : -> GateName {constr} .
+    op _ _ : GateName Nat -> Gate {prec: 15 constr} .
     
     -- controlled and multi-controlled mechanisms
-    op C _ ( _ , _ ) : GateName Nat Nat -> ControlledGate {prec: 13} .
-    op MC_ ( [ _ ] , _ ) : GateName NatList Nat -> ControlledGate {prec: 13} .
+    op C _ ( _ , _ ) : GateName Nat Nat -> ControlledGate {prec: 13 constr} .
+    op MC_ ( [ _ ] , _ ) : GateName NatList Nat -> ControlledGate {prec: 13 constr} .
 
-    op I : Nat -> Gate .    -- I(N): identity gate for N qubits
-    op I : -> Gate .        -- Dimension helper: General identity gate, contextual size (from 0 to N)
+    op I : Nat -> Gate {constr} .    -- I(N): identity gate for N qubits
+    op I : -> Gate {constr} .        -- Dimension helper: General identity gate, contextual size (from 0 to N)
 
     op bmat : GateName -> Mat .
 
@@ -584,10 +584,10 @@ mod! GATE {
     op _x_ : MetrologyHandler Ket -> Ket {prec: 31 r-assoc strat: (2 1 0)} .
     op _x_ : MetrologyHandler MetrologyHandler -> MetrologyHandler {prec: 31} .
     
-    op P : Mat -> ParallelMat .
+    -- op P : Mat -> ParallelMat .
 
-    op measOp : Mat -> Measurement .
-    op normalizer : -> Normalizer .
+    op measOp : Mat -> Measurement {constr} .
+    op normalizer : -> Normalizer {constr} .
 
     vars GN : GateName .
     vars N N1 N2 N3 : Nat .
@@ -668,7 +668,7 @@ mod! POST-PROCESSING {
     vars C : Complex .
     
     op removeQubitByIndex : Nat Ket -> Ket .
-    op removedBK : -> BasisKet .
+    op removedBK : -> BasisKet {constr} .
 
     eq removeQubitByIndex(0, BK)      = removedBK .
     eq removeQubitByIndex(N, K1 @ K2) = 
@@ -714,17 +714,17 @@ mod! QUANTUM-INTERPRETER {
     [Ket < KetSet]
     [Bool < Flag]
 
-    op _@_ : KetSet KetSet -> KetSet {prec: 71 assoc} .
+    op _@_ : KetSet KetSet -> KetSet {prec: 71 assoc constr} .
     op _V_ : KetSet KetSet -> KetSet {prec: 73 assoc comm} .
     
-    op _;_ : Statement Statement -> Statement {prec: 71 assoc} .
-    op _U_ : Statement Statement -> Statement {prec: 73 assoc comm} .
+    op _;_ : Statement Statement -> Statement {prec: 71 assoc constr} .
+    op _U_ : Statement Statement -> Statement {prec: 73 assoc comm constr} .
 
     op _=_ : KetSet KetSet -> Bool {prec: 81 comm} .
     
     op M : Nat -> Flag .
-    op skip : -> Statement .
-    op if _ then _ else _ endif : Flag Statement Statement -> Statement {prec: 61} .
+    op skip : -> Statement {constr} .
+    op if _ then _ else _ endif : Flag Statement Statement -> Statement {prec: 61 constr} .
     op execute : Statement KetSet -> KetSet .
 
     vars M1 : Mat .
