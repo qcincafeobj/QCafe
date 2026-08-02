@@ -6,7 +6,7 @@ input ../qc.cafe .
 set print mode normal
 set trace on
 set trace off
-mod! N-HOP-SUPER-DENSE-CODING {
+mod! N-HOP-SUPERDENSE-CODING {
     pr(PNAT)
     pr(QUANTUM-INTERPRETER)
 
@@ -58,7 +58,7 @@ mod! N-HOP-SUPER-DENSE-CODING {
 --> ------------------------------------------------------------------------------------------
 --> Base case:
 --> w2s: n-sdc(s(0)) = classical-ketset
-open N-HOP-SUPER-DENSE-CODING .
+open N-HOP-SUPERDENSE-CODING .
     -- w2s
     red n-sdc(s(0)) = classical-ketset .
 close
@@ -67,7 +67,7 @@ close
 --> fc : (n):NzPNat
 --> IH : n-sdc(n) = classical-ketset
 --> w2s: n-sdc(s(n)) = classical-ketset
-open N-HOP-SUPER-DENSE-CODING .
+open N-HOP-SUPERDENSE-CODING .
     -- fc
     op n : -> NzPNat .
 
