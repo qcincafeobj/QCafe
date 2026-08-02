@@ -280,12 +280,11 @@ mod! COMPLEX {
     ceq (C / C) = cos(rzero) if ((C = rzero) = false) .
 
     eq C / cos(rzero) = C .
-    eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
 
     -- eq - (R1 / R) + R2 / R = (- R1 + R2) / R .
     -- eq R1 / R + R2 / R = (R1 + R2) / R .
     eq - (C1 / C) + C2 / C = (- C1 + C2) / C .
-    eq C1 / C + C2 / C = (C1 + C2) / C .
+    eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
 
     -- conjugate
     eq R ^*     = R .
@@ -306,6 +305,7 @@ mod! COMPLEX {
 
     -- coefficient isolation
     -- eq C * C1 + C * C2 = C * (C1 + C2) .
+    -- eq C1 * C + C2 * C = (C1 + C2) * C .
     -- eq (C1 + C2) * C = C1 * C + C2 * C . -- won't help due to comm
     eq C + C = (2 * cos(rzero)) * C .
     eq RT * C1 + RT * C2 = RT * (C1 + C2) .

@@ -56,3 +56,24 @@
                                     )
                                 )
                             ) * |sol>(n2)) + (((2 * (- (sin((1/2 * theta)) * (cos((1/2 * theta)) * sin((1/2 * theta)))))) + ((- cos((1/2 * theta))) + (cos((1/2 * theta)) * (cos((1/2 * theta)) * (2 * cos((1/2 * theta))))))) * |non-sol>(n2))) = ((sin((3/2 * theta)) * |sol>(n2)) + (cos((3/2 * theta)) * |non-sol>(n2)))):Bool
+
+
+
+                            (
+                                sqrt(
+                                    (
+                                        (
+                                            (
+                                                (cos(theta) * C1) + (sin(theta) * C2)
+                                            ) * (
+                                                (cos(theta) * (C1 ^*)) + (sin(theta) * (C2 ^*))
+                                            )
+                                        ) + (
+                                            (
+                                                (- (sin(theta) * C1)) + (cos(theta) * C2)
+                                            ) * (
+                                                (- (sin(theta) * (C1 ^*))) + (cos(theta)* (C2 ^*))
+                                            )
+                                        )
+                                    )
+                                ) = cos(rzero)):Bool
