@@ -4,7 +4,7 @@ mod! PNAT {
     [PZero NzPNat < PNat]
     op 0 : -> PZero {constr} .
     -- op pnzero : -> PZero .
-    op s : PNat -> NzPNat .
+    op s : PNat -> NzPNat {constr} .
     op p : NzPNat -> PNat .
 
     op _+_ : PNat PNat -> PNat {prec: 33 assoc comm} .
