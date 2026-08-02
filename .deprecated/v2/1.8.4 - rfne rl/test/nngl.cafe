@@ -56,7 +56,7 @@ mod! GROVER-LEMMAS {
     
     eq pnat2Real(2^(PN)) / pnat2Real(2^(s(PN))) = 1/2 * cos(rzero) .
     
-    eq sqrt(2^(PN)) / sqrt(2^(s(PN))) = cos(1/4 pi) .
+    eq sqrt(2^(PN)) / sqrt(2^(s(PN))) = cos(1/4 * pi) .
 }
 
 -->

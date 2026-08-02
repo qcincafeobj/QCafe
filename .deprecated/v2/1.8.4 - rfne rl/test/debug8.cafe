@@ -77,3 +77,33 @@
                                         )
                                     )
                                 ) = cos(rzero)):Bool
+
+                                (
+                                    (
+                                        (
+                                            (
+                                                (
+                                                    - (
+                                                        (
+                                                            sqrt(sqrt(
+                                                                (
+                                                                    (2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + (
+                                                                        (
+                                                                            ((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)
+                                                                    )
+                                                                ))) * (sqrt(sqrt(4)) * (sqrt(sqrt(2)) * b))) / (sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4)))))) * sqrt(4)))) * |1>) + ((- ((sqrt(sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4))))) * (a * (sqrt(sqrt(2)) * sqrt(sqrt(4))))) / (sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)))) * sqrt(4)))) * |0>)) V ((((- ((sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))) * (b * sqrt(sqrt(2)))) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))))) * |1>) + ((- ((sqrt(sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))) * (sqrt(sqrt(2)) * a)) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))))) * |0>)) V (((((a * (sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))) * sqrt(sqrt(2)))) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2))))) * |0>) + (((b * (sqrt(sqrt(2)) * sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))))) / (sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2))) * sqrt(sqrt(sqrt(4))))) * |1>)) V ((((sqrt(sqrt(2)) * (b * (sqrt(sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4))))))) * sqrt(sqrt(4))))) / (sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4)))))) * sqrt(4))) * |1>) + (((sqrt(sqrt(2)) * (a * (sqrt(sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4))))))) * sqrt(sqrt(4))))) / (sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)))) * sqrt(4))) * |0>))))) = ((b * |1>) + (a * |0>))):Bool
+
+
+
+(
+    (
+        (
+            (
+                (
+                    - (
+                        (sqrt(sqrt(
+                            (
+                                (2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + (
+                                    (((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)
+                                )
+                            ))) * (sqrt(sqrt(4)) * (sqrt(sqrt(2)) * b))) / (sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4)))))) * sqrt(4)))) * |1>) + ((- ((sqrt(sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4))))) * (a * (sqrt(sqrt(2)) * sqrt(sqrt(4))))) / (sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)))) * sqrt(4)))) * |0>)) V ((((- ((sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))) * (b * sqrt(sqrt(2)))) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))))) * |1>) + ((- ((sqrt(sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))) * (sqrt(sqrt(2)) * a)) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2)))))) * |0>)) V (((((a * (sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))) * sqrt(sqrt(2)))) / (sqrt(sqrt(sqrt(4))) * sqrt(((((a * (a ^*)) / sqrt(4)) * 2) + (((b * (b ^*)) / sqrt(4)) * 2))))) * |0>) + (((b * (sqrt(sqrt(2)) * sqrt(sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2)))))) / (sqrt(((((b * (b ^*)) / sqrt(4)) * 2) + (((a * (a ^*)) / sqrt(4)) * 2))) * sqrt(sqrt(sqrt(4))))) * |1>)) V ((((sqrt(sqrt(2)) * (b * (sqrt(sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4))))))) * sqrt(sqrt(4))))) / (sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4)))))) * sqrt(4))) * |1>) + (((sqrt(sqrt(2)) * (a * (sqrt(sqrt((((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)) + (2 * ((b * (b ^*)) / (sqrt(4) * sqrt(4))))))) * sqrt(sqrt(4))))) / (sqrt(((2 * (((b ^*) * b) / (sqrt(4) * sqrt(4)))) + ((((a * (a ^*)) / sqrt(4)) * 2) / sqrt(4)))) * sqrt(4))) * |0>))))) = ((b * |1>) + (a * |0>))):Bool

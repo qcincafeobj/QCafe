@@ -318,7 +318,11 @@ mod! COMPLEX {
     eq (RT * C1) / C2 = RT * (C1 / C2) .
     eq RT1 * (RT2 * C) = (RT1 * RT2) * C .
     eq (C1 * RT) / C2 = RT * (C1 / C2) .
-    eq RT * (R / NzRT) = (RT / NzRT) * R .
+    -- eq C * RT = RT * C .
+    -- eq R * RT = RT * R .
+    -- eq RT1 * (C / RT2) = (RT1 / RT2) * C .
+    eq RT * (C / NzRT) = (RT / NzRT) * C .
+    -- eq RT * (R / NzRT) = (RT / NzRT) * R .
     eq (N1 + N2) / NzRT = (N1 / NzRT) + (N2 / NzRT) .
     eq 1 * C = C .
     eq - (RT * C) = RT * (- C) .
@@ -336,12 +340,14 @@ mod! COMPLEX {
     eq sqrt(RT * C)  = sqrt(RT) * sqrt(C) .
     eq sqrt(C * RT)  = sqrt(RT) * sqrt(C) .
     eq (sqrt(C))^*   = sqrt(C ^*) .
-    ceq (sqrt(R))^*  = sqrt(R) if (R > rzero) .
+    -- ceq (sqrt(R))^*  = sqrt(R) if (R > rzero) .
     ceq (sqrt(RT))^* = sqrt(RT) if (RT > 0) .
+    eq sqrt(0) = rzero .
+    eq sqrt(rzero) = rzero .
     -- eq sqrt(RT)  * sqrt(RT)  = RT * cos(rzero) . -- investigated in nes
     -- eq sqrt(RT1) * sqrt(RT2) = sqrt(RT1 * RT2) . -- investigated in nes
     eq sqrt(1) = cos(rzero) .
-    ceq sqrt(RT) / sqrt(RT) = cos(rzero) if ((RT > - RT) or (RT < - RT)) .
+    -- ceq sqrt(RT) / sqrt(RT) = cos(rzero) if ((RT > - RT) or (RT < - RT)) .
     
     -- negative element
     eq (- C1) * C2 = - (C1 * C2) .
@@ -357,15 +363,19 @@ mod! COMPLEX {
 
     -- eq - (C1 / C2) = (- cos(rzero) * C1) / C2 .
 
+    -- op sqrt : Nat -> Complex .
     op sqrt : Nat -> Complex .
+    -- op sqrt : NzNat -> NzReal .
     var NzN : NzNat .
+    -- var NzR : NzReal .
     -- eq sqrt(N * RT) = sqrt(N) * sqrt(RT) .
+    -- ceq (sqrt(N) = rzero) = false if (N > 0) .
     eq (sqrt(NzRT) = rzero) = false .
     eq (sqrt(NzN) = rzero) = false .
-    eq (sqrt(NzRT1 * NzRT2) = rzero) = false .
-    eq sqrt(NzRT1 * NzRT2) = sqrt(NzRT1) * sqrt(NzRT2) .
-    eq sqrt(N * RT) = sqrt(N) * sqrt(RT) .
-    eq (sqrt(NzN * NzRT) = rzero) = false .
+    -- eq (sqrt(NzRT1 * NzRT2) = rzero) = false .
+    -- eq sqrt(NzRT1 * NzRT2) = sqrt(NzRT1) * sqrt(NzRT2) .
+    -- eq sqrt(N * RT) = sqrt(N) * sqrt(RT) .
+    -- eq (sqrt(NzN * NzRT) = rzero) = false .
 }
 
 mod! BRAKET {
