@@ -311,6 +311,7 @@ mod! COMPLEX {
     eq RT * C1 + RT * C2 = RT * (C1 + C2) .
     eq (RT * C1) * C2 = RT * (C1 * C2) .
     eq C1 * (RT * C2) = RT * (C1 * C2) .
+    -- eq R1 * (R2 * RT) = RT * (R1 * R2) .
     
     -- eq (NzRT * C) / NzRT = C .
     eq C1 / (NzRT * C2) = (1 / NzRT) * (C1 / C2) .
@@ -324,8 +325,6 @@ mod! COMPLEX {
     -- eq - (C * RT) = (- C) * RT .
     eq - (C * RT) = RT * (- C) .
     
-    -- eq R1 * (R2 * RT) = RT * (R1 * R2) .
-    eq C1 * (RT * C2) = RT * (C1 * C2) . -- increase execution time
 
     -- square root
     eq sqrt(C) * sqrt(C) = C .
