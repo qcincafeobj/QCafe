@@ -17,3 +17,42 @@
   * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (a * (((rzero * 2) + (cos(rzero) * 2)) * (a ^*)))))))))) * (sqrt(2) * (sqrt(2) * sqrt(((4 * ((b ^*) * b)) + (2 * (a * (((rzero * 2) + (cos(rzero) * 2)) * (a ^*)))))))))))) * (sqrt(2) * (sqrt(((2 * (((cos(rzero) * 2) + (rzero * 2)) * ((a ^*) * a))) + (4 * (b * (b ^*))))) * sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * ((a ^*) * (a * ((rzero * 2) + (cos(rzero) * 2))))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))))))))) * |1>)) V ((((a / (sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * (a * (((cos(rzero) * 2) + (rzero * 2)) * (a ^*)))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * ((a ^*) * (a * ((rzero * 2) + (cos(rzero) * 2))))))))))) * (sqrt(((4 * ((b ^*) * b)) + (2 * ((a ^*) * (a * ((rzero * 2) + (cos(rzero) * 2))))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(2) * (sqrt(((2 * (a * (((cos(rzero) * 2) + (rzero * 2)) * (a ^*)))) + (4 * (b * (b ^*))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * ((a ^*) * (a * ((cos(rzero) * 2) + (rzero * 2))))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))))))))) + ((a * (a ^*)) / (sqrt(2) * (sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * ((a ^*) * (a * ((cos(rzero) * 2) + (rzero * 2))))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))))))))))))))) * |0>) + ((b / (sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * (a * (((cos(rzero) * 2) + (rzero * 2)) * (a ^*)))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * ((a ^*) * (a * ((rzero * 2) 
   + (cos(rzero) * 2))))))))))) * (sqrt(((2 * (((cos(rzero) * 2) + (rzero * 2)) * ((a ^*) * a))) + (4 * (b * (b ^*))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(2) * (sqrt(((2 * (a * (((cos(rzero) * 2) + (rzero * 2)) * (a ^*)))) + (4 * (b * (b ^*))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * ((a ^*) * (a * ((cos(rzero) * 2) + (rzero * 2))))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))))))))) + ((a * (a ^*)) / (sqrt(2) * (sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))) * (sqrt(2) * sqrt((((b * (b ^*)) / (sqrt(4) * sqrt(((2 * ((a ^*) * (a * ((cos(rzero) * 2) + (rzero * 2))))) + (4 * (b * (b ^*))))))) + ((a * (a ^*)) / (sqrt(4) * sqrt(((4 * ((b ^*) * b)) + (2 * (((rzero * 2) + (cos(rzero) * 2)) * ((a ^*) * a))))))))))))))))))) * |1>)) V ((a * |0>) + (b * |1>))))))) = ((b * |1>) + (a * |0>))
   ):Bool
+
+  (
+    (
+        (
+            (
+                (
+                    - (
+                        (- sin(((1/2 + ((pnat2Nat(n1) * 2) / 2)) * theta))) + (
+                            sin((1/2 * theta)) * (
+                                sin((1/2 * theta)) * (
+                                    2 * sin(
+                                        ((((2 * pnat2Nat(n1)) / 2) + 1/2) * theta)
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ) + (sin((1/2 * theta)) * (cos((1/2 * theta)) * (2 * cos(((((2 * pnat2Nat(n1)) / 2) + 1/2) * theta)))))) * |sol>(n2)) + (((2 * (- (sin((1/2 * theta)) * (cos((1/2 * theta)) * sin(((((2 * pnat2Nat(n1)) / 2) + 1/2) * theta)))))) + ((- cos(((1/2 + ((pnat2Nat(n1) * 2) / 2)) * theta))) + (cos((1/2 * theta)) * (cos((1/2 * theta)) * (2 * cos(((((2 * pnat2Nat(n1)) / 2) + 1/2) * theta))))))) * |non-sol>(n2))) = ((sin(((3/2 + ((pnat2Nat(n1) * 2) / 2)) * theta)) * |sol>(n2)) + (cos(((3/2 + ((pnat2Nat(n1) * 2) / 2)) * theta)) * |non-sol>(n2)))):Bool
+
+
+
+                (
+                    (
+                        (
+                            (
+                                (
+                                    - (
+                                        (- sin((1/2 * theta))) + (
+                                            sin((1/2 * theta)) * (
+                                                sin((1/2 * theta)) * (2 * sin((1/2 * theta)))
+                                            )
+                                        )
+                                    )
+                                ) + (
+                                    sin((1/2 * theta)) * (
+                                        cos((1/2 * theta)) * (2 * cos((1/2 * theta)))
+                                    )
+                                )
+                            ) * |sol>(n2)) + (((2 * (- (sin((1/2 * theta)) * (cos((1/2 * theta)) * sin((1/2 * theta)))))) + ((- cos((1/2 * theta))) + (cos((1/2 * theta)) * (cos((1/2 * theta)) * (2 * cos((1/2 * theta))))))) * |non-sol>(n2))) = ((sin((3/2 * theta)) * |sol>(n2)) + (cos((3/2 * theta)) * |non-sol>(n2)))):Bool

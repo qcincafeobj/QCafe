@@ -147,13 +147,13 @@ mod! REAL {
     op _*_ : Real Rat -> Real {prec: 31} .
     eq R * RT = RT * R .
 
-    eq (R1 / R2) * R3 = (R1 * R3) / R2 .
-    eq (R1 / R2) / R = R1 / (R2 * R) .
+    -- eq (R1 / R2) * R3 = (R1 * R3) / R2 .
+    -- eq (R1 / R2) / R = R1 / (R2 * R) .
     ceq R / R = cos(rzero) if ((R = rzero) = false) .
     ceq (R1 + R2 > rzero) = true if ((R1 > rzero) and (R2 > rzero)) .
 
-    eq R1 / R + R2 / R = (R1 + R2) / R .
-    eq - (R1 / R) + R2 / R = (- R1 + R2) / R .
+    -- eq R1 / R + R2 / R = (R1 + R2) / R .
+    -- eq - (R1 / R) + R2 / R = (- R1 + R2) / R .
     -- eq R1 * (R2 * RT) = RT * (R1 * R2) .
 
     -- eq R1 / (R2 * R3) + (- (R4 / R2)) = ((R1 / R3) - R4) / R2 .
@@ -265,6 +265,8 @@ mod! COMPLEX {
     eq R1 * (i R2)     = i (R1 * R2) .
     eq (i R1) * (i R2) = - (R1 * R2) .
     
+    -- eq (R1 / R2) * R3 = (R1 * R3) / R2 .
+    -- eq (R1 / R2) / R = R1 / (R2 * R) .
     eq C1 * (C2 / C3) = (C1 * C2) / C3 .
     eq (C1 * C2) / C1 = (C1 / C1) * C2 .
     eq (C1 / C2) * C3 = (C1 * C3) / C2 .
@@ -279,6 +281,11 @@ mod! COMPLEX {
 
     eq C / cos(rzero) = C .
     eq (C1 / C) + (C2 / C) = (C1 + C2) / C .
+
+    -- eq - (R1 / R) + R2 / R = (- R1 + R2) / R .
+    -- eq R1 / R + R2 / R = (R1 + R2) / R .
+    eq - (C1 / C) + C2 / R = (- C1 + C2) / C .
+    eq C1 / C + C2 / C = (C1 + C2) / C .
 
     -- conjugate
     eq R ^*     = R .
@@ -305,6 +312,7 @@ mod! COMPLEX {
     eq (RT * C1) * C2 = RT * (C1 * C2) .
     eq C1 * (RT * C2) = RT * (C1 * C2) .
     
+    -- eq (NzRT * C) / NzRT = C .
     eq C1 / (NzRT * C2) = (1 / NzRT) * (C1 / C2) .
     eq (RT * C1) / C2 = RT * (C1 / C2) .
     eq RT1 * (RT2 * C) = (RT1 * RT2) * C .
@@ -317,7 +325,7 @@ mod! COMPLEX {
     eq - (C * RT) = RT * (- C) .
     
     -- eq R1 * (R2 * RT) = RT * (R1 * R2) .
-    eq C1 * (C2 * RT) = RT * (C1 * C2) .
+    eq C1 * (RT * C2) = RT * (C1 * C2) . -- increase execution time
 
     -- square root
     eq sqrt(C) * sqrt(C) = C .
