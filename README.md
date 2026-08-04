@@ -30,7 +30,8 @@ Installation options:
 
     | Release | Publication | Authors | Notes |
     | :-: | :-: | :-: | :-: |
-    | [version 1 build 2.3.5](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe1) (latest) | QCafe: An Algebraic Specification of Quantum Computation and Its Application (To Appear) | **Vuong Quoc Pham**, [Canh Minh Do](https://canhminhdo.github.io), and [Kazuhiro Ogata](https://www.jaist.ac.jp/english/laboratory/cs/ogata.html) | In [SEKE2026](https://ksiresearch.org/seke/seke26.html). <br>DOI/BibTeX are at [release tag](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe1). |
+    | [version 1 build 2.3.5](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe1) | QCafe: An Algebraic Specification of Quantum Computation and Its Application (To Appear) | **Vuong Quoc Pham**, [Canh Minh Do](https://canhminhdo.github.io), and [Kazuhiro Ogata](https://www.jaist.ac.jp/english/laboratory/cs/ogata.html) | In [SEKE2026](https://ksiresearch.org/seke/seke26.html). <br>DOI/BibTeX are at release tag [QCafe1](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe1). |
+    | [version 2 build 1.8.6](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe2) (latest) | Formal Specification and Verification of Quantum Circuits/Protocols in CafeOBJ (Master's Thesis at [JAIST](https://www.jaist.ac.jp/english/)) | **Vuong Quoc Pham**, Senior Lecturer [Canh Minh Do](https://canhminhdo.github.io) (main supervisor), and Professor [Kazuhiro Ogata](https://www.jaist.ac.jp/english/laboratory/cs/ogata.html) (second supervisor) | <br>DOI/BibTeX are at release tag [QCafe2](https://github.com/qcincafeobj/QCafe/releases/tag/QCafe2). |
     | -[]() | - | - | - |
 
 
