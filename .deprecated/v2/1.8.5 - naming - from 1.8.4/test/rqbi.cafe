@@ -1,0 +1,26 @@
+input ../qc.cafe
+set trace on
+set trace off
+open POST-PROCESSING .
+    op |epr> : -> Ket .
+    eq |epr> = cos(1/4 * pi) * (|0> @ |0> + |1> @ |1>) .
+    
+    red removeQubitByIndex(3, |0> @ |epr> @ |1>) .
+    red removeQubitByIndex(0, removeQubitByIndex(3, |0> @ |epr> @ |1>)) .
+    red (|0> @ |0>) @ removeQubitByIndex(0,|1>) .
+    red removeQubitByIndex(1, |0> @ |epr> @ |1>) .
+    red removeQubitByIndex(2, |0> @ |0> @ |1> + |0> @ |0> @ |0>) .
+    red removeQubitByIndex(0, |0> @ |0> @ |1> + |0> @ |0> @ |0>) .
+close
+eof
+(cos((1/4 * pi)) * (|0> @ (
+    (
+        (|0> @ |0>) @ removeQubitByIndex(0,|1>)
+    ) + ((|1> @ |1>) @ removeQubitByIndex(0,|1>))))):Ket
+
+
+bmat(remover) = bkRemover
+
+bkRemover x BK = removedBK
+removedBK @ K = K
+K @ removedBK = K

@@ -1,0 +1,83 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+set print mode normal
+set trace on
+set trace off
+mod! N-HOP-SUPER-DENSE-CODING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op sdc-pre-processor : -> Statement .
+    op sdc-post-processor : -> Statement .
+    op sdc-program : -> Statement .
+
+    op n-hop-sdc : PNat -> KetSet .
+
+    op classical-ketset : -> KetSet .
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars NzPN : NzPNat .
+    vars R : Real .
+
+    eq classical-ketset = (|0> V |1>) @ (|0> V |1>) .
+
+    eq execute(sdc-pre-processor , BK1 @ BK2) = BK1 @ BK2 @ |0> @ |0> .
+    eq execute(sdc-post-processor, K) = getQubitByIndex(2, K) @ getQubitByIndex(3, K) .
+
+    eq sdc-program = (
+        sdc-pre-processor;
+        H(2);
+        C X ( 2 , 3 ) ;
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif;
+        C X ( 2 , 3 ) ; 
+        H(2);
+        sdc-post-processor
+    ) .
+
+    eq n-hop-sdc(s(0)) = execute(sdc-program, classical-ketset) .
+    eq n-hop-sdc(s(NzPN)) = execute(
+        sdc-program,
+        n-hop-sdc(NzPN)
+    ) .
+
+    eq [additional-rule-1] : 2 * (cos(1/4 * pi) * cos(1/4 * pi)) = cos(rzero) .
+    eq [additional-rule-2] : 2 * (cos(1/4 * pi) * (cos(1/4 * pi) * C)) = C .
+}
+
+--> ==========================================================================================
+--> Proof of (∀PN:PNat) n-hop-sdc(PN) = classical-ketset
+--> by structural induction on PN
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-sdc(s(0)) = classical-ketset
+open N-HOP-SUPER-DENSE-CODING .
+    -- w2s
+    red n-hop-sdc(s(0)) = classical-ketset .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-hop-sdc(n) = classical-ketset
+--> w2s: n-hop-sdc(s(n)) = classical-ketset
+open N-HOP-SUPER-DENSE-CODING .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-hop-sdc(n) = classical-ketset .
+
+    -- w2s
+    red n-hop-sdc(s(n)) = classical-ketset .
+    -- need case splitting for (<0| x bk) = ... U ..., (<1| x bk) = ... U ...
+    -- eq n-hop-sdc(n, {bk1 @ bk2}) = {bk1 @ bk2} .
+    -- red n-hop-sdc(s(n), {bk1 @ bk2}) = {bk1 @ bk2} .
+close
+--> ==========================================================================================

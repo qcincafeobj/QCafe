@@ -1,0 +1,377 @@
+input ../qc.cafe
+set trace on
+open QUANTUM-INTERPRETER .
+    op prog : -> Statement .
+    op ketset : -> KetSet .
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+
+    eq |psi> = a * |0> + b * |1> .
+
+    eq prog = (
+        H(1);
+        C X (1, 2);
+        C X (0, 1);
+        H(0);
+        C X (2, 3);
+        H(2);
+        if M(1) then X(3) else skip endif; 
+        if M(0) then Z(3) else skip endif; 
+        if M(2) then Z(3) else skip endif
+    ) .
+    eq ketset = |psi> @ |0> @ |0> @ |0> .
+    eq cos((1/4 pi)) * cos(1/4 pi) = cos(1/3 pi) .
+    red execute(prog, ketset) .
+close
+set trace off
+eof
+(
+    (
+        (cos(rzero) / (cos((1/4 pi)) * cos((1/4 pi)))) * (
+            (
+                (cos((1/4 pi)) * (cos((1/4 pi)) * b)) * |1>
+            ) + (
+                (cos((1/4 pi)) * (cos((1/4 pi)) * a)) * |0>
+            )
+        )) = ((b * |1>) + (a * |0>))):Bool
+
+(((cos(rzero) / (cos((1/4 pi)) * cos((1/4 pi)))) * (
+    (
+        (cos((1/4 pi)) * (cos((1/4 pi)) * b)) * |1>
+    ) + (
+        (cos((1/4 pi)) * (cos((1/4 pi)) * a)) * |0>
+    )
+)) = ((b * |1>) + (a * |0>))):Bool
+
+
+((((
+    (
+        2 * (
+            - (
+                cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * cos((1/4 pi))))
+            )
+        )
+    ) * (
+        (|0> @ |1>) + ((- cos(rzero)) * (|1> @ |1>)))) + ((cos((1/4 pi)) * cos((1/4 pi))) * ((|1> @ |1>) + (|0> @ |1>)))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>))) + (cos((1/4 pi)) * ((|1> @ |1>) + (|0> @ |1>))))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))) + (cos((1/4 pi)) * ((|0> @ |0>) + (|1> @ |0>))))) V (((2 * (- (cos((1/4 pi)) * (cos((1/4 pi)) * (cos((1/4 pi)) * cos((1/4 pi))))))) * ((|0> @ |0>) + ((- cos(rzero)) * (|1> @ |0>)))) + ((cos((1/4 pi)) * cos((1/4 pi))) * ((|0> @ |0>) + (|1> @ |0>))))))) = ((|1> @ |1>) V ((|1> @ |0>) V ((|0> @ |1>) V (|0> @ |0>))))):Bool
+
+
+((
+    (
+        (
+            (
+                - (cos((1/4 pi)) * cos((1/4 pi)))
+            ) * ((|0> @ |1>) + ((- cos(rzero)) * (|1> @ |1>)))
+        ) + (
+            (cos((1/4 pi)) * cos((1/4 pi))) * ((|1> @ |1>) + (|0> @ |1>))
+        )
+    ) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>))) + (cos((1/4 pi)) * ((|1> @ |1>) + (|0> @ |1>))))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))) + (cos((1/4 pi)) * ((|0> @ |0>) + (|1> @ |0>))))) V (((- (cos((1/4 pi)) * cos((1/4 pi)))) * ((|0> @ |0>) + ((- cos(rzero)) * (|1> @ |0>)))) + ((cos((1/4 pi)) * cos((1/4 pi))) * ((|0> @ |0>) + (|1> @ |0>))))))
+) = ((|1> @ |1>) V ((|1> @ |0>) V ((|0> @ |1>) V (|0> @ |0>))))):Bool
+
+(((
+    (cos((1/4 pi)) * cos((1/4 pi))) * (
+        (
+            (- cos(rzero)) * (
+                ((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>)
+            )
+        ) + (
+            (
+                (- (cos((1/4 pi)) * cos((1/4 pi)))) * (
+                    (
+                        (- cos(rzero)) * (
+                            (
+                                (- cos(rzero)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>))
+                            ) + ((|1> @ |1>) + (|0> @ |1>))
+                        )
+                    ) + (
+                        (|0> @ |1>) + (
+                            (|1> @ |1>) + (
+                                (- cos(rzero)) * (
+                                    ((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>)
+                                )
+                            )
+                        )
+                    )
+                )) + ((|0> @ |1>) + (|1> @ |1>))))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|0> @ |1>) + ((- cos(rzero)) * (|1> @ |1>)))) + (((cos((1/4 pi)) * cos((1/4 pi))) * (((- cos(rzero)) * ((cos((1/4 pi)) * ((|0> @ |1>) + (|1> @ |1>))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>))))) + ((cos((1/4 pi)) * ((|1> @ |1>) + (|0> @ |1>))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>)))))) + (cos((1/4 pi)) * ((|0> @ |1>) + (|1> @ |1>)))))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|0> @ |0>) + ((- cos(rzero)) * (|1> @ |0>)))) + (((cos((1/4 pi)) * cos((1/4 pi))) * (((- cos(rzero)) * ((cos((1/4 pi)) * ((|1> @ |0>) + (|0> @ |0>))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))))) + ((cos((1/4 pi)) * ((|0> @ |0>) + (|1> @ |0>))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>)))))) + (cos((1/4 pi)) * ((|1> @ |0>) + (|0> @ |0>)))))) V ((cos((1/4 pi)) * cos((1/4 pi))) * (((- cos(rzero)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))) + (((- (cos((1/4 pi)) * cos((1/4 pi)))) * (((- cos(rzero)) * (((- cos(rzero)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))) + ((|1> @ |0>) + (|0> @ |0>)))) + ((|0> @ |0>) + ((|1> @ |0>) + ((- cos(rzero)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))))))) + ((|0> @ |0>) + (|1> @ |0>)))))))) = ((|1> @ |1>) V ((|1> @ |0>) V ((|0> @ |1>) V (|0> @ |0>))))):Bool
+
+(
+    (
+        (
+            cos((1/4 pi)) * (
+                (
+                    cos((1/4 pi)) * ((|1> @ |1>) + ((- cos(rzero)) * (|0> @ |1>)))
+                ) + (
+                    (
+                        cos((1/4 pi)) * ((|1> @ |1>) + (|0> @ |1>))
+                    ) + (
+                        cos((1/4 pi)) * (
+                            (
+                                cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + ((- cos(rzero)) * (|0> @ |1>)))) + (cos((1/4 pi)) * ((|0> @ |1>) + ((- cos(rzero)) * (|1> @ |1>)))))
+                            ) + (
+                                cos((1/4 pi)) * (
+                                    (
+                                        cos((1/4 pi)) * ((|0> @ |1>) + (|1> @ |1>))
+                                    ) + (
+                                        cos((1/4 pi)) * (((- cos(rzero)) * (|0> @ |1>)) + (|1> @ |1>))
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|0> @ |1>) + ((- cos(rzero)) * (|1> @ |1>)))) + ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|1> @ |1>) + ((- cos(rzero)) * (|0> @ |1>)))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|0> @ |1>)) + ((- cos(rzero)) * (|1> @ |1>)))))) + (cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |1>)) + (|0> @ |1>))) + (cos((1/4 pi)) * ((|1> @ |1>) + (|0> @ |1>))))))) + (cos((1/4 pi)) * ((|0> @ |1>) + (|1> @ |1>)))))) V ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|0> @ |0>) + ((- cos(rzero)) * (|1> @ |0>)))) + ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((cos((1/4 pi)) * ((|1> @ |0>) + ((- cos(rzero)) * (|0> @ |0>)))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + ((- cos(rzero)) * (|0> @ |0>)))))) + (cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|1> @ |0>)) + (|0> @ |0>))) + (cos((1/4 pi)) * ((|0> @ |0>) + (|1> @ |0>))))))) + (cos((1/4 pi)) * ((|1> @ |0>) + (|0> @ |0>)))))) V (cos((1/4 pi)) * ((cos((1/4 pi)) * ((|1> @ |0>) + ((- cos(rzero)) * (|0> @ |0>)))) + ((cos((1/4 pi)) * ((|0> @ |0>) + (|1> @ |0>))) + (cos((1/4 pi)) * ((cos((1/4 pi)) * ((cos((1/4 pi)) * (((- cos(rzero)) * (|0> @ |0>)) + ((- cos(rzero)) * (|1> @ |0>)))) + (cos((1/4 pi)) * ((|0> @ |0>) + ((- cos(rzero)) * (|1> @ |0>)))))) + (cos((1/4 pi)) * ((cos((1/4 pi)) * ((|1> @ |0>) + (|0> @ |0>))) + (cos((1/4 pi)) * (((- cos(rzero)) * (|0> @ |0>)) + (|1> @ |0>))))))))))))) = ((|1> @ |1>) V ((|1> @ |0>) V ((|0> @ |1>) V (|0> @ |0>))))):Bool
+
+------
+
+
+1>[2750] rewrite rule exhausted (#1)
+1>[2750] rule: eq (C1:Complex * (C2:Complex * K)) = ((C1 * C2) * K)
+    { C1:Complex |-> (cos((1/3 pi)) * a), K |-> ((|1> @ |0>) @ (|1> @ |0>)), C2:Complex |-> cos((1/4 pi)) }
+1<[2750] ((cos((1/3 pi)) * a) * (cos((1/4 pi)) * ((|1> @ |0>) @ (|1> @ |0>)))):Ket --> (((cos((1/3 pi)) * a) * cos((1/4 pi))) * ((|1> @ |0>) @ (|1> @ |0>))):Ket
+
+1>[2751] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2751] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2751] (1/3 > 1):Bool --> (false):Bool
+
+1>[2752] rewrite rule exhausted (#1)
+1>[2752] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2752] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2752] (1/3 < 0):Bool --> (false):Bool
+
+1>[2753] rewrite rule exhausted (#1)
+1>[2753] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2753] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2753] (1/4 > 1):Bool --> (false):Bool
+
+1>[2754] rewrite rule exhausted (#1)
+1>[2754] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2754] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2754] (1/4 < 0):Bool --> (false):Bool
+
+1>[2755] rewrite rule exhausted (#1)
+1>[2755] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2755] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2755] (1/4 > 1):Bool --> (false):Bool
+
+1>[2756] rewrite rule exhausted (#1)
+1>[2756] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2756] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2756] (1/4 < 0):Bool --> (false):Bool
+
+1>[2757] rewrite rule exhausted (#1)
+1>[2757] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2757] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2757] (1/3 > 1):Bool --> (false):Bool
+
+1>[2758] rewrite rule exhausted (#1)
+1>[2758] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2758] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2758] (1/3 < 0):Bool --> (false):Bool
+
+1>[2759] rewrite rule exhausted (#1)
+1>[2759] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2759] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2759] (1/3 > 1):Bool --> (false):Bool
+
+1>[2760] rewrite rule exhausted (#1)
+1>[2760] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2760] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2760] (1/3 < 0):Bool --> (false):Bool
+
+1>[2761] rewrite rule exhausted (#1)
+1>[2761] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2761] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2761] (1/4 > 1):Bool --> (false):Bool
+
+1>[2762] rewrite rule exhausted (#1)
+1>[2762] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2762] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2762] (1/4 < 0):Bool --> (false):Bool
+
+1>[2763] rewrite rule exhausted (#1)
+1>[2763] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2763] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2763] (1/4 > 1):Bool --> (false):Bool
+
+1>[2764] rewrite rule exhausted (#1)
+1>[2764] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2764] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2764] (1/4 < 0):Bool --> (false):Bool
+
+1>[2765] rewrite rule exhausted (#1)
+1>[2765] rule: eq (C1:Complex * (C2:Complex * K)) = ((C1 * C2) * K)
+    { C1:Complex |-> (cos((1/3 pi)) * a), K |-> ((|1> @ |0>) @ (|0> @ |0>)), C2:Complex |-> cos((1/4 pi)) }
+1<[2765] ((cos((1/3 pi)) * a) * (cos((1/4 pi)) * ((|1> @ |0>) @ (|0> @ |0>)))):Ket --> (((cos((1/3 pi)) * a) * cos((1/4 pi))) * ((|1> @ |0>) @ (|0> @ |0>))):Ket
+
+1>[2766] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2766] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2766] (1/3 > 1):Bool --> (false):Bool
+
+1>[2767] rewrite rule exhausted (#1)
+1>[2767] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2767] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2767] (1/3 < 0):Bool --> (false):Bool
+
+1>[2768] rewrite rule exhausted (#1)
+1>[2768] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2768] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2768] (1/4 > 1):Bool --> (false):Bool
+
+1>[2769] rewrite rule exhausted (#1)
+1>[2769] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2769] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2769] (1/4 < 0):Bool --> (false):Bool
+
+1>[2770] rewrite rule exhausted (#1)
+1>[2770] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2770] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2770] (1/4 > 1):Bool --> (false):Bool
+
+1>[2771] rewrite rule exhausted (#1)
+1>[2771] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2771] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2771] (1/4 < 0):Bool --> (false):Bool
+
+1>[2772] rewrite rule exhausted (#1)
+1>[2772] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2772] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2772] (1/3 > 1):Bool --> (false):Bool
+
+1>[2773] rewrite rule exhausted (#1)
+1>[2773] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2773] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2773] (1/3 < 0):Bool --> (false):Bool
+
+1>[2774] rewrite rule exhausted (#1)
+1>[2774] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/3 }
+2>[2774] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/3, S:Rat |-> 1 }
+2<[2774] (1/3 > 1):Bool --> (false):Bool
+
+1>[2775] rewrite rule exhausted (#1)
+1>[2775] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/3 }
+2>[2775] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/3, S:Rat |-> 0 }
+2<[2775] (1/3 < 0):Bool --> (false):Bool
+
+1>[2776] rewrite rule exhausted (#1)
+1>[2776] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((RT - 2) pi))
+     if (RT > 1)
+    { RT:Rat |-> 1/4 }
+2>[2776] rule: eq  (R:Rat > S:Rat) = #! (> r s)
+    { R:Rat |-> 1/4, S:Rat |-> 1 }
+2<[2776] (1/4 > 1):Bool --> (false):Bool
+
+1>[2777] rewrite rule exhausted (#1)
+1>[2777] apply trial #1
+-- rule: ceq cos((RT:Rat pi)) = cos(((- RT) pi))
+     if (RT < 0)
+    { RT:Rat |-> 1/4 }
+2>[2777] rule: eq  (R:Rat < S:Rat) = #! (< r s)
+    { R:Rat |-> 1/4, S:Rat |-> 0 }
+2<[2777] (1/4 < 0):Bool --> (false):Bool
+
+1>[2778] rewrite rule exhausted (#1)^C
+** Caught an exception: Interactive interrupt at #x7004BBEFE8.
+[Returning to Toplevel]
+
+%QUANTUM-INTERPRETER> ^C
+** Caught an exception: Interactive interrupt at #x186AAFE54.
+[Returning to Toplevel]
+
+%QUANTUM-INTERPRETER> 

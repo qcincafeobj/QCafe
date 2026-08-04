@@ -1,0 +1,109 @@
+input ../qc.cafe
+set trace off
+mod! ENTANGLEMENT-SWAPPING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+    
+    op es-pre-processor : -> Statement .
+    op es-post-processor : -> Statement .
+    op es-program : -> Statement .
+
+    op |input> : -> Ket .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C : Complex .
+    vars KS : KetSet .
+    vars PN : PNat .
+    vars R : Real .
+    
+    eq |input> = |0> @ |0> @ |0> @ |0> .
+
+    -- eq execute(es-pre-processor, |input>) = |input> .
+    -- eq execute(es-post-processor, K) = getQubitByIndex(0, K) @ getQubitByIndex(3, K) . -- Entangled state can't be a product state
+    -- eq execute(es-post-processor, K) = K .
+    -- Best practice: Remove qubits with higher indices first
+    eq execute(es-post-processor, K) = removeQubitByIndex(1, removeQubitByIndex(2, K)) .
+
+    eq es-program = (
+        H(0); C X(0, 1);
+        H(2); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+    eq cos(1/4 * pi) * sqrt(2) = cos(rzero) .
+    eq sqrt(2 * 1/4) * sqrt(4) = cos(rzero) / cos(1/4 pi) .
+
+    -- implicitly correcting global phase
+    eq ((K1 V K2) = K) = (
+        (
+            (K1 = K) or (K1 = - K)
+        ) and (
+            (K2 = K) or (K2 = - K)
+        )
+    ) .
+}
+
+--> A demonstration
+open ENTANGLEMENT-SWAPPING .
+    -- input: |0> @ |0> @ |0> @ |0>
+    -- Alice    : i = 0
+    -- Charlie  : i = 1, i = 2
+    -- Bob      : i = 3
+    -- limitation: Alice and Bob have no direct communication
+    --             Charlie have direct communication to both Alice and Bob
+    -- output: Alice's and Bob's qubits are entangled
+
+    -- w2s
+    red execute(es-program, |input>) = cos(1/4 pi) * (|0> @ |0> + |1> @ |1>) .
+close
+set trace on
+--> ES with 04 Bell sources
+open ENTANGLEMENT-SWAPPING .
+    op es4-program : -> Statement .
+    op es4-post-processor : -> Statement .
+
+    eq execute(es4-post-processor, K) = removeQubitByIndex(
+        1, 
+        removeQubitByIndex(
+            2, 
+            removeQubitByIndex(
+                3,
+                removeQubitByIndex(
+                    4,
+                    removeQubitByIndex(
+                        5,
+                        removeQubitByIndex(
+                            6,
+                            K
+                        )
+                    )
+                )
+            )
+        )
+    ) .
+    
+    eq es4-program = (
+        H(0); C X(0, 1);
+        H(2); C X(2, 3);
+        H(4); C X(4, 5);
+        H(6); C X(6, 7);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        C X(5, 6); H(5);
+        if M(5) then Z(4) else skip endif;
+        if M(6) then X(7) else skip endif;
+        C X(3, 4); H(3);
+        if M(3) then Z(0) else skip endif;
+        if M(4) then X(7) else skip endif;
+        es-post-processor
+    ) .
+
+    red execute(es4-program, |0> @ |0> @ |0> @ |0> @ |0> @ |0> @ |0> @ |0>) .
+close
