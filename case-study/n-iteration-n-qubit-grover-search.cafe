@@ -39,7 +39,7 @@ mod! N-ITERATION-N-QUBIT-GROVER-SEARCH {
     
     eq G(NzN) = D(NzN) x O(NzN) .
 
-    eq D(NzN) = - Imat(NzN) + (2 * cos(rzero)) * (|psi>(NzN)  x (|psi>(NzN)^+)) .
+    eq D(NzN) = - Imat(NzN) + (2 * cos(rzero)) * (|psi>(NzN) x (|psi>(NzN)^+)) .
     eq O(NzN) =   Imat(NzN) - (2 * cos(rzero)) * (|sol>(NzN) x (|sol>(NzN)^+)) .
 
     eq nn-grover(s(0), NzN) = execute(G(NzN), |psi>(NzN)) .
