@@ -1,0 +1,93 @@
+input ../qc.cafe
+set trace on
+set trace off
+mod! N-HOP-QUANTUM-SECRET-SHARING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op ss-pre-processor : -> Statement .
+    op ss-post-processor : -> Statement .
+    op ss-program : -> Statement .
+
+    -- op correctGlobalPhase : Ket -> Ket .
+    
+    op n-ss : PNat -> KetSet .
+
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars KSET : KetSet .
+    vars NzPN : NzPNat .
+
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    eq execute(ss-pre-processor , K) = K @ |0> @ |0> @ |0> .
+    eq execute(ss-post-processor, K) = getQubitByIndex(3, K) .
+    -- eq execute(ss-post-processor, K) = correctGlobalPhase(getQubitByIndex(3, K)) .
+
+    -- eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
+    -- eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .
+
+    -- Regarding GHZ state, both methods below are valid:
+    -- H(0); C X (0, 1); C X (0, 2)
+    -- H(0); C X (0, 1); C X (1, 2)
+
+    eq ss-program = (
+        ss-pre-processor;
+        H(1);
+        C X (1, 2);
+        C X (2, 3);
+        C X (0, 1);
+        H(0);
+        H(2);
+        if M(1) then X(3) else skip endif; 
+        if M(0) then Z(3) else skip endif; 
+        if M(2) then Z(3) else skip endif;
+        ss-post-processor
+    ) .
+
+    -- n hops >= 1
+    eq n-ss(s(0)) = execute(ss-program, |psi>) .
+    eq n-ss(s(NzPN)) = execute(
+        ss-program,
+        n-ss(NzPN)
+    ) .
+
+    -- eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+    eq C / sqrt(1/4) = C * sqrt(4) .
+    
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) n-ss(N) = |psi>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-ss(s(0)) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- w2s
+    red n-ss(s(0)) = |psi> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc  : (n):NzPNat
+--> IH  : n-ss(n) = |psi>
+--> w2s : n-ss(s(n)) = |psi>
+open N-HOP-QUANTUM-SECRET-SHARING .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-ss(n) = |psi> .
+
+    -- w2s
+    red n-ss(s(n)) = |psi> .
+close
+--> ==========================================================================================

@@ -1,0 +1,25 @@
+input ../qc.cafe
+set trace on
+set trace off
+open POST-PROCESSING .
+    op |epr> : -> Ket .
+    eq |epr> = cos(1/4 * pi) * (|0> @ |0> + |1> @ |1>) .
+
+    -- eq (K1 + K2) @ K = K1 @ K + K2 @ K .
+    red getQubitByIndex(0, |0> @ |epr> @ |1>) .
+    red getQubitByIndex(3, |0> @ |epr> @ |1>) .
+close
+eof
+g3(epr @ |1>) = 2 * (...) if distribute, must be fixed
+
+
+((((
+    if (((- cos((1/4 * pi))) * (
+        if ((cos((1/4 * pi)) * |0>) = ((- cos((1/4 * pi))) * |1>)) then getQubitByIndex(0,(cos((1/4 * pi)) * (|0> @ |1>))) else (getQubitByIndex(0,((- cos((1/4 * pi))) * (|1> @ |1>))) + getQubitByIndex(0,(cos((1/4 * pi)) * (|0> @ |1>)))) fi)) = (cos((1/4 * pi)) * (if ((cos((1/4 * pi)) * |0>) = (cos((1/4 * pi)) * |1>)) then getQubitByIndex(0,(cos((1/4 * pi)) * (|0> @ |1>))) else (getQubitByIndex(0,(cos((1/4 * pi)) * (|1> @ |1>))) + getQubitByIndex(0,(cos((1/4 * pi)) * (|0> @ |1>)))) fi))) then getQubitByIndex(2,((- cos((1/4 * pi))) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + ((- cos((1/4 * pi))) * (|1> @ |1>)))))) else (getQubitByIndex(2,(cos((1/4 * pi)) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + (cos((1/4 * pi)) * (|1> @ |1>)))))) + getQubitByIndex(2,((- cos((1/4 * pi))) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + ((- cos((1/4 * pi))) * (|1> @ |1>))))))) fi) @ (if (((- cos((1/4 * pi))) * (if ((cos((1/4 * pi)) * |1>) = ((- cos((1/4 * pi))) * |1>)) then getQubitByIndex(1,(cos((1/4 * pi)) * (|0> @ |1>))) else (getQubitByIndex(1,((- cos((1/4 * pi))) * (|1> @ |1>))) + getQubitByIndex(1,(cos((1/4 * pi)) * (|0> @ |1>)))) fi)) = ((cos((1/4 * pi)) * cos((1/4 * pi))) * |1>)) then getQubitByIndex(3,((- cos((1/4 * pi))) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + ((- cos((1/4 * pi))) * (|1> @ |1>)))))) else (getQubitByIndex(3,(cos((1/4 * pi)) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + (cos((1/4 * pi)) * (|1> @ |1>)))))) + getQubitByIndex(3,((- cos((1/4 * pi))) * ((|1> @ |1>) @ ((cos((1/4 * pi)) * (|0> @ |1>)) + ((- cos((1/4 * pi))) * (|1> @ |1>))))))) fi)) V (((if ((cos((1/4 * pi)) * (if ((cos((1/4 * pi)) * |1>) = (cos((1/4 * pi)) * |0>)) then getQubitByIndex(0,(cos((1/4 * pi)) * (|1> @ |1>))) else (getQubitByIndex(0,(cos((1/4 * pi)) * (|0> @ |1>))) + getQubitByIndex(0,(cos((1/4 * pi)) * (|1> @ |1>)))) fi)) = (cos((1/4 * pi)) * (if (((- cos((1/4 * pi))) * |1>) = (cos((1/4 * pi)) * |0>)) then getQubitByIndex(0,((
+
+
+(
+    (
+        cos((1/4 * pi)) * ((((| s(0) >) ^+) @ (|psi>(n) ^+)) + (((| 0 >) ^+) @ (|psi>(n) ^+)))
+    ) x (((| 0 >) @ |psi>(n)) + ((| s(0) >) @ |psi>(n)))
+)
