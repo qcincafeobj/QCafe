@@ -1,0 +1,89 @@
+input ../qc.cafe .
+set trace on
+mod! SHOR-3-QUBIT-CODE-PHASE-FLIP {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+    
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    op |measQubits> : -> Ket .
+    eq |measQubits> = (H(0) x |0>) @ (H(0) x |0>) .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars NzPN : NzPNat .
+
+    op shor-3-qubit-simulation : -> Statement .
+    op s3cpf-initializer         : -> Statement .
+    op s3cpf-encoder             : -> Statement .
+    op s3cpf-noisy-channel       : -> Statement .
+    op s3cpf-syndrome-extractor  : -> Statement .
+    op s3cpf-meas-and-correction : -> Statement .
+    op s3cpf-decoder             : -> Statement .
+
+    eq execute(s3cpf-initializer, K) = (K @ |0> @ |0>) @ |measQubits> .
+
+    eq s3cpf-encoder = (
+        C X(0, 1);
+        C X(0, 2);
+        H(0);
+        H(1);
+        H(2)
+    ) .
+    
+    eq s3cpf-syndrome-extractor = (
+        C X(3, 0);
+        C X(3, 1);
+        C X(4, 1);
+        C X(4, 2);
+        H(3);
+        H(4)
+    ) .
+
+    eq s3cpf-meas-and-correction = (
+        if   M(3) 
+        then (if M(4) then Z(1) else Z(0) endif)
+        else (if M(4) then Z(2) else skip endif)
+        endif
+    ) .
+
+    eq execute(s3cpf-decoder, K) = getQubitByIndex(0, K) .
+
+    eq shor-3-qubit-simulation = (
+        s3cpf-initializer;
+        s3cpf-encoder;
+        s3cpf-noisy-channel;
+        s3cpf-syndrome-extractor;
+        s3cpf-meas-and-correction;
+        s3cpf-decoder
+    ) .
+
+    op verification-result : -> Bool .
+    eq verification-result = (
+        execute(shor-3-qubit-simulation, |psi>) = |psi>
+    ) .
+}
+
+-- Case 1: Phase-flip error occurs at index 0
+open SHOR-3-QUBIT-CODE-PHASE-FLIP .
+    eq s3cpf-noisy-channel = Z(0) .
+    red verification-result .
+close
+
+-- Case 2: Phase-flip error occurs at index 1
+open SHOR-3-QUBIT-CODE-PHASE-FLIP .
+    eq s3cpf-noisy-channel = Z(1) .
+    red verification-result .
+close
+
+-- Case 3: Phase-flip error occurs at index 2
+open SHOR-3-QUBIT-CODE-PHASE-FLIP .
+    eq s3cpf-noisy-channel = Z(2) .
+    red verification-result .
+close

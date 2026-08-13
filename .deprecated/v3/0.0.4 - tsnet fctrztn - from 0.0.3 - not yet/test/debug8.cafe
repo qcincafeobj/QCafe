@@ -1,0 +1,31 @@
+(
+    (
+        (
+            (
+                (2 * cos(rzero)) * (
+                    ((- (sin(theta) * (sin((1/2 * theta)) * sin((1/2 * theta))))) * (|sol>(n) x (|non-sol>(n) ^+))) 
+                    + ((- ((sin((1/2 * theta)) * cos((1/2 * theta))) * (cos((2 * (theta * 1/2))) + cos((1/2 * rzero))))) * (|sol>(n) x (|non-sol>(n) ^+)))
+                )
+            ) + (
+                (
+                    (2 * cos(rzero)) * (
+                        ((- ((cos((1/2 * theta)) * sin((1/2 * theta))) * (cos((2 * (theta * 1/2))) + cos((1/2 * rzero))))) * (|non-sol>(n) x (|sol>(n) ^+))) 
+                        + ((- (sin(theta) * (sin((1/2 * theta)) * sin((1/2 * theta))))) * (|non-sol>(n) x (|sol>(n) ^+))))) 
+                        + (((2 * sin(theta)) * (|non-sol>(n) x (|sol>(n) ^+))) 
+                        + ((((2 * ((((- sin((1/2 * theta))) + (sin(theta) * cos((1/2 * theta)))) * sin((1/2 * theta))) + (((- sin((1/2 * theta))) + (2 * (sin((1/2 * theta)) * (sin((1/2 * theta)) * sin((1/2 * theta)))))) * sin((1/2 * theta))))) + cos(rzero)) * (|sol>(n) x (|sol>(n) ^+))) 
+                        + ((2 * sin(theta)) * (|sol>(n) x (|non-sol>(n) ^+))))))) 
+                        + ((
+                            cos(rzero) + (
+                                2 * (
+                                    (
+                                        ((- cos((1/2 * theta))) + (sin(theta) * sin((1/2 * theta)))) * cos((1/2 * theta))
+                                    ) + (
+                                        cos((1/2 * theta)) * (
+                                            (cos((1/2 * theta)) * (cos((2 * (theta * 1/2))) + cos((1/2 * rzero)))) - cos((1/2 * theta))
+                                        )
+                                    )
+                                )
+                            )
+                        ) * (|non-sol>(n) x (|non-sol>(n) ^+))
+                )
+) = ((|sol>(n) x (|sol>(n) ^+)) + (|non-sol>(n) x (|non-sol>(n) ^+)))):Bool

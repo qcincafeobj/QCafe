@@ -1,0 +1,74 @@
+input ../qc.cafe .
+
+mod! N-HOP-SUPERDENSE-CODING {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op sdc-pre-processor : -> Statement .
+    op sdc-post-processor : -> Statement .
+    op sdc-program : -> Statement .
+
+    op n-sdc : PNat -> KetSet .
+
+    op classical-ketset : -> KetSet .
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars NzPN : NzPNat .
+    vars R : Real .
+
+    eq classical-ketset = (|0> V |1>) @ (|0> V |1>) .
+
+    eq execute(sdc-pre-processor , BK1 @ BK2) = BK1 @ BK2 @ |0> @ |0> .
+    eq execute(sdc-post-processor, K) = getQubitByIndex(2, K) @ getQubitByIndex(3, K) .
+
+    eq sdc-program = (
+        sdc-pre-processor;
+        H(2);
+        C X ( 2 , 3 ) ;
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif;
+        C X ( 2 , 3 ) ; 
+        H(2);
+        sdc-post-processor
+    ) .
+
+    eq n-sdc(s(0)) = execute(sdc-program, classical-ketset) .
+    eq n-sdc(s(NzPN)) = execute(
+        sdc-program,
+        n-sdc(NzPN)
+    ) .
+
+    eq [additional-rule-1] : 2 * (cos(1/4 * pi) * cos(1/4 * pi)) = cos(rzero) .
+    eq [additional-rule-2] : 2 * (cos(1/4 * pi) * (cos(1/4 * pi) * C)) = C .
+}
+
+--> ==========================================================================================
+--> Proof of (∀PN:PNat) n-sdc(PN) = classical-ketset
+--> by structural induction on PN
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-sdc(s(0)) = classical-ketset
+open N-HOP-SUPERDENSE-CODING .
+    -- w2s
+    red n-sdc(s(0)) = classical-ketset .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-sdc(n) = classical-ketset
+--> w2s: n-sdc(s(n)) = classical-ketset
+open N-HOP-SUPERDENSE-CODING .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-sdc(n) = classical-ketset .
+
+    -- w2s
+    red n-sdc(s(n)) = classical-ketset .
+close
+--> ==========================================================================================

@@ -1,0 +1,246 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+-- set print mode normal
+set trace on
+set trace off
+mod! N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT {
+    pr(NAT)
+    pr(COMPLEX)
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    -- each hop run a quantum repeater
+    -- (with 02 Bell pairs previously prepared)
+    op es-pre-processor  : -> Statement .
+    op es-post-processor : -> Statement .
+    op es-program : -> Statement .
+    op n-es : PNat -> KetSet .
+
+    -- n-hop Extended ES for the 04 Bell states
+    op ees-program : -> Statement .
+    op n-hop-ees : PNat BasisKet BasisKet -> KetSet .
+
+    op telegate-post-processor : -> Statement .
+    op telegate-program : -> Statement .
+    op rcx-on-n-es : PNat Ket Ket -> KetSet .
+
+    ops a1 b1 a2 b2 : -> Complex .
+    ops |psi1> |psi2> |epr> : -> Ket .
+    op  |bell> : BasisKet BasisKet -> Ket .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars RT : Rat .
+    vars NzN : NzNat .
+    vars BK BK1 BK2 : BasisKet .
+    vars C C1 C2 : Complex .
+    vars PN : PNat .
+    vars NzPN : NzPNat .
+    vars R : Real .
+
+    eq |psi1> = a1 * |0> + b1 * |1> .
+    eq |psi2> = a2 * |0> + b2 * |1> .
+    
+    eq (a1 ^*) * a1 + (b1 ^*) * b1 = cos(rzero) .
+    eq (a2 ^*) * a2 + (b2 ^*) * b2 = cos(rzero) .
+
+    eq execute(es-pre-processor,        K) = K @ |0> @ |0> .
+    eq execute(es-post-processor,       K) = removeQubitByIndex(1, removeQubitByIndex(2, K)) .
+    eq execute(telegate-post-processor, K) = removeQubitByIndex(1, removeQubitByIndex(2, K)) .
+
+    -- Entanglement Swapping
+    eq es-program = (
+        es-pre-processor;
+        H(2); C X(2, 3);
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+    -- Gate Teleportation
+    eq telegate-program = (
+        C X(0, 1);
+        C X(2, 3); H(2);
+        if M(1) then X(3) else skip endif;
+        if M(2) then Z(0) else skip endif;
+        telegate-post-processor
+    ) .
+
+    -- n-hop Extended ES for the 04 Bell states
+    eq ees-program = (
+        C X(1, 2); H(1);
+        if M(1) then Z(0) else skip endif;
+        if M(2) then X(3) else skip endif;
+        es-post-processor
+    ) .
+
+    eq |bell>(BK1, BK2) = C X(0, 1) x H(0) x (BK1 @ BK2) .
+    eq |epr> = |bell>(|0>, |0>) .
+
+    -- "0 hop" means standard entanglement
+    -- "n hop(s) >= 1" means entanglement swapping
+    eq n-es(0)       = |epr> .
+    eq n-es(s(0))    = execute(es-program, n-es(0)) .
+    eq n-es(s(NzPN)) = execute(es-program, n-es(NzPN)) .
+    
+    -- "0 hop" means standard entanglement
+    -- "n hop(s) >= 1" means entanglement swapping
+    -- ees ~ BK1 @ |0> @ |nes>         @ |0> @ BK2
+    --     ~ BK1 @ |0> @ |n EPR pairs> @ |0> @ BK2
+    --     ~ BK1 @ |0> @ |2n qubits>   @ |0> @ BK2
+    eq n-hop-ees(0,     BK1, BK2) = |bell>(BK1, BK2) .
+    eq n-hop-ees(s(0),  BK1, BK2) = execute(
+        ees-program, 
+        |bell>(BK1, |0>) @ |bell>(|0>, BK2)
+    ) .
+    
+    --                   0 hops/repeaters -                    2 qubits
+    --                   1 hops/repeaters -                    4 qubits
+    --                   2 hops/repeaters -                    6 qubits
+    --                   3 hops/repeaters -                    8 qubits
+    --                   n hops/repeaters -             2(n + 1) qubits
+
+    --                s(n) hops/repeaters - 2(s(n) + 1) = 2n + 4 qubits
+    --                p(n) hops/repeaters - 2(p(n) + 1) = 2n     qubits
+    
+    -- w2s: s(n) hops/repeaters ~ 2n + 4 qubits
+    -- 1 + p(n) + 1 = s(n)   hops/repeaters
+    -- 2 + 2n + 2   = 2n + 4 qubits
+    eq n-hop-ees(s(NzPN), BK1, BK2) = execute(
+        ees-program,
+        execute(
+            ees-program,
+            |bell>(BK1, |0>) @ n-es(p(NzPN))
+        ) @ |bell>(|0>, BK2)
+    ) .
+
+    -- Remote CNOT on n-hop ES
+    eq rcx-on-n-es(PN, K1, K2) = execute(
+        telegate-program,
+        K1 @ n-es(PN) @ K2
+    ) .
+
+    -- eq cos(rzero) / sqrt(2) = cos(1/4 * pi) .
+    -- eq cos(1/4 * pi) * sqrt(2) = cos(rzero) .
+    eq sqrt((2 * (1/4))) * sqrt(4) = cos(rzero) / cos(1/4 * pi) .
+
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+}
+
+--> ==========================================================================================
+--> 1. Proof of (∀N:PNat) n-es(N) = |epr>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Trivial case (0 hop):
+--> w2s: n-es(0) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- w2s
+    red n-es(0) = |epr> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-es(s(0)) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- w2s
+    red n-es(s(0)) = |epr> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n):NzPNat
+--> IH : n-es(n) = |epr>
+--> w2s: n-es(s(n)) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    op n : -> NzPNat .
+
+    -- IH
+    eq [IH] : n-es(n) = |epr> .
+
+    -- w2s
+    red n-es(s(n)) = |epr> .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> 2. Proof of (∀PN:PNat)(∀K1,K2:Ket) rcx-on-n-es(PN, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>)
+--> by reduction on PN
+--> lemma: n-es(PN) = |epr>
+--> fc : (n):PNat
+--> w2s: rcx-on-n-es(n, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>)
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    op n : -> PNat .
+
+    -- lemma
+    eq n-es(PN) = |epr> .
+
+    -- w2s
+    red rcx-on-n-es(n, |psi1>, |psi2>) = C X(0, 1) x (|psi1> @ |psi2>) .
+close
+--> ==========================================================================================
+-->
+-->
+-->
+--> ==========================================================================================
+--> 3. Proof of (∀PN:PNat)(∀BK1,BK2:Ket) n-hop-ees(PN, BK1, BK2) = |bell>(BK1, BK2)
+--> by reduction on PN
+--> ------------------------------------------------------------------------------------------
+--> 3.0. Trivial case (0 hop):
+--> fc : (bk1):BasisKet, (bk2):BasisKet
+--> w2s: n-hop-ees(0, bk1, bk2) = |bell>(bk1, bk2)
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    ops bk1 bk2 : -> BasisKet .
+    
+    -- w2s
+    red n-hop-ees(0, bk1, bk2) = |bell>(bk1, bk2) .
+close
+--> ------------------------------------------------------------------------------------------
+--> 3.1. s(0) = 1 hop
+--> w2s: n-hop-ees(s(0), BK1, BK2) = |bell>(BK1, BK2)
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- w2s
+    --> Case 3.1.1: BK1 = |0>, BK2 = |0>
+    red n-hop-ees(s(0), |0>, |0>) = |bell>(|0>, |0>) .
+
+    --> Case 3.1.2: BK1 = |0>, BK2 = |1>
+    red n-hop-ees(s(0), |0>, |1>) = |bell>(|0>, |1>) .
+    
+    --> Case 3.1.3: BK1 = |1>, BK2 = |0>
+    red n-hop-ees(s(0), |1>, |0>) = |bell>(|1>, |0>) .
+    
+    --> Case 3.1.4: BK1 = |1>, BK2 = |1>
+    red n-hop-ees(s(0), |1>, |1>) = |bell>(|1>, |1>) .
+close
+--> ------------------------------------------------------------------------------------------
+--> 3.2. s(n) hops (n > 0)
+--> fc: (n):NzPNat
+--> w2s: n-hop-ees(s(n), BK1, BK2) = |bell>(BK1, BK2)
+--> lemma: n-es(PN) = |epr>
+open N-HOP-ENTANGLEMENT-SWAPPING-REMOTE-CNOT .
+    -- fc
+    op n : -> NzPNat .
+
+    -- lemma
+    eq n-es(PN) = |epr> .
+
+    -- w2s
+    --> Case 3.2.1: BK1 = |0>, BK2 = |0>
+    red n-hop-ees(s(n), |0>, |0>) = |bell>(|0>, |0>) .
+
+    --> Case 3.2.2: BK1 = |0>, BK2 = |1>
+    red n-hop-ees(s(n), |0>, |1>) = |bell>(|0>, |1>) .
+
+    --> Case 3.2.3: BK1 = |1>, BK2 = |0>
+    red n-hop-ees(s(n), |1>, |0>) = |bell>(|1>, |0>) .
+
+    --> Case 3.2.4: BK1 = |1>, BK2 = |1>
+    red n-hop-ees(s(n), |1>, |1>) = |bell>(|1>, |1>) .
+close
+--> ==========================================================================================

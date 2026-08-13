@@ -1,0 +1,84 @@
+input ../qc.cafe .
+
+mod! SHOR-3-QUBIT-CODE-BIT-FLIP {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+    
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    op |measQubits> : -> Ket .
+    eq |measQubits> = |0> @ |0> .
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars NzPN : NzPNat .
+
+    op shor-3-qubit-simulation : -> Statement .
+    op s3cbf-initializer         : -> Statement .
+    op s3cbf-encoder             : -> Statement .
+    op s3cbf-noisy-channel       : -> Statement .
+    op s3cbf-syndrome-extractor  : -> Statement .
+    op s3cbf-meas-and-correction : -> Statement .
+    op s3cbf-decoder             : -> Statement .
+
+    eq execute(s3cbf-initializer, K) = (K @ |0> @ |0>) @ |measQubits> .
+
+    eq s3cbf-encoder = (
+        C X(0, 1);
+        C X(0, 2)
+    ) .
+    
+    eq s3cbf-syndrome-extractor = (
+        C X(0, 3);
+        C X(1, 3);
+        C X(1, 4);
+        C X(2, 4)
+    ) .
+
+    eq s3cbf-meas-and-correction = (
+        if   M(3) 
+        then (if M(4) then X(1) else X(0) endif)
+        else (if M(4) then X(2) else skip endif)
+        endif
+    ) .
+
+    eq execute(s3cbf-decoder, K) = getQubitByIndex(0, K) .
+
+    eq shor-3-qubit-simulation = (
+        s3cbf-initializer;
+        s3cbf-encoder;
+        s3cbf-noisy-channel;
+        s3cbf-syndrome-extractor;
+        s3cbf-meas-and-correction;
+        s3cbf-decoder
+    ) .
+
+    op verification-result : -> Bool .
+    eq verification-result = (
+        execute(shor-3-qubit-simulation, |psi>) = |psi>
+    ) .
+}
+
+-- Case 1: Bit-flip error occurs at index 0
+open SHOR-3-QUBIT-CODE-BIT-FLIP .
+    eq s3cbf-noisy-channel = X(0) .
+    red verification-result .
+close
+
+-- Case 2: Bit-flip error occurs at index 1
+open SHOR-3-QUBIT-CODE-BIT-FLIP .
+    eq s3cbf-noisy-channel = X(1) .
+    red verification-result .
+close
+
+-- Case 3: Bit-flip error occurs at index 2
+open SHOR-3-QUBIT-CODE-BIT-FLIP .
+    eq s3cbf-noisy-channel = X(2) .
+    red verification-result .
+close

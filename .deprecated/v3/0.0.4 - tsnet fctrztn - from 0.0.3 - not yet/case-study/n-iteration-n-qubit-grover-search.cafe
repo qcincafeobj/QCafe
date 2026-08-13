@@ -1,0 +1,101 @@
+input ../qc.cafe
+
+mod! N-ITERATION-N-QUBIT-GROVER-SEARCH {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op nn-grover : NzPNat NzNat -> Ket .
+
+    ops |psi> |non-sol> |sol> : NzNat -> Ket .  -- 1st param: n-qubit
+    ops Imat O D G : NzNat -> Mat .
+    op  theta : -> Real .
+    op  pnat2Nat : PNat -> Nat .
+    op  pnat2Nat : NzPNat -> NzNat .
+
+    vars K K0 K1 K2 : Ket .
+    vars NzN N1 N2 : NzNat .
+    vars N3 N4 : Nat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars KS : KetSet .
+    vars RT RT1 RT2 : Rat .
+    vars NzRT : NzRat .
+    vars R R1 R2 : Real .
+    vars PN : PNat .
+    vars NzPN : NzPNat .
+    vars M M1 M2 : Mat .
+
+    -- Hadamard transform result state expressed in the basis {|non-sol>, |sol>}
+    eq |psi>(NzN) =  cos(1/2 * theta) * |non-sol>(NzN) + sin((1/2) * theta) * |sol>(NzN) .
+    eq (K1 x (K2 ^+)) x K = ((K2 ^+) x K) * K1 .
+
+    -- inner product properties of the basis {|non-sol>, |sol>}
+    eq (|non-sol>(NzN) ^+) x |non-sol>(NzN) = cos(rzero) .
+    eq (|non-sol>(NzN) ^+) x |sol>(NzN)     = rzero .
+    eq (|sol>(NzN) ^+) x |non-sol>(NzN)     = rzero .
+    eq (|sol>(NzN) ^+) x |sol>(NzN)         = cos(rzero) .
+    
+    eq Imat(NzN) = (|non-sol>(NzN)) x ((|non-sol>(NzN)) ^+) + (|sol>(NzN)) x ((|sol>(NzN)) ^+) .
+    
+    eq G(NzN) = D(NzN) x O(NzN) .
+
+    eq D(NzN) = - Imat(NzN) + (2 * cos(rzero)) * (|psi>(NzN) x (|psi>(NzN)^+)) .
+    eq O(NzN) =   Imat(NzN) - (2 * cos(rzero)) * (|sol>(NzN) x (|sol>(NzN)^+)) .
+
+    eq nn-grover(s(0), NzN) = execute(G(NzN), |psi>(NzN)) .
+    eq nn-grover(s(NzPN), NzN) = execute(
+        G(NzN),
+        nn-grover(NzPN, NzN)
+    ) .
+
+    eq (M1 + M2) x M = M1 x M + M2 x M .
+    eq M x (M1 + M2) = M x M1 + M x M2 .
+    eq (C1 + C2) * C = C1 * C + C2 * C .
+    eq R1 * C + R2 * C = (R1 + R2) * C .
+}
+
+--> ==========================================================================================
+--> 1. Proof of (∀N1:NzNat)(∀N2:NzNat) nn-grover(N1, N2)
+-->                               = cos((2 * N1 + 1) * (theta / 2)) * |non-sol>(N2)
+-->                               + sin((2 * N1 + 1) * (theta / 2)) * |sol>(N2) .
+--> by structural induction on N1
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> fc : (n2):NzNat
+--> w2s: nn-grover(1, n2)
+-->      = cos((3/2) * theta) * |non-sol>(n2)
+-->      + sin((3/2) * theta) * |sol>(n2) .
+open N-ITERATION-N-QUBIT-GROVER-SEARCH .
+    -- fc
+    op n2 : -> NzNat .
+
+    -- w2s
+    red nn-grover(s(0), n2)
+        = cos((3/2) * theta) * |non-sol>(n2)
+        + sin((3/2) * theta) * |sol>(n2) .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc : (n1):NzPNat, (n2):NzNat
+--> IH : nn-grover(n1, N2)
+-->      = cos((2 * n1 + 1) * (theta / 2)) * |non-sol>(N2)
+-->      + sin((2 * n1 + 1) * (theta / 2)) * |sol>(N2) .
+--> w2s: nn-grover(s(n1), n2)
+-->      = cos((2 * n1 + 3) * (theta / 2)) * |non-sol>(n2)
+-->      + sin((2 * n1 + 3) * (theta / 2)) * |sol>(n2) .
+open N-ITERATION-N-QUBIT-GROVER-SEARCH .
+    -- fc
+    op n1 : -> NzPNat .
+    op n2 : -> NzNat .
+
+    -- IH
+    eq [IH] : nn-grover(n1, n2)
+              = cos((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |non-sol>(n2)
+              + sin((2 * pnat2Nat(n1) + 1) * (theta / 2)) * |sol>(n2) .
+
+    -- w2s
+    red nn-grover(s(n1), n2)
+        = cos((2 * pnat2Nat(n1) + 3) * (theta / 2)) * |non-sol>(n2)
+        + sin((2 * pnat2Nat(n1) + 3) * (theta / 2)) * |sol>(n2) .
+close
+--> ==========================================================================================

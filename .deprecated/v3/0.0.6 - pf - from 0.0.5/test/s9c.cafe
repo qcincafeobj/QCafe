@@ -1,0 +1,68 @@
+input ../qc.cafe .
+
+-- set print mode fancy
+-- set print mode tree
+-- set print mode s-expr
+set print mode normal
+set trace on
+set trace off
+mod! SHOR-9-QUBIT-CODE {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    vars K K1 K2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C C1 C2 : Complex .
+    vars NzPN : NzPNat .
+
+    op shor3QubitInitializer : Nat Ket -> Ket .
+
+    eq shor3QubitInitializer(N, K1 + K2) = shor3QubitInitializer(N, K1) + shor3QubitInitializer(N, K2) .
+    eq shor3QubitInitializer(N, C * K)   = C * shor3QubitInitializer(N, K) .
+    eq shor3QubitInitializer(0, BK)      = BK @ |0> @ |0> .
+    eq shor3QubitInitializer(N, K1 @ K2) = 
+        if   nqubit(K1) > N
+        then shor3QubitInitializer(N, K1) @ K2
+        else K1 @ shor3QubitInitializer(sd(N, nqubit(K1)), K2)
+        fi .
+
+    op shor3QubitEncoder : Nat Ket -> Ket .
+    eq shor3QubitEncoder(N, K) = (
+        C X(N, s(N)) x C X(N, s(s(N)))
+        x shor3QubitInitializer(N, K)
+    ) .
+}
+
+open SHOR-9-QUBIT-CODE .
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+    
+    op teleport-post-processor : -> Statement .
+    op teleport-pre-processor  : -> Statement .
+    op teleport-program : -> Statement .
+    eq teleport-program = (
+        teleport-pre-processor;
+        H(1);
+        C X ( 1 , 2 ) ;  
+        C X ( 0 , 1 ) ; 
+        H(0) ; 
+        if M(1) then X(2) else skip endif;
+        if M(0) then Z(2) else skip endif;
+        teleport-post-processor
+    ) .
+    eq execute(teleport-pre-processor,  K) = (
+        shor3QubitEncoder(0,
+        shor3QubitEncoder(1,
+        shor3QubitEncoder(2, 
+            K @ |0> @ |0>
+        )))
+    ) .
+    eq execute(teleport-post-processor, K) = getQubitByIndex(2, K) .
+    eq C * C1 + C * C2 = C * (C1 + C2) .
+
+    red execute(teleport-pre-processor, |psi>) .
+close
