@@ -58,11 +58,16 @@ mod! SHOR-3-QUBIT-CODE-PHASE-FLIP {
     eq shor-3-qubit-simulation = (
         s3cpf-initializer;
         s3cpf-encoder;
-        s3cpf-noisy-channel;
-        s3cpf-syndrome-extractor;
-        s3cpf-meas-and-correction;
-        s3cpf-decoder
+        s3cpf-noisy-channel
     ) .
+    -- eq shor-3-qubit-simulation = (
+    --     s3cpf-initializer;
+    --     s3cpf-encoder;
+    --     s3cpf-noisy-channel;
+    --     s3cpf-syndrome-extractor;
+    --     s3cpf-meas-and-correction;
+    --     s3cpf-decoder
+    -- ) .
 
     op verification-result : -> Bool .
     eq verification-result = (

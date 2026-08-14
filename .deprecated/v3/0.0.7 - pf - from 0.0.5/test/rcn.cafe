@@ -1,0 +1,88 @@
+input ../qc.cafe
+set trace on
+set trace off
+mod! N-HOP-REMOTE-CNOT {
+    pr(PNAT)
+    pr(QUANTUM-INTERPRETER)
+
+    op rcn-pre-processor : -> Statement .
+    op rcn-post-processor : -> Statement .
+    op rcn-program : -> Statement .
+
+    op correctGlobalPhase : Ket -> Ket .
+    
+    op n-hop-rcn : PNat -> KetSet .
+
+    op |psi> : -> Ket .
+    ops a b : -> Complex .
+
+    vars KET KET1 KET2 : Ket .
+    vars N : Nat .
+    vars NzN : NzNat .
+    vars BK : BasisKet .
+    vars C : Complex .
+    vars KSET : KetSet .
+    vars PN : PNat .
+
+    eq |psi> = (a * |0> + b * |1>) .
+    eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
+
+    eq execute(rcn-pre-processor , KET) = KET @ |0> @ |0> @ |0> .
+    eq execute(rcn-post-processor, KET) = correctGlobalPhase(getQubitByIndex(3, KET)) .
+
+    eq correctGlobalPhase((- a) * |0> + (- b) * |1>) = |psi> .
+    eq correctGlobalPhase(   a  * |0> +    b  * |1>) = |psi> .
+
+    -- Regarding GHZ state, both methods below are valid:
+    -- H(0); C X (0, 1); C X (0, 2)
+    -- H(0); C X (0, 1); C X (1, 2)
+
+    eq rcn-program = (
+        rcn-pre-processor;
+        H(1);
+        C X (1, 2);
+        C X (0, 1);
+        H(0);
+        C X (2, 3);
+        H(2);
+        if M(1) then X(3) else skip endif; 
+        if M(0) then Z(3) else skip endif; 
+        if M(2) then Z(3) else skip endif;
+        rcn-post-processor
+    ) .
+
+    eq n-hop-rcn(0) = execute(rcn-program, |psi>) .
+    eq n-hop-rcn(s(PN)) = execute(
+        rcn-program,
+        n-hop-rcn(PN)
+    ) .
+
+    eq [additional-rule] : sqrt(4) = 2 * cos(rzero) .
+}
+
+--> ==========================================================================================
+--> Proof of (∀N:PNat) n-hop-rcn(N) = |psi>
+--> by structural induction on N
+--> ------------------------------------------------------------------------------------------
+--> Base case:
+--> w2s: n-hop-rcn(0) = |psi>
+open N-HOP-REMOTE-CNOT .
+    -- w2s
+    red n-hop-rcn(0) = |psi> .
+close
+--> ------------------------------------------------------------------------------------------
+--> Induction case: 
+--> fc  : (n):PNat
+--> IH  : n-hop-rcn(n) = |psi>
+--> w2s : n-hop-rcn(s(n)) = |psi>
+open N-HOP-REMOTE-CNOT .
+    -- fc
+    op n : -> PNat .
+
+    -- IH
+    eq [IH] : n-hop-rcn(n) = |psi> .
+
+    -- w2s
+    red n-hop-rcn(s(n)) = |psi> .
+close
+--> ==========================================================================================

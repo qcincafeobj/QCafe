@@ -1,0 +1,8 @@
+input ../qc.cafe
+
+open QUANTUM-INTERPRETER .
+    -- red - 1/5 .
+    -- red cos((- 1/5) pi) .
+    -- red cos((- 8/5) pi) .
+    red cos((1/4 * pi)) = rzero .
+close

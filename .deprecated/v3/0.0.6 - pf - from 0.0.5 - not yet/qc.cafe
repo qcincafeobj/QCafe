@@ -358,6 +358,9 @@ mod! BRAKET {
     op _*_ : Complex Bra -> Bra {prec: 31} .
     op _*_ : Complex Ket -> Ket {prec: 31} .
     
+    -- newly added
+    op _*_ : Rat Ket -> Ket {prec: 31} .
+    
     -- _x_ : innprod, outprod, matmul
     op _x_ : Bra Ket -> Complex {prec: 31 assoc} .      -- innprod   <_|_>
     op _x_ : Ket Bra -> Mat {prec: 31 assoc} .          -- outerprod |_><_|
@@ -428,7 +431,8 @@ mod! BRAKET {
     eq (M1 x M2) x K   = M1 x (M2 x K) .
 
     -- distribution of operators into addition
-    eq C * (K1 + K2) = C * K1 + C * K2 .
+    -- deleted
+    -- eq C * (K1 + K2) = C * K1 + C * K2 .
     eq C1 * K + (- C1) * K = kO .
 
     eq M x (K1 + K2)  = M x K1 + M x K2 .
@@ -443,6 +447,12 @@ mod! BRAKET {
     eq C1 * (K1 @ K) +       K2 @ K  = (C1 * K1 +      K2) @ K .
     eq C1 * (K @ K1) + C2 * (K @ K2) = K @ (C1 * K1 + C2 * K2) .
     eq C1 * (K @ K1) +       K @ K2  = K @ (C1 * K1 +      K2) .
+
+    eq (C * C1) * K1 + (C * C2) * K2 = C * (C1 * K1 + C2 * K2) .
+    eq C * K1 + (- C) * K2 = C * (K1 - K2) .
+    eq K + K = ((2/1) * cos(rzero)) * K .
+    -- eq K + K = 2 * K .
+    -- eq RT * (C * K) = (RT * C) * K .
 
     eq (K1 + K2) x B = K1 x B + K2 x B . -- nqss: can ignore
     eq K x (B1 + B2) = K x B1 + K x B2 . -- nqss: can ignore

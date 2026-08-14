@@ -1,0 +1,21 @@
+input ../qc.cafe
+
+--> Bell states
+open QUANTUM-INTERPRETER .
+    op epr-program : -> Statement .
+
+    eq epr-program = (
+        H(0); C X(0, 1);
+        if M(0) then skip else skip endif;
+        skip
+    ) .
+
+    --> 00 -> 00 + 11
+    red execute(epr-program, |0> @ |0>) .
+    --> 01 -> 01 + 10
+    red execute(epr-program, |0> @ |1>) .
+    --> 10 -> 00 - 11
+    red execute(epr-program, |1> @ |0>) .
+    --> 11 -> 01 - 10
+    red execute(epr-program, |1> @ |1>) .
+close
