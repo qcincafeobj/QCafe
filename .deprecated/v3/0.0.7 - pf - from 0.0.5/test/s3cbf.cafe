@@ -9,8 +9,8 @@ mod! SHOR-3-QUBIT-CODE-BIT-FLIP {
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    op |measQubits> : -> Ket .
-    eq |measQubits> = |0> @ |0> .
+    op |ancillas> : -> Ket . -- qubits for syndrome measurement
+    eq |ancillas> = |0> @ |0> .
 
     vars K K1 K2 : Ket .
     vars N : Nat .
@@ -27,7 +27,7 @@ mod! SHOR-3-QUBIT-CODE-BIT-FLIP {
     op s3cbf-meas-and-correction : -> Statement .
     op s3cbf-decoder             : -> Statement .
 
-    eq execute(s3cbf-initializer, K) = (K @ |0> @ |0>) @ |measQubits> .
+    eq execute(s3cbf-initializer, K) = (K @ |0> @ |0>) @ |ancillas> .
 
     eq s3cbf-encoder = (
         C X(0, 1);
@@ -48,7 +48,14 @@ mod! SHOR-3-QUBIT-CODE-BIT-FLIP {
         endif
     ) .
 
-    eq execute(s3cbf-decoder, K) = getQubitByIndex(0, K) .
+    op s3cbf-post-processor : -> Statement .
+    eq execute(s3cbf-post-processor, K) = getQubitByIndex(0, K) .
+    
+    eq s3cbf-decoder = (
+        C X(0, 2);
+        C X(0, 1);
+        s3cbf-post-processor
+    ) .
 
     eq shor-3-qubit-simulation = (
         s3cbf-initializer;

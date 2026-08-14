@@ -9,8 +9,8 @@ mod! SHOR-3-QUBIT-CODE-PHASE-FLIP {
     eq |psi> = (a * |0> + b * |1>) .
     eq (((a ^*) * a + (b ^*) * b)) = cos(rzero) . -- normalization condition
 
-    op |measQubits> : -> Ket .
-    eq |measQubits> = (H(0) x |0>) @ (H(0) x |0>) .
+    op |ancillas> : -> Ket . -- qubits for syndrome measurement
+    eq |ancillas> = (H(0) x |0>) @ (H(0) x |0>) .
 
     vars K K1 K2 : Ket .
     vars N : Nat .
@@ -27,7 +27,7 @@ mod! SHOR-3-QUBIT-CODE-PHASE-FLIP {
     op s3cpf-meas-and-correction : -> Statement .
     op s3cpf-decoder             : -> Statement .
 
-    eq execute(s3cpf-initializer, K) = K @ |0> @ |0> @ |measQubits> .
+    eq execute(s3cpf-initializer, K) = K @ |0> @ |0> @ |ancillas> .
 
     eq s3cpf-encoder = (
         C X(0, 1);
